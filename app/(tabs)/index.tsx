@@ -41,8 +41,8 @@ export default function Index() {
 
             // HAS IDENTITY: Check if landing flow complete
             if (hasSeenIndex === 'true') {
-                // Returning user: go straight to chat
-                console.log('[Index] Returning user with identity - redirecting to chat');
+                // Returning user: go straight to chat tab
+                console.log('[Index] Returning user with identity - redirecting to chat tab');
                 router.replace('/chat');
             } else {
                 // First time with identity (just finished onboarding): show landing

@@ -1,15 +1,28 @@
+import { VP } from "@/constants/void-protocol";
 import { useStealthWallet } from "@/hooks/useStealthWallet";
+import { useWalletBalances } from "@/hooks/useWalletBalances";
+import {
+  Transaction,
+  useTransactionHistory,
+} from "@/hooks/useTransactionHistory";
 import { useWallet } from "@/src/contexts/WalletContext";
 import "@/src/polyfills";
 import { createSolanaConnection } from "@/src/utils/solana";
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
+import {
+  ArrowDown,
+  ArrowUp,
+  Copy,
+  EyeSlash,
+  SlidersHorizontal,
+} from "phosphor-react-native";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
   Clipboard,
   Image,
+  Pressable,
   ScrollView,
   StyleSheet,
   Switch,
@@ -17,17 +30,14 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-// QR code
-import SendIcon from "@/components/icons/SendIcon";
-import SolanaIcon from "@/components/icons/SolanaIcon";
+
 import USDCIcon from "@/components/icons/USDCIcon";
 import ZECIcon from "@/components/icons/ZECIcon";
-import SwapIcon from "@/components/icons/wallet/SwapIcon";
-import { useWalletBalances } from "@/hooks/useWalletBalances";
-import { Copy, SlidersHorizontal } from "phosphor-react-native";
+import VoidCard from "@/components/ui/VoidCard";
+import VoidScreen from "@/components/ui/VoidScreen";
 import QRCode from "react-native-qrcode-svg";
-import BottomNavWithMenu from "../../../ui/BottomNavWithMenu";
+
+type WalletTab = "balance" | "history";
 
 export default function WalletScreen() {
   const router = useRouter();
@@ -39,16 +49,29 @@ export default function WalletScreen() {
     isLoading: isWalletLoading,
   } = useWallet();
 
-  // Initialize stealth wallet
+  // Stealth wallet
   const connection = createSolanaConnection({ network: "devnet" });
   const { isInitialized: stealthInitialized, metaAddress } =
     useStealthWallet(connection);
 
+  // Balances
+  const { balances, isRefreshing, fetchBalances } = useWalletBalances();
+
+  // Transaction history
+  const {
+    transactions,
+    loading: historyLoading,
+    error: historyError,
+    walletAddress,
+    refetch: refetchHistory,
+  } = useTransactionHistory();
+
+  // Local state
+  const [activeTab, setActiveTab] = useState<WalletTab>("balance");
   const [publicKey, setPublicKey] = useState<string>("");
   const [displayAddress, setDisplayAddress] = useState<string>("");
   const [isAirdropping, setIsAirdropping] = useState(false);
   const [useStealthMode, setUseStealthMode] = useState(false);
-  const { balances, isRefreshing, fetchBalances } = useWalletBalances();
 
   // Initialize wallet and fetch balances
   useEffect(() => {
@@ -56,39 +79,24 @@ export default function WalletScreen() {
 
     (async () => {
       try {
-        // If not connected, trigger connection
         if (!isConnected && !isWalletLoading) {
-          console.log(
-            "[Wallet] Wallet not connected, triggering connection...",
-          );
           await connect();
         }
 
         if (walletPublicKey && mounted) {
           const pubKeyString = walletPublicKey.toBase58();
           setPublicKey(pubKeyString);
-          console.log(
-            "[Wallet] Initialized:",
-            pubKeyString.slice(0, 8) + "...",
-          );
 
-          // Use stealth meta-address if available and enabled, otherwise use regular public key
           if (useStealthMode && stealthInitialized && metaAddress) {
             setDisplayAddress(metaAddress);
-            console.log(
-              "[Wallet] Using stealth meta-address:",
-              metaAddress.slice(0, 8) + "...",
-            );
           } else {
             setDisplayAddress(pubKeyString);
           }
 
-          // Fetch real balances from Devnet
           await fetchBalances(walletPublicKey);
         }
       } catch (error) {
         console.error("[Wallet] Error initializing:", error);
-        // Don't alert here if it's just a cancellation
       }
     })();
 
@@ -106,6 +114,17 @@ export default function WalletScreen() {
     useStealthMode,
   ]);
 
+  // Show history errors
+  useEffect(() => {
+    if (historyError) {
+      Alert.alert(
+        historyError.includes("Rate limit") ? "Rate Limit" : "Error",
+        historyError,
+        [{ text: "OK" }],
+      );
+    }
+  }, [historyError]);
+
   const handleCopyAddress = () => {
     if (displayAddress) {
       Clipboard.setString(displayAddress);
@@ -121,52 +140,30 @@ export default function WalletScreen() {
     router.push("/wallet/send" as any);
   };
 
-  const handleSwap = () => {
-    Alert.alert(
-      "Coming Soon",
-      "Swap functionality will be available in a future update.",
-      [{ text: "OK" }],
-    );
+  const handleReceive = () => {
+    router.push("/wallet/receive" as any);
   };
 
   const handleAirdrop = async () => {
     try {
       setIsAirdropping(true);
-      console.log("[Wallet] Requesting airdrop...");
-
-      if (!wallet) {
-        throw new Error("Wallet not initialized");
-      }
-
-      await wallet.airdropSol(1); // Request 1 SOL
-
-      Alert.alert(
-        "Success!",
-        "1 SOL airdrop confirmed! Your balance will update shortly.",
-        [{ text: "OK" }],
-      );
-
-      // Refresh balances after airdrop
+      if (!wallet) throw new Error("Wallet not initialized");
+      await wallet.airdropSol(1);
+      Alert.alert("Success!", "1 SOL airdrop confirmed! Your balance will update shortly.");
       setTimeout(async () => {
-        if (walletPublicKey) {
-          await fetchBalances(walletPublicKey);
-        }
+        if (walletPublicKey) await fetchBalances(walletPublicKey);
       }, 2000);
     } catch (error) {
-      console.error("[Wallet] Airdrop error:", error);
       const errorMsg = error instanceof Error ? error.message : "Unknown error";
-
       Alert.alert("Airdrop Failed", errorMsg, [
         { text: "Cancel", style: "cancel" },
         {
           text: "Use Web Faucet",
-          onPress: () => {
+          onPress: () =>
             Alert.alert(
               "Web Faucet",
               `Visit https://faucet.solana.com and paste your address:\n\n${publicKey}`,
-              [{ text: "OK" }],
-            );
-          },
+            ),
         },
       ]);
     } finally {
@@ -174,66 +171,109 @@ export default function WalletScreen() {
     }
   };
 
-  // Format address for display (XXXX...XXXX)
-  const formatAddress = (address: string) => {
-    if (!address) return "XXXX...XXXX";
-    return `${address.slice(0, 4)}...${address.slice(-4)}`;
-  };
-
-  // Determine if showing stealth address
-  const isShowingStealth =
-    useStealthMode && displayAddress === metaAddress && stealthInitialized;
-
-  // Handler for toggling stealth mode
   const handleToggleStealth = (value: boolean) => {
     if (value && !stealthInitialized) {
       Alert.alert(
         "Stealth Not Available",
         "Stealth wallet is still initializing. Please wait a moment.",
-        [{ text: "OK" }],
       );
       return;
     }
     setUseStealthMode(value);
   };
 
+  const handleTransactionPress = (transaction: Transaction) => {
+    Alert.alert(
+      "Transaction Details",
+      `Signature: ${transaction.signature}\n\n${transaction.type} ${transaction.type === "Send" ? "to" : "from"} ${transaction.address}\n\nAmount: ${transaction.amount} ${transaction.currency}\nStatus: ${transaction.status}\nTime: ${transaction.timestamp}`,
+      [
+        { text: "Close", style: "cancel" },
+        {
+          text: "View on Explorer",
+          onPress: () =>
+            Alert.alert(
+              "Explorer",
+              `https://explorer.solana.com/tx/${transaction.signature}?cluster=devnet`,
+            ),
+        },
+      ],
+    );
+  };
+
+  const formatAddress = (address: string) => {
+    if (!address) return "XXXX...XXXX";
+    return `${address.slice(0, 4)}...${address.slice(-4)}`;
+  };
+
+  const isShowingStealth =
+    useStealthMode && displayAddress === metaAddress && stealthInitialized;
+
+  // Get total SOL balance for display
+  const solBalance = balances.find((b) => b.symbol === "SOL");
+  const totalSol = solBalance?.balance ?? 0;
+
   return (
-    <LinearGradient
-      colors={["#0D0D0D", "#06181B", "#072B31"]}
-      locations={[0, 0.94, 1]}
-      start={{ x: 0.21, y: 0 }}
-      end={{ x: 0.79, y: 1 }}
-      style={styles.container}
-    >
-      <SafeAreaView style={styles.safeArea}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Wallet</Text>
-          <TouchableOpacity
-            style={styles.settingsButton}
-            onPress={() => router.push("/wallet/settings")}
+    <VoidScreen>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Wallet</Text>
+        <TouchableOpacity
+          style={styles.settingsButton}
+          onPress={() => router.push("/wallet/settings" as any)}
+        >
+          <SlidersHorizontal
+            size={20}
+            color={VP.colors.text.secondary}
+            weight="regular"
+          />
+        </TouchableOpacity>
+      </View>
+
+      {/* Segmented Control */}
+      <View style={styles.segmentContainer}>
+        <Pressable
+          style={[
+            styles.segmentButton,
+            activeTab === "balance" && styles.segmentButtonActive,
+          ]}
+          onPress={() => setActiveTab("balance")}
+        >
+          <Text
+            style={[
+              styles.segmentText,
+              activeTab === "balance" && styles.segmentTextActive,
+            ]}
           >
-            <View style={styles.settingsIcon}>
-              <SlidersHorizontal size={24} color="#fff" weight="regular" />
-            </View>
-          </TouchableOpacity>
-        </View>
+            Balance
+          </Text>
+        </Pressable>
+        <Pressable
+          style={[
+            styles.segmentButton,
+            activeTab === "history" && styles.segmentButtonActive,
+          ]}
+          onPress={() => setActiveTab("history")}
+        >
+          <Text
+            style={[
+              styles.segmentText,
+              activeTab === "history" && styles.segmentTextActive,
+            ]}
+          >
+            History
+          </Text>
+        </Pressable>
+      </View>
 
-        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          {/* Network Badge */}
-          <View style={styles.networkBadge}>
-            <View style={styles.networkIcon}>
-              <SolanaIcon size={16} color="#22D3EE" />
-            </View>
-            <Text style={styles.networkText}>
-              {isShowingStealth ? "🕵️ Stealth Address" : "Solana Network"}
-            </Text>
-          </View>
-
+      {activeTab === "balance" ? (
+        <ScrollView
+          style={styles.content}
+          showsVerticalScrollIndicator={false}
+        >
           {/* Stealth Mode Toggle */}
-          <View style={styles.stealthToggleContainer}>
+          <VoidCard style={styles.stealthCard}>
             <View style={styles.stealthToggleContent}>
-              <View>
+              <View style={{ flex: 1 }}>
                 <Text style={styles.stealthToggleTitle}>Stealth Mode</Text>
                 <Text style={styles.stealthToggleSubtitle}>
                   {stealthInitialized
@@ -244,202 +284,369 @@ export default function WalletScreen() {
               <Switch
                 value={useStealthMode}
                 onValueChange={handleToggleStealth}
-                trackColor={{ false: "#374151", true: "#22D3EE" }}
-                thumbColor={useStealthMode ? "#D4F9FF" : "#9CA3AF"}
+                trackColor={{
+                  false: VP.colors.surfaceElevated,
+                  true: VP.colors.accent.cyan,
+                }}
+                thumbColor={
+                  useStealthMode
+                    ? VP.colors.text.primary
+                    : VP.colors.text.secondary
+                }
                 disabled={!stealthInitialized}
               />
             </View>
-          </View>
+          </VoidCard>
 
-          {/* QR Code */}
-          <View style={styles.qrContainer}>
+          {/* Total Balance Card */}
+          <VoidCard elevated style={styles.balanceCard}>
+            <Text style={styles.balanceLabel}>TOTAL BALANCE</Text>
+            {isShowingStealth && (
+              <View style={styles.stealthBadge}>
+                <EyeSlash
+                  size={12}
+                  color={VP.colors.accent.purple}
+                  weight="bold"
+                />
+                <Text style={styles.stealthBadgeText}>STEALTH ACTIVE</Text>
+              </View>
+            )}
+            <View style={styles.balanceRow}>
+              <Text style={styles.balanceAmount}>
+                {solBalance?.isLoading
+                  ? "..."
+                  : totalSol.toFixed(4)}
+              </Text>
+              <Text style={styles.balanceCurrency}>SOL</Text>
+            </View>
+          </VoidCard>
+
+          {/* QR + Address */}
+          <View style={styles.qrSection}>
             <View style={styles.qrWrapper}>
               {displayAddress ? (
                 <QRCode
                   value={displayAddress}
-                  size={320}
+                  size={160}
                   backgroundColor="transparent"
-                  color="#D4F9FF"
-                  quietZone={20}
+                  color={VP.colors.text.primary}
+                  quietZone={12}
                 />
               ) : (
                 <View style={styles.qrPlaceholder}>
-                  <Text style={styles.qrPlaceholderText}>Loading...</Text>
+                  <ActivityIndicator color={VP.colors.accent.cyan} />
                 </View>
               )}
             </View>
-          </View>
 
-          {/* Address Display */}
-          <TouchableOpacity
-            style={styles.addressContainer}
-            onPress={handleCopyAddress}
-          >
-            <View style={{ flex: 1 }}>
+            <TouchableOpacity
+              style={styles.addressRow}
+              onPress={handleCopyAddress}
+            >
               <Text style={styles.addressText}>
                 {formatAddress(displayAddress)}
               </Text>
-              {isShowingStealth && (
-                <Text style={styles.addressSubtext}>
-                  Private deposits enabled
-                </Text>
-              )}
-            </View>
-            <Copy size={24} color="#9CA3AF" weight="regular" />
-          </TouchableOpacity>
+              <Copy size={16} color={VP.colors.text.secondary} weight="regular" />
+            </TouchableOpacity>
+            {isShowingStealth && (
+              <Text style={styles.addressSubtext}>
+                Private deposits enabled
+              </Text>
+            )}
+          </View>
 
           {/* Action Buttons */}
-          <View style={styles.actionsContainer}>
+          <View style={styles.actionsRow}>
             <TouchableOpacity style={styles.actionButton} onPress={handleSend}>
-              <SendIcon width={20} height={20} color="#ffffffff" />
-              <Text style={styles.actionText}>Send</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton} onPress={handleSwap}>
-              <SwapIcon size={20} color="#ffffffff" />
-              <Text style={styles.actionText}>Swap</Text>
-              <View style={styles.comingSoonBadge}>
-                <Text style={styles.comingSoonText}>Soon</Text>
+              <View style={styles.actionIconContainer}>
+                <ArrowUp size={20} color={VP.colors.void} weight="bold" />
               </View>
+              <Text style={styles.actionLabel}>SEND</Text>
             </TouchableOpacity>
-            {/* Airdrop button - Devnet only */}
+
             <TouchableOpacity
-              style={[styles.actionButton, styles.airdropButton]}
+              style={styles.actionButton}
+              onPress={handleReceive}
+            >
+              <View style={styles.actionIconContainer}>
+                <ArrowDown size={20} color={VP.colors.void} weight="bold" />
+              </View>
+              <Text style={styles.actionLabel}>RECEIVE</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.actionButton, isAirdropping && styles.actionDisabled]}
               onPress={handleAirdrop}
               disabled={isAirdropping}
             >
-              {isAirdropping ? (
-                <ActivityIndicator size="small" color="#fff" />
-              ) : (
-                <>
-                  <Text style={styles.airdropIcon}>💧</Text>
-                  <Text style={styles.actionText}>Airdrop</Text>
-                </>
-              )}
+              <View style={[styles.actionIconContainer, styles.airdropIcon]}>
+                {isAirdropping ? (
+                  <ActivityIndicator size="small" color={VP.colors.void} />
+                ) : (
+                  <Text style={{ fontSize: 18 }}>💧</Text>
+                )}
+              </View>
+              <Text style={styles.actionLabel}>AIRDROP</Text>
             </TouchableOpacity>
           </View>
 
-          {/* Balances Section */}
-          <View style={styles.balancesSection}>
-            <View style={styles.balancesTitleRow}>
-              <Text style={styles.balancesTitle}>Balances</Text>
+          {/* Assets Section */}
+          <View style={styles.assetsSection}>
+            <View style={styles.assetsTitleRow}>
+              <Text style={styles.assetsTitle}>Assets</Text>
               {isRefreshing && (
-                <ActivityIndicator size="small" color="#22D3EE" />
+                <ActivityIndicator size="small" color={VP.colors.accent.cyan} />
               )}
             </View>
             {balances.map((item, index) => (
-              <View key={index} style={styles.balanceItem}>
-                <View style={styles.balanceLeft}>
-                  <View style={styles.balanceIcon}>
+              <VoidCard key={index} style={styles.assetItem}>
+                <View style={styles.assetLeft}>
+                  <View style={styles.assetIcon}>
                     {item.symbol === "SOL" && (
                       <Image
                         source={require("../../../../assets/images/sol-logo.png")}
-                        style={{ width: 40, height: 40 }}
+                        style={{ width: 36, height: 36 }}
                       />
                     )}
-                    {item.symbol === "USDC" && <USDCIcon size={40} />}
-                    {item.symbol === "ZEC" && <ZECIcon size={40} />}
+                    {item.symbol === "USDC" && <USDCIcon size={36} />}
+                    {item.symbol === "ZEC" && <ZECIcon size={36} />}
                   </View>
                   <View>
-                    <Text style={styles.balanceSymbol}>{item.symbol}</Text>
-                    <Text style={styles.balanceName}>{item.name}</Text>
+                    <Text style={styles.assetSymbol}>{item.symbol}</Text>
+                    <Text style={styles.assetName}>{item.name}</Text>
                   </View>
                 </View>
                 {item.isLoading ? (
-                  <ActivityIndicator size="small" color="#22D3EE" />
+                  <ActivityIndicator size="small" color={VP.colors.accent.cyan} />
                 ) : (
-                  <Text style={styles.balanceAmount}>
+                  <Text style={styles.assetBalance}>
                     {item.balance.toFixed(item.symbol === "SOL" ? 4 : 2)}
                   </Text>
                 )}
-              </View>
+              </VoidCard>
             ))}
           </View>
-        </ScrollView>
 
-        {/* Bottom Navigation */}
-        <BottomNavWithMenu
-          onNavigateToMessages={() => router.push("/chat")}
-          onNavigateToWallet={() => router.push("/wallet")}
-          onNavigateToHistory={() => router.push("/wallet/history")}
-          onNavigateToMeshZone={() => router.push("/zone")}
-          onNavigateToProfile={() => router.push("/profile")}
-          onDisconnect={() => router.push("/landing")}
-        />
-      </SafeAreaView>
-    </LinearGradient>
+          {/* Recent Activity Preview */}
+          {transactions.length > 0 && (
+            <View style={styles.recentSection}>
+              <View style={styles.recentTitleRow}>
+                <Text style={styles.assetsTitle}>Recent Activity</Text>
+                <TouchableOpacity onPress={() => setActiveTab("history")}>
+                  <Text style={styles.viewAllText}>VIEW ALL</Text>
+                </TouchableOpacity>
+              </View>
+              {transactions.slice(0, 3).map((tx) => (
+                <TouchableOpacity
+                  key={tx.id}
+                  style={styles.recentItem}
+                  onPress={() => handleTransactionPress(tx)}
+                >
+                  <View style={styles.recentIcon}>
+                    {tx.type === "Send" ? (
+                      <ArrowUp
+                        size={14}
+                        color={VP.colors.status.error}
+                        weight="bold"
+                      />
+                    ) : (
+                      <ArrowDown
+                        size={14}
+                        color={VP.colors.accent.cyan}
+                        weight="bold"
+                      />
+                    )}
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.recentType}>
+                      {tx.type === "Send" ? "Sent" : "Received"} {tx.currency}
+                    </Text>
+                    <Text style={styles.recentTime}>{tx.timestamp}</Text>
+                  </View>
+                  <Text
+                    style={[
+                      styles.recentAmount,
+                      tx.type === "Receive" && styles.recentAmountPositive,
+                    ]}
+                  >
+                    {tx.type === "Send" ? "-" : "+"}
+                    {tx.amount} {tx.currency}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+
+          <View style={{ height: 24 }} />
+        </ScrollView>
+      ) : (
+        /* ==================== HISTORY TAB ==================== */
+        <ScrollView
+          style={styles.content}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* History Header */}
+          <View style={styles.historyHeader}>
+            <Text style={styles.historyTitle}>History</Text>
+            <View style={styles.syncBadge}>
+              <View style={styles.syncDot} />
+              <Text style={styles.syncText}>NETWORK SYNC: ACTIVE</Text>
+            </View>
+          </View>
+
+          {/* Transaction List */}
+          {historyLoading ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color={VP.colors.accent.cyan} />
+              <Text style={styles.loadingText}>Loading transactions...</Text>
+            </View>
+          ) : transactions.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>No transactions found</Text>
+              <Text style={styles.emptySubtext}>
+                {walletAddress
+                  ? "Your transaction history will appear here"
+                  : "Connect your wallet to view transactions"}
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.transactionsList}>
+              {transactions.map((transaction) => (
+                <TouchableOpacity
+                  key={transaction.id}
+                  onPress={() => handleTransactionPress(transaction)}
+                >
+                  <VoidCard style={styles.txItem}>
+                    <View style={styles.txLeft}>
+                      {/* Status Badge */}
+                      <View
+                        style={[
+                          styles.txStatusBadge,
+                          transaction.status === "Success"
+                            ? styles.txStatusSuccess
+                            : styles.txStatusPending,
+                        ]}
+                      >
+                        <View
+                          style={[
+                            styles.txStatusDot,
+                            transaction.status === "Success"
+                              ? styles.txStatusDotSuccess
+                              : styles.txStatusDotPending,
+                          ]}
+                        />
+                        <Text
+                          style={[
+                            styles.txStatusText,
+                            transaction.status === "Success"
+                              ? styles.txStatusTextSuccess
+                              : styles.txStatusTextPending,
+                          ]}
+                        >
+                          {transaction.status === "Success"
+                            ? "CONFIRMED"
+                            : "PENDING"}
+                        </Text>
+                      </View>
+                      {/* Type + Address */}
+                      <Text style={styles.txType}>
+                        {transaction.type === "Send"
+                          ? "Outgoing Transfer"
+                          : "Incoming Deposit"}
+                      </Text>
+                      <Text style={styles.txAddress}>
+                        {transaction.type === "Send" ? "To:" : "From:"}{" "}
+                        {transaction.address}
+                      </Text>
+                    </View>
+                    <View style={styles.txRight}>
+                      <Text
+                        style={[
+                          styles.txAmount,
+                          transaction.type === "Receive" &&
+                            styles.txAmountPositive,
+                        ]}
+                      >
+                        {transaction.type === "Send" ? "-" : "+"}
+                        {transaction.amount} {transaction.currency}
+                      </Text>
+                      <Text style={styles.txTimestamp}>
+                        {transaction.timestamp}
+                      </Text>
+                    </View>
+                  </VoidCard>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+
+          <View style={{ height: 24 }} />
+        </ScrollView>
+      )}
+    </VoidScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  safeArea: {
-    flex: 1,
-  },
+  // ── Header ──
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 2,
-    borderBottomColor: "#22D3EE",
+    paddingHorizontal: VP.spacing.md,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: VP.colors.ghostBorder,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#FFFFFF",
+    ...VP.typography.header,
+    color: VP.colors.text.primary,
   },
   settingsButton: {
-    padding: 4,
+    padding: VP.spacing.xs,
   },
-  settingsIcon: {
-    width: 24,
-    height: 18,
-    justifyContent: "space-between",
+
+  // ── Segmented Control ──
+  segmentContainer: {
+    flexDirection: "row",
+    marginHorizontal: VP.spacing.md,
+    marginTop: VP.spacing.md,
+    marginBottom: VP.spacing.sm,
+    backgroundColor: VP.colors.surface,
+    borderRadius: VP.radius.md,
+    borderWidth: 1,
+    borderColor: VP.colors.ghostBorder,
+    padding: 3,
   },
-  settingsLine: {
-    width: 24,
-    height: 3,
-    backgroundColor: "#22D3EE",
-    borderRadius: 2,
+  segmentButton: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: VP.radius.sm,
+    alignItems: "center",
   },
+  segmentButtonActive: {
+    backgroundColor: VP.colors.accent.cyan,
+  },
+  segmentText: {
+    ...VP.typography.label,
+    color: VP.colors.text.secondary,
+    letterSpacing: 1,
+  },
+  segmentTextActive: {
+    color: VP.colors.text.inverse,
+    fontFamily: "SpaceGrotesk-Bold",
+  },
+
+  // ── Content ──
   content: {
     flex: 1,
   },
-  networkBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 20,
-    gap: 8,
-  },
-  networkIcon: {
-    flexDirection: "row",
-    gap: 2,
-    alignItems: "flex-end",
-  },
-  networkIconBar: {
-    width: 3,
-    height: 12,
-    backgroundColor: "#22D3EE",
-    borderRadius: 2,
-  },
-  networkText: {
-    fontSize: 16,
-    color: "#9CA3AF",
-    fontWeight: "500",
-  },
-  stealthToggleContainer: {
-    marginHorizontal: 20,
-    marginTop: 20,
-    marginBottom: 10,
-    backgroundColor: "#06181B",
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: "#22D3EE",
-    padding: 16,
+
+  // ── Stealth Toggle ──
+  stealthCard: {
+    marginHorizontal: VP.spacing.md,
+    marginTop: VP.spacing.md,
+    borderColor: VP.colors.accent.cyanMuted,
   },
   stealthToggleContent: {
     flexDirection: "row",
@@ -447,161 +654,365 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   stealthToggleTitle: {
-    fontSize: 16,
-    color: "#FFFFFF",
-    fontWeight: "600",
-    marginBottom: 4,
+    ...VP.typography.subheader,
+    color: VP.colors.text.primary,
   },
   stealthToggleSubtitle: {
-    fontSize: 12,
-    color: "#9CA3AF",
-  },
-  qrContainer: {
-    alignItems: "center",
-    paddingVertical: 20,
-  },
-  qrWrapper: {
-    backgroundColor: "transparent",
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: "#22D3EE",
-  },
-  qrPlaceholder: {
-    width: 320,
-    height: 320,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  qrPlaceholderText: {
-    color: "#9CA3AF",
-    fontSize: 16,
-  },
-  addressContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginHorizontal: 20,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: "#22D3EE",
-    backgroundColor: "#06181B",
-  },
-  addressText: {
-    fontSize: 16,
-    color: "#22D3EE",
-    fontFamily: "monospace",
-    letterSpacing: 2,
-    fontWeight: "600",
-  },
-  addressSubtext: {
-    fontSize: 11,
-    color: "#6B7280",
-    marginTop: 4,
-    fontStyle: "italic",
-  },
-  actionsContainer: {
-    flexDirection: "row",
-    marginHorizontal: 20,
-    marginTop: 20,
-    gap: 12,
-  },
-  actionButton: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 14,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: "#22D3EE",
-    backgroundColor: "#0C2425",
-    gap: 8,
-    position: "relative",
-  },
-  actionIcon: {
-    fontSize: 20,
-    color: "#ffffffff",
-  },
-  actionText: {
-    fontSize: 16,
-    color: "#ffffffff",
-    fontWeight: "500",
-  },
-  comingSoonBadge: {
-    position: "absolute",
-    top: -6,
-    right: -6,
-    backgroundColor: "#F59E0B",
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#FBBF24",
-  },
-  comingSoonText: {
-    fontSize: 9,
-    color: "#ffffff",
-    fontWeight: "700",
-    textTransform: "uppercase",
-  },
-  airdropButton: {
-    borderColor: "#14B8A6",
-    backgroundColor: "#0A2E2A",
-  },
-  airdropIcon: {
-    fontSize: 20,
-  },
-  balancesSection: {
-    marginTop: 32,
-    marginHorizontal: 20,
-    marginBottom: 20,
-  },
-  balancesTitleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 16,
-  },
-  balancesTitle: {
-    fontSize: 16,
-    color: "#FFFFFF",
-    fontWeight: "500",
-  },
-  balanceItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "#072B31",
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
-  },
-  balanceLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  balanceIcon: {
-    width: 40,
-    height: 40,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  balanceSymbol: {
-    fontSize: 18,
-    color: "#FFFFFF",
-    fontWeight: "600",
-  },
-  balanceName: {
-    fontSize: 14,
-    color: "#8a9999",
+    ...VP.typography.caption,
+    color: VP.colors.text.secondary,
     marginTop: 2,
   },
+
+  // ── Balance Card ──
+  balanceCard: {
+    marginHorizontal: VP.spacing.md,
+    marginTop: VP.spacing.md,
+    alignItems: "center",
+    paddingVertical: VP.spacing.lg,
+  },
+  balanceLabel: {
+    ...VP.typography.label,
+    color: VP.colors.text.secondary,
+    letterSpacing: 2,
+    marginBottom: VP.spacing.sm,
+  },
+  stealthBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: VP.colors.accent.purpleMuted,
+    paddingHorizontal: VP.spacing.sm,
+    paddingVertical: 3,
+    borderRadius: VP.radius.sm,
+    gap: 4,
+    marginBottom: VP.spacing.sm,
+  },
+  stealthBadgeText: {
+    ...VP.typography.caption,
+    color: VP.colors.accent.purple,
+    fontFamily: "JetBrainsMono-Medium",
+    letterSpacing: 1,
+  },
+  balanceRow: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    gap: VP.spacing.sm,
+  },
   balanceAmount: {
+    fontSize: 36,
+    fontFamily: "JetBrainsMono-Medium",
+    color: VP.colors.text.primary,
+  },
+  balanceCurrency: {
     fontSize: 18,
-    color: "#FFFFFF",
-    fontWeight: "500",
+    fontFamily: "JetBrainsMono-Regular",
+    color: VP.colors.accent.cyan,
+  },
+
+  // ── QR + Address ──
+  qrSection: {
+    alignItems: "center",
+    marginTop: VP.spacing.lg,
+    paddingHorizontal: VP.spacing.md,
+  },
+  qrWrapper: {
+    borderRadius: VP.radius.md,
+    borderWidth: 1,
+    borderColor: VP.colors.accent.cyanMuted,
+    padding: VP.spacing.sm,
+    backgroundColor: VP.colors.surface,
+  },
+  qrPlaceholder: {
+    width: 160,
+    height: 160,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  addressRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: VP.spacing.sm,
+    marginTop: VP.spacing.md,
+    paddingHorizontal: VP.spacing.md,
+    paddingVertical: VP.spacing.sm,
+    backgroundColor: VP.colors.surface,
+    borderRadius: VP.radius.sm,
+    borderWidth: 1,
+    borderColor: VP.colors.ghostBorder,
+  },
+  addressText: {
+    ...VP.typography.mono,
+    color: VP.colors.accent.cyan,
+    letterSpacing: 2,
+  },
+  addressSubtext: {
+    ...VP.typography.caption,
+    color: VP.colors.text.disabled,
+    marginTop: VP.spacing.xs,
+    fontStyle: "italic",
+  },
+
+  // ── Action Buttons ──
+  actionsRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: VP.spacing.xl,
+    marginTop: VP.spacing.lg,
+    paddingHorizontal: VP.spacing.md,
+  },
+  actionButton: {
+    alignItems: "center",
+    gap: VP.spacing.sm,
+  },
+  actionIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: VP.colors.accent.cyan,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  airdropIcon: {
+    backgroundColor: VP.colors.accent.cyan,
+  },
+  actionDisabled: {
+    opacity: 0.5,
+  },
+  actionLabel: {
+    ...VP.typography.label,
+    color: VP.colors.text.secondary,
+    letterSpacing: 1.5,
+  },
+
+  // ── Assets Section ──
+  assetsSection: {
+    marginTop: VP.spacing.xl,
+    paddingHorizontal: VP.spacing.md,
+  },
+  assetsTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: VP.spacing.md,
+  },
+  assetsTitle: {
+    ...VP.typography.subheader,
+    color: VP.colors.text.primary,
+  },
+  assetItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: VP.spacing.sm,
+  },
+  assetLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: VP.spacing.md,
+  },
+  assetIcon: {
+    width: 36,
+    height: 36,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  assetSymbol: {
+    ...VP.typography.subheader,
+    color: VP.colors.text.primary,
+    fontFamily: "SpaceGrotesk-SemiBold",
+  },
+  assetName: {
+    ...VP.typography.caption,
+    color: VP.colors.text.secondary,
+    marginTop: 2,
+  },
+  assetBalance: {
+    fontSize: 18,
+    fontFamily: "JetBrainsMono-Medium",
+    color: VP.colors.text.primary,
+  },
+
+  // ── Recent Activity Preview ──
+  recentSection: {
+    marginTop: VP.spacing.xl,
+    paddingHorizontal: VP.spacing.md,
+  },
+  recentTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: VP.spacing.md,
+  },
+  viewAllText: {
+    ...VP.typography.label,
+    color: VP.colors.accent.cyan,
+    letterSpacing: 1,
+  },
+  recentItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: VP.spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: VP.colors.ghostBorder,
+    gap: VP.spacing.md,
+  },
+  recentIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: VP.colors.surface,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  recentType: {
+    ...VP.typography.body,
+    color: VP.colors.text.primary,
+  },
+  recentTime: {
+    ...VP.typography.caption,
+    color: VP.colors.text.disabled,
+    marginTop: 2,
+  },
+  recentAmount: {
+    ...VP.typography.monoBold,
+    color: VP.colors.text.secondary,
+  },
+  recentAmountPositive: {
+    color: VP.colors.accent.cyan,
+  },
+
+  // ── History Tab ──
+  historyHeader: {
+    paddingHorizontal: VP.spacing.md,
+    paddingTop: VP.spacing.md,
+    paddingBottom: VP.spacing.sm,
+  },
+  historyTitle: {
+    ...VP.typography.header,
+    color: VP.colors.text.primary,
+    marginBottom: VP.spacing.sm,
+  },
+  syncBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: VP.spacing.xs,
+  },
+  syncDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: VP.colors.accent.cyan,
+  },
+  syncText: {
+    ...VP.typography.monoSmall,
+    color: VP.colors.accent.cyan,
+    letterSpacing: 1,
+  },
+  transactionsList: {
+    paddingHorizontal: VP.spacing.md,
+    paddingTop: VP.spacing.sm,
+  },
+  txItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: VP.spacing.sm,
+  },
+  txLeft: {
+    flex: 1,
+    gap: 4,
+  },
+  txStatusBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: VP.radius.sm,
+    gap: 6,
+  },
+  txStatusSuccess: {
+    backgroundColor: VP.colors.accent.cyan,
+  },
+  txStatusPending: {
+    backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: VP.colors.accent.cyan,
+  },
+  txStatusDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 3,
+  },
+  txStatusDotSuccess: {
+    backgroundColor: VP.colors.void,
+  },
+  txStatusDotPending: {
+    backgroundColor: VP.colors.accent.cyan,
+  },
+  txStatusText: {
+    fontSize: 10,
+    fontFamily: "JetBrainsMono-Medium",
+    letterSpacing: 1,
+  },
+  txStatusTextSuccess: {
+    color: VP.colors.void,
+  },
+  txStatusTextPending: {
+    color: VP.colors.text.primary,
+  },
+  txType: {
+    ...VP.typography.subheader,
+    color: VP.colors.text.primary,
+    marginTop: 4,
+  },
+  txAddress: {
+    ...VP.typography.monoSmall,
+    color: VP.colors.text.secondary,
+  },
+  txRight: {
+    alignItems: "flex-end",
+    gap: 4,
+    marginLeft: VP.spacing.md,
+  },
+  txAmount: {
+    ...VP.typography.monoBold,
+    color: VP.colors.text.primary,
+    fontSize: 16,
+  },
+  txAmountPositive: {
+    color: VP.colors.accent.cyan,
+  },
+  txTimestamp: {
+    ...VP.typography.caption,
+    color: VP.colors.text.disabled,
+  },
+
+  // ── Shared States ──
+  loadingContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 60,
+  },
+  loadingText: {
+    ...VP.typography.body,
+    color: VP.colors.text.secondary,
+    marginTop: VP.spacing.md,
+  },
+  emptyContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 60,
+    paddingHorizontal: 40,
+  },
+  emptyText: {
+    ...VP.typography.subheader,
+    color: VP.colors.text.secondary,
+    textAlign: "center",
+    marginBottom: VP.spacing.sm,
+  },
+  emptySubtext: {
+    ...VP.typography.body,
+    color: VP.colors.text.disabled,
+    textAlign: "center",
   },
 });

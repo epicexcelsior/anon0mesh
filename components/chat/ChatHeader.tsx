@@ -2,6 +2,7 @@ import { subscribeToConnectivityChanges } from "@/src/infrastructure/wallet/util
 import { CaretLeft, Wallet } from "phosphor-react-native";
 import React, { useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { VP } from "@/constants/void-protocol";
 
 interface ChatHeaderProps {
   nickname: string;
@@ -88,7 +89,7 @@ export default function ChatHeader(props: ChatHeaderProps) {
           onPress={handleBackPress}
           activeOpacity={0.7}
         >
-          <CaretLeft size={24} color="#00CED1" weight="regular" />
+          <CaretLeft size={24} color={VP.colors.accent.cyan} weight="regular" />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.titleTouch}
@@ -107,7 +108,7 @@ export default function ChatHeader(props: ChatHeaderProps) {
           activeOpacity={0.7}
           style={styles.walletButton}
         >
-          <Wallet size={20} color="#00CED1" weight="regular" />
+          <Wallet size={20} color={VP.colors.accent.cyan} weight="regular" />
         </TouchableOpacity>
 
         {/* BLE Peers Counter */}
@@ -162,7 +163,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     backgroundColor: "transparent",
     borderBottomWidth: 2,
-    borderBottomColor: "#22D3EE",
+    borderBottomColor: VP.colors.ghostBorder,
   },
   headerLeft: {
     flex: 1,
@@ -177,7 +178,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#fff",
+    color: VP.colors.text.primary,
   },
   headerRight: {
     flexDirection: "row",
@@ -193,7 +194,7 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingHorizontal: 8,
     paddingVertical: 4,
-    backgroundColor: "rgba(0, 212, 212, 0.1)",
+    backgroundColor: VP.colors.accent.cyanMuted,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: "rgba(0, 212, 212, 0.3)",
@@ -208,19 +209,19 @@ const styles = StyleSheet.create({
     width: 5,
     height: 5,
     borderRadius: 2.5,
-    backgroundColor: "#00CED1",
+    backgroundColor: VP.colors.accent.cyan,
     marginBottom: 1,
   },
   personBody: {
     width: 9,
     height: 6,
     borderRadius: 4,
-    backgroundColor: "#00CED1",
+    backgroundColor: VP.colors.accent.cyan,
   },
   peerCount: {
     fontSize: 12,
     fontWeight: "700",
-    color: "#00CED1",
+    color: VP.colors.accent.cyan,
     fontFamily: "monospace",
     minWidth: 16,
     textAlign: "center",
@@ -238,7 +239,7 @@ const styles = StyleSheet.create({
   statusLabel: {
     fontSize: 9,
     fontWeight: "600",
-    color: "#8fa9a9",
+    color: VP.colors.text.secondary,
     letterSpacing: 0.5,
     fontFamily: "monospace",
   },
@@ -248,17 +249,17 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   statusDotActive: {
-    backgroundColor: "#00CED1",
-    shadowColor: "#00CED1",
+    backgroundColor: VP.colors.accent.cyan,
+    shadowColor: VP.colors.accent.cyan,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
     shadowRadius: 4,
     elevation: 4,
   },
   statusDotInactive: {
-    backgroundColor: "#2a3a3a",
+    backgroundColor: VP.colors.text.disabled,
     borderWidth: 1,
-    borderColor: "#3a4a4a",
+    borderColor: VP.colors.ghostBorder,
   },
   titleTouch: {
     paddingVertical: 4,

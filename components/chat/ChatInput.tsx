@@ -2,6 +2,7 @@ import { getCommandSuggestions } from '@/src/utils/chatCommands';
 import React, { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import SendMessageIcon from '../icons/sendMessagesIcon';
+import { VP } from "@/constants/void-protocol";
 
 interface ChatInputProps {
   value: string;
@@ -55,7 +56,7 @@ export default function ChatInput({
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
-          placeholderTextColor="#22D3EE"
+          placeholderTextColor={VP.colors.accent.cyan}
           multiline={false}
           maxLength={500}
           editable={!disabled}
@@ -65,7 +66,7 @@ export default function ChatInput({
           style={[styles.sendButton, (!value.trim() || disabled) && styles.sendButtonDisabled]}
           disabled={!value.trim() || disabled}
         >
-          <SendMessageIcon size={24} color="#FFFFFF" />
+          <SendMessageIcon size={24} color={VP.colors.text.primary} />
         </TouchableOpacity>
       </View>
     </View>
@@ -78,7 +79,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     backgroundColor: 'transparent',
     borderTopWidth: 1,
-    borderTopColor: '#22D3EE',
+    borderTopColor: VP.colors.ghostBorder,
   },
   suggestionsContainer: {
     marginBottom: 12,
@@ -89,16 +90,16 @@ const styles = StyleSheet.create({
     paddingRight: 8,
   },
   suggestionChip: {
-    backgroundColor: 'rgba(34, 211, 238, 0.1)',
+    backgroundColor: VP.colors.accent.cyanMuted,
     borderWidth: 1,
-    borderColor: '#22D3EE',
+    borderColor: VP.colors.accent.cyan,
     borderRadius: 20,
     paddingHorizontal: 14,
     paddingVertical: 8,
     maxWidth: 300,
   },
   suggestionText: {
-    color: '#22D3EE',
+    color: VP.colors.accent.cyan,
     fontSize: 13,
     fontWeight: '500',
   },
@@ -109,7 +110,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#22D3EE',
+    borderColor: VP.colors.accent.cyan,
     paddingLeft: 20,
     paddingRight: 6,
   },
@@ -117,7 +118,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: '100%',
     backgroundColor: 'transparent',
-    color: '#22D3EE',
+    color: VP.colors.accent.cyan,
     fontSize: 16,
     borderWidth: 0,
     paddingRight: 12,
@@ -126,9 +127,9 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: '#0C2425',
+    backgroundColor: VP.colors.surface,
     borderWidth: 2,
-    borderColor: '#22D3EE',
+    borderColor: VP.colors.accent.cyan,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -143,7 +144,7 @@ const styles = StyleSheet.create({
     borderRightWidth: 0,
     borderTopWidth: 7,
     borderBottomWidth: 7,
-    borderLeftColor: '#22D3EE',
+    borderLeftColor: VP.colors.accent.cyan,
     borderTopColor: 'transparent',
     borderBottomColor: 'transparent',
     marginLeft: 2,

@@ -1,5 +1,6 @@
+import { VP } from "@/constants/void-protocol";
 import { useMeshChat } from "@/src/contexts/MeshBLEContext";
-import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
 import { Broadcast, CaretRight } from "phosphor-react-native";
 import React, { useState } from "react";
 import {
@@ -9,8 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import BottomNavWithMenu from "../ui/BottomNavWithMenu";
+import VoidScreen from "../ui/VoidScreen";
 
 interface Peer {
   id: string;
@@ -23,27 +23,8 @@ interface Peer {
   rssi?: number;
 }
 
-interface ChatSelectionScreenProps {
-  onSelectPeer: (peerId: string | null) => void;
-  onBack?: () => void;
-  onNavigateToMessages?: () => void;
-  onNavigateToWallet?: () => void;
-  onNavigateToHistory?: () => void;
-  onNavigateToMeshZone?: () => void;
-  onNavigateToProfile?: () => void;
-  onDisconnect?: () => void;
-}
-
-export default function ChatSelectionScreenMesh({
-  onSelectPeer,
-  onBack,
-  onNavigateToMessages,
-  onNavigateToWallet,
-  onNavigateToHistory,
-  onNavigateToMeshZone,
-  onNavigateToProfile,
-  onDisconnect,
-}: ChatSelectionScreenProps) {
+export default function ChatSelectionScreenMesh() {
+  const router = useRouter();
   const [pressedItemId, setPressedItemId] = useState<string | null>(null);
 
   // Get mesh chat context
@@ -103,7 +84,7 @@ export default function ChatSelectionScreenMesh({
         styles.broadcastItem,
         pressedItemId === "broadcast" && styles.peerItemPressed,
       ]}
-      onPress={() => onSelectPeer(null)}
+      onPress={() => router.push("/chat/thread")}
       onPressIn={() => setPressedItemId("broadcast")}
       onPressOut={() => setPressedItemId(null)}
       activeOpacity={1}
@@ -112,7 +93,7 @@ export default function ChatSelectionScreenMesh({
         <View style={styles.peerLeft}>
           <View style={styles.peerInfo}>
             <View style={styles.broadcastIndicator}>
-              <Broadcast size={16} color="#22D3EE" weight="regular" />
+              <Broadcast size={16} color={VP.colors.accent.cyan} weight="regular" />
             </View>
             <Text style={styles.broadcastName}>Broadcast to All</Text>
           </View>
@@ -122,7 +103,7 @@ export default function ChatSelectionScreenMesh({
           </Text>
         </View>
         <View style={styles.chevronIcon}>
-          <CaretRight size={24} color="#22D3EE" weight="regular" />
+          <CaretRight size={24} color={VP.colors.accent.cyan} weight="regular" />
         </View>
       </View>
     </TouchableOpacity>
@@ -145,7 +126,10 @@ export default function ChatSelectionScreenMesh({
         style={[styles.peerItem, isPressed && styles.peerItemPressed]}
         onPress={() => {
           markPeerAsRead(item.id);
-          onSelectPeer(item.id);
+          router.push({
+            pathname: "/chat/thread",
+            params: { selectedPeer: item.id },
+          });
         }}
         onPressIn={() => setPressedItemId(item.id)}
         onPressOut={() => setPressedItemId(null)}
@@ -182,7 +166,7 @@ export default function ChatSelectionScreenMesh({
             </View>
           ) : null}
           <View style={styles.chevronIcon}>
-            <CaretRight size={24} color="#22D3EE" weight="regular" />
+            <CaretRight size={24} color={VP.colors.accent.cyan} weight="regular" />
           </View>
         </View>
       </TouchableOpacity>
@@ -190,14 +174,7 @@ export default function ChatSelectionScreenMesh({
   };
 
   return (
-    <LinearGradient
-      colors={["#0D0D0D", "#06181B", "#072B31"]}
-      locations={[0, 0.94, 1]}
-      start={{ x: 0.2125, y: 0 }}
-      end={{ x: 0.7875, y: 1 }}
-      style={styles.container}
-    >
-      <SafeAreaView style={styles.safeArea}>
+    <VoidScreen>
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Messages</Text>
@@ -247,41 +224,23 @@ export default function ChatSelectionScreenMesh({
           />
         </View>
 
-        {/* Bottom Navigation Bar with Menu */}
-        <BottomNavWithMenu
-          onNavigateToMessages={onNavigateToMessages}
-          onNavigateToWallet={onNavigateToWallet}
-          onNavigateToHistory={onNavigateToHistory}
-          onNavigateToMeshZone={onNavigateToMeshZone}
-          onNavigateToProfile={onNavigateToProfile}
-          onDisconnect={onDisconnect}
-        />
-      </SafeAreaView>
-    </LinearGradient>
+    </VoidScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  safeArea: {
-    flex: 1,
-  },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
+    paddingHorizontal: VP.spacing.md,
     paddingVertical: 12,
-    backgroundColor: "transparent",
-    borderBottomWidth: 2,
-    borderBottomColor: "#22D3EE",
+    borderBottomWidth: 1,
+    borderBottomColor: VP.colors.ghostBorder,
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#fff",
+    ...VP.typography.header,
+    color: VP.colors.text.primary,
   },
   peersCountContainer: {
     flexDirection: "row",
@@ -291,60 +250,59 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: "#22D3EE",
+    backgroundColor: VP.colors.accent.cyan,
   },
   peersCountDotOffline: {
-    backgroundColor: "#EF4444",
+    backgroundColor: VP.colors.status.error,
   },
   peersCountText: {
-    color: "#22D3EE",
-    fontSize: 13,
-    fontWeight: "400",
+    ...VP.typography.monoSmall,
+    color: VP.colors.accent.cyan,
     marginLeft: 6,
   },
   myInfoContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    backgroundColor: "rgba(34, 211, 238, 0.05)",
+    paddingHorizontal: VP.spacing.md,
+    paddingVertical: VP.spacing.sm,
+    backgroundColor: VP.colors.accent.cyanGhost,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(34, 211, 238, 0.1)",
+    borderBottomColor: VP.colors.ghostBorder,
   },
   myInfoText: {
-    color: "#94A3B8",
-    fontSize: 13,
+    ...VP.typography.monoSmall,
+    color: VP.colors.text.secondary,
   },
   statusText: {
     fontSize: 12,
     marginTop: 2,
   },
   statusOnline: {
-    color: "#22D3EE",
+    color: VP.colors.accent.cyan,
   },
   statusOffline: {
-    color: "#EF4444",
+    color: VP.colors.status.error,
   },
   peerListContainer: {
     flex: 1,
-    paddingTop: 16,
+    paddingTop: VP.spacing.md,
   },
   peerListContent: {
-    paddingHorizontal: 8,
+    paddingHorizontal: VP.spacing.sm,
     paddingBottom: 20,
   },
   peerItem: {
     backgroundColor: "transparent",
-    borderRadius: 12,
-    marginBottom: 6,
-    marginHorizontal: 8,
+    borderRadius: VP.radius.md,
+    marginBottom: 4,
+    marginHorizontal: VP.spacing.sm,
   },
   peerItemPressed: {
-    backgroundColor: "#0a2828",
+    backgroundColor: VP.colors.surface,
   },
   peerContent: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 20,
+    paddingHorizontal: VP.spacing.md,
+    paddingVertical: VP.spacing.md,
   },
   peerLeft: {
     flexDirection: "column",
@@ -355,11 +313,11 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#22D3EE",
+    backgroundColor: VP.colors.accent.cyan,
     marginRight: 12,
   },
   onlineIndicatorOffline: {
-    backgroundColor: "#4B5563",
+    backgroundColor: VP.colors.text.disabled,
   },
   peerInfo: {
     flex: 1,
@@ -367,19 +325,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   peerName: {
-    color: "#FFFFFF",
-    fontSize: 18,
-    fontWeight: "600",
-    fontFamily: "SpaceGrotesk_600SemiBold",
+    ...VP.typography.subheader,
+    color: VP.colors.text.primary,
+    fontFamily: "SpaceGrotesk-SemiBold",
   },
   secureIcon: {
     fontSize: 14,
     marginLeft: 6,
   },
   privateMessageLabel: {
-    color: "#22D3EE",
-    fontSize: 12,
-    fontWeight: "500",
+    ...VP.typography.caption,
+    color: VP.colors.accent.cyan,
     marginTop: 4,
     marginBottom: 2,
   },
@@ -388,17 +344,16 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   lastActive: {
-    color: "#9CA3AF",
-    fontSize: 14,
-    fontWeight: "500",
-    fontFamily: "SpaceGrotesk_500Medium",
-    marginRight: 16,
+    ...VP.typography.body,
+    color: VP.colors.text.secondary,
+    fontFamily: "SpaceGrotesk-Medium",
+    marginRight: VP.spacing.md,
   },
   chevronIcon: {
     marginLeft: 0,
   },
   unreadBadge: {
-    backgroundColor: "#EF4444",
+    backgroundColor: VP.colors.status.error,
     borderRadius: 12,
     minWidth: 24,
     height: 24,
@@ -408,41 +363,37 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   unreadBadgeText: {
-    color: "#FFFFFF",
+    color: VP.colors.text.primary,
     fontSize: 12,
-    fontWeight: "700",
-    fontFamily: "SpaceGrotesk_700Bold",
+    fontFamily: "SpaceGrotesk-Bold",
   },
   firstPeerItem: {
-    backgroundColor: "#1e3a5f",
+    backgroundColor: VP.colors.surfaceElevated,
   },
   broadcastItem: {
-    backgroundColor: "rgba(34, 211, 238, 0.08)",
+    backgroundColor: VP.colors.accent.cyanGhost,
     borderWidth: 1,
-    borderColor: "rgba(34, 211, 238, 0.3)",
+    borderColor: VP.colors.accent.cyanMuted,
   },
   broadcastIndicator: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: "rgba(34, 211, 238, 0.2)",
+    backgroundColor: VP.colors.accent.cyanMuted,
     borderWidth: 1,
-    borderColor: "#22D3EE",
+    borderColor: VP.colors.accent.cyan,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 12,
   },
   broadcastName: {
-    color: "#22D3EE",
-    fontSize: 18,
-    fontWeight: "600",
-    fontFamily: "SpaceGrotesk_600SemiBold",
+    ...VP.typography.subheader,
+    color: VP.colors.accent.cyan,
+    fontFamily: "SpaceGrotesk-SemiBold",
   },
   broadcastSubtext: {
-    color: "#94A3B8",
-    fontSize: 14,
-    fontWeight: "400",
-    fontFamily: "SpaceGrotesk_400Regular",
+    ...VP.typography.body,
+    color: VP.colors.text.secondary,
     marginTop: 4,
   },
   emptyContainer: {
@@ -453,16 +404,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
   },
   emptyText: {
-    color: "#94A3B8",
-    fontSize: 18,
-    fontWeight: "600",
+    ...VP.typography.subheader,
+    color: VP.colors.text.secondary,
     textAlign: "center",
-    marginBottom: 8,
+    marginBottom: VP.spacing.sm,
   },
   emptySubtext: {
-    color: "#64748B",
-    fontSize: 14,
-    fontWeight: "400",
+    ...VP.typography.body,
+    color: VP.colors.text.disabled,
     textAlign: "center",
   },
 });

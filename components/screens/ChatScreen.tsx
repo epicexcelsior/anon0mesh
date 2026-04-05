@@ -7,7 +7,7 @@
  * NOW WITH: Pigeon Transaction Notification 🕊️
  */
 
-import { LinearGradient } from "expo-linear-gradient";
+import { VP } from "@/constants/void-protocol";
 import { useFocusEffect, useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import React, { useEffect, useRef, useState } from "react";
@@ -387,13 +387,7 @@ export default function MeshChatScreen({
   }, [selectedPeer, peers]);
 
   return (
-    <LinearGradient
-      colors={["#0D0D0D", "#06181B", "#072B31"]}
-      locations={[0, 0.94, 1]}
-      start={{ x: 0.2125, y: 0 }}
-      end={{ x: 0.7875, y: 1 }}
-      style={styles.gradient}
-    >
+    <View style={styles.screenRoot}>
       <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -508,13 +502,14 @@ export default function MeshChatScreen({
           <TransactionApprovalModal />
         </KeyboardAvoidingView>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  gradient: {
+  screenRoot: {
     flex: 1,
+    backgroundColor: VP.colors.void,
   },
   safeArea: {
     flex: 1,

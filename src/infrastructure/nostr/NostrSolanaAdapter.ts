@@ -17,7 +17,7 @@
 
 import { sha256 } from '@noble/hashes/sha256';
 import { bytesToHex } from '@noble/hashes/utils';
-import { encode as bs58encode } from 'bs58';
+import bs58 from 'bs58';
 import { Buffer } from 'buffer';
 import * as SecureStore from 'expo-secure-store';
 
@@ -460,7 +460,7 @@ export class NostrSolanaAdapter extends NostrAdapter {
     // Simple hash for demo - in production use proper hash function
     const encoder = new TextEncoder();
     const data = encoder.encode(serializedTx);
-    return bs58encode(data.slice(0, 32));
+    return bs58.encode(data.slice(0, 32));
   }
 
   /**

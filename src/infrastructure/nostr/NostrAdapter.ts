@@ -47,14 +47,7 @@ export class NostrAdapter implements INostrAdapter {
   private initialized = false;
 
   constructor() {
-    // Initialize SimplePool with reconnection handling
-    // Updates 'since' filter on reconnect to avoid duplicate events
-    this.pool = new SimplePool({
-      enableReconnect: (filters: NostrFilter[]) => {
-        const newSince = Math.floor(Date.now() / 1000);
-        return filters.map((filter: NostrFilter) => ({ ...filter, since: newSince }));
-      }
-    });
+    this.pool = new SimplePool();
   }
 
   // ============================================

@@ -1,0 +1,5 @@
+- [User profile](user_profile.md) — AnonMesh hackathon team lead, needs design guidance, values comprehensive work
+- [Pushback feedback](feedback_pushback.md) — User explicitly wants proactive pushback on bad workflows/decisions
+- [Redesign decisions](project_redesign_decisions.md) — 4-tab nav, constellation mesh, Seeker target, batch-by-flow workflow
+- [Stitch MCP limits](feedback_stitch_mcp.md) — generate_screen_from_text always times out; use Stitch UI for generation, MCP for read/edit
+- [No hackathon framing](feedback_no_hackathon_diminish.md) — Never diminish quality as "fine for hackathon"; this is production-grade work

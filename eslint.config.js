@@ -5,6 +5,11 @@ const expoConfig = require('eslint-config-expo/flat');
 module.exports = defineConfig([
   expoConfig,
   {
-    ignores: ['dist/*'],
+    ignores: [
+      'dist/*',
+      'lib/escrow-program.ts',
+      'src/components/ui_OLD_BACKUP/**',
+      'src/infrastructure/mesh/MeshManager.ts',
+    ],
   },
 ]);

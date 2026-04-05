@@ -24,12 +24,13 @@
  * - Can be broadcast via BLE mesh and relayed to Solana network later
  */
 
-import SolanaIcon from "@/components/icons/SolanaIcon";
 import USDCIcon from "@/components/icons/USDCIcon";
 import ZECIcon from "@/components/icons/ZECIcon";
 import QRScannerModal from "@/components/modals/QRScannerModal";
 import SendConfirmationModal from "@/components/modals/SendConfirmationModal";
 import NumericKeyboard from "@/components/ui/NumericKeyboard";
+import VoidScreen from "@/components/ui/VoidScreen";
+import { VP } from "@/constants/void-protocol";
 import { useMWAOfflineWallets } from "@/hooks/useMWAOfflineWallets";
 import { useOfflineWallets } from "@/hooks/useOfflineWallets";
 import { useWalletBalances } from "@/hooks/useWalletBalances";
@@ -47,7 +48,6 @@ import * as ConnectivityUtils from "@/src/infrastructure/wallet/utils/connectivi
 import "@/src/polyfills";
 import { createSolanaConnection } from "@/src/utils/solana";
 import { PublicKey, Transaction } from "@solana/web3.js";
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import {
   CaretDown,
@@ -68,7 +68,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 // Type for transaction mode
 type TransactionMode = "online" | "ble_mesh" | "offline_wallet";
@@ -909,41 +908,27 @@ export default function SendScreen() {
   };
 
   return (
-    <LinearGradient
-      colors={["#0D0D0D", "#06181B", "#072B31"]}
-      locations={[0, 0.94, 1]}
-      start={{ x: 0.21, y: 0 }}
-      end={{ x: 0.79, y: 1 }}
-      style={styles.container}
-    >
-      <SafeAreaView style={styles.safeArea}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-            <CaretLeft size={24} color="#22D3EE" weight="regular" />
-            <Text style={styles.headerTitle}>Send</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.settingsButton}
-            onPress={handleSettings}
-          >
-            <SlidersHorizontal size={24} color="#fff" weight="regular" />
-          </TouchableOpacity>
-        </View>
-
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
+    <VoidScreen>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={handleBack} style={styles.backButton}>
+          <CaretLeft size={24} color={VP.colors.accent.cyan} weight="regular" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>SEND</Text>
+        <TouchableOpacity
+          style={styles.settingsButton}
+          onPress={handleSettings}
         >
-          {/* Network Badge */}
-          <View style={styles.networkBadge}>
-            <View style={styles.networkIcon}>
-              <SolanaIcon size={16} color="#22D3EE" />
-            </View>
-            <Text style={styles.networkText}>Solana Network</Text>
-          </View>
+          <SlidersHorizontal size={20} color={VP.colors.text.secondary} weight="regular" />
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
 
           {/* Token Selector & Amount */}
           <View style={styles.amountCard}>
@@ -965,9 +950,9 @@ export default function SendScreen() {
                   </View>
                   <Text style={styles.tokenText}>{token}</Text>
                   {showTokenDropdown ? (
-                    <CaretUp size={20} color="#22D3EE" weight="regular" />
+                    <CaretUp size={20} color={VP.colors.accent.cyan} weight="regular" />
                   ) : (
-                    <CaretDown size={20} color="#22D3EE" weight="regular" />
+                    <CaretDown size={20} color={VP.colors.accent.cyan} weight="regular" />
                   )}
                 </TouchableOpacity>
 
@@ -1008,7 +993,7 @@ export default function SendScreen() {
                 onChangeText={setAmount}
                 showSoftInputOnFocus={false}
                 placeholder="0.00"
-                placeholderTextColor="#4a6c6c"
+                placeholderTextColor={VP.colors.text.disabled}
                 caretHidden={false}
               />
             </View>
@@ -1017,7 +1002,7 @@ export default function SendScreen() {
               <View style={styles.balanceLeft}>
                 <Text style={styles.balanceLabel}>Balance:</Text>
                 {isRefreshing || isOfflineWalletsLoading ? (
-                  <ActivityIndicator size="small" color="#22D3EE" />
+                  <ActivityIndicator size="small" color={VP.colors.accent.cyan} />
                 ) : (
                   <>
                     <Text style={styles.balanceAmount}>
@@ -1055,10 +1040,10 @@ export default function SendScreen() {
                 placeholder="Enter recipient address..."
                 value={recipient}
                 onChangeText={setRecipient}
-                placeholderTextColor="#22D3EE"
+                placeholderTextColor={VP.colors.text.disabled}
               />
               <TouchableOpacity onPress={handleQRScan} style={styles.qrButton}>
-                <Scan size={24} color="#22D3EE" weight="regular" />
+                <Scan size={24} color={VP.colors.accent.cyan} weight="regular" />
               </TouchableOpacity>
             </View>
           </View>
@@ -1096,9 +1081,9 @@ export default function SendScreen() {
                   </View>
                 )}
                 {showFromDropdown ? (
-                  <CaretUp size={20} color="#9CA3AF" weight="regular" />
+                  <CaretUp size={20} color={VP.colors.text.secondary} weight="regular" />
                 ) : (
-                  <CaretDown size={20} color="#9CA3AF" weight="regular" />
+                  <CaretDown size={20} color={VP.colors.text.secondary} weight="regular" />
                 )}
               </TouchableOpacity>
 
@@ -1125,7 +1110,7 @@ export default function SendScreen() {
                         {isOfflineWalletsLoading && (
                           <ActivityIndicator
                             size="small"
-                            color="#22D3EE"
+                            color={VP.colors.accent.cyan}
                             style={{ marginRight: 8 }}
                           />
                         )}
@@ -1225,7 +1210,7 @@ export default function SendScreen() {
                             <Text
                               style={[
                                 styles.fromActionText,
-                                { color: "#22D3EE" },
+                                { color: VP.colors.accent.cyan },
                               ]}
                             >
                               ↻ Refresh
@@ -1297,7 +1282,7 @@ export default function SendScreen() {
             }
           >
             {isSending ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
+              <ActivityIndicator size="small" color={VP.colors.text.primary} />
             ) : (
               <Text style={styles.sendButtonText}>Send</Text>
             )}
@@ -1361,10 +1346,10 @@ export default function SendScreen() {
                   styles.statusDot,
                   {
                     backgroundColor: connectivity.isInternetConnected
-                      ? "#22D3EE"
+                      ? VP.colors.accent.cyan
                       : connectivity.isBluetoothAvailable
-                        ? "#ffa500"
-                        : "#ff4444",
+                        ? VP.colors.status.warning
+                        : VP.colors.status.error,
                   },
                 ]}
               />
@@ -1378,7 +1363,6 @@ export default function SendScreen() {
             </View>
           )}
         </ScrollView>
-      </SafeAreaView>
 
       <SendConfirmationModal
         visible={showConfirmation}
@@ -1397,7 +1381,7 @@ export default function SendScreen() {
 
       {/* Transaction Approval Modal - Shows when peers send tx requests */}
       <TransactionApprovalModal />
-    </LinearGradient>
+    </VoidScreen>
   );
 }
 
@@ -1412,23 +1396,22 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 2,
-    borderBottomColor: "#22D3EE",
+    paddingHorizontal: VP.spacing.md,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: VP.colors.ghostBorder,
   },
   backButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
+    padding: VP.spacing.xs,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#FFFFFF",
+    ...VP.typography.label,
+    color: VP.colors.text.primary,
+    letterSpacing: 2,
+    fontSize: 16,
   },
   settingsButton: {
-    padding: 4,
+    padding: VP.spacing.xs,
   },
   content: {
     flex: 1,
@@ -1437,54 +1420,39 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 16,
-  },
-  networkBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 12,
-    gap: 8,
-  },
-  networkIcon: {
-    flexDirection: "row",
-    gap: 2,
-    alignItems: "flex-end",
-  },
-  networkText: {
-    fontSize: 16,
-    color: "#9CA3AF",
-    fontWeight: "500",
+    paddingHorizontal: VP.spacing.md,
+    paddingTop: VP.spacing.md,
+    paddingBottom: VP.spacing.md,
   },
   // Amount Card
   amountCard: {
-    backgroundColor: "#072B31",
-    borderRadius: 16,
+    backgroundColor: VP.colors.surface,
+    borderRadius: VP.radius.lg,
     padding: 14,
-    marginVertical: 12,
+    marginVertical: VP.spacing.md,
     overflow: "visible",
+    borderWidth: 1,
+    borderColor: VP.colors.ghostBorder,
   },
   amountCardHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 12,
-    gap: 12,
+    marginBottom: VP.spacing.md,
+    gap: VP.spacing.md,
   },
   tokenSelectorContainer: {
     position: "relative",
     width: "40%",
-    backgroundColor: "#106471",
-    borderRadius: 12,
+    backgroundColor: VP.colors.surfaceElevated,
+    borderRadius: VP.radius.md,
     overflow: "visible",
   },
   tokenSelector: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    paddingHorizontal: 16,
+    gap: VP.spacing.sm,
+    paddingHorizontal: VP.spacing.md,
     paddingVertical: 10,
   },
   tokenIconWrapper: {
@@ -1499,43 +1467,42 @@ const styles = StyleSheet.create({
   },
   tokenText: {
     flex: 1,
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "500",
+    color: VP.colors.text.primary,
+    ...VP.typography.subheader,
   },
   amountInput: {
-    color: "#fff",
+    color: VP.colors.text.primary,
     fontSize: 32,
-    fontWeight: "600",
+    fontFamily: "JetBrainsMono-Medium",
     textAlign: "right",
-    marginBottom: 8,
+    marginBottom: VP.spacing.sm,
   },
   balanceRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 8,
+    marginBottom: VP.spacing.sm,
   },
   balanceLeft: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
+    gap: VP.spacing.xs,
   },
   balanceLabel: {
-    color: "#9CA3AF",
-    fontSize: 14,
+    ...VP.typography.body,
+    color: VP.colors.text.secondary,
   },
   balanceAmount: {
-    color: "#9CA3AF",
-    fontSize: 14,
+    ...VP.typography.body,
+    color: VP.colors.text.secondary,
   },
   maxLabel: {
-    color: "#9CA3AF",
-    fontSize: 14,
+    ...VP.typography.body,
+    color: VP.colors.text.secondary,
   },
   usdValue: {
-    color: "#9CA3AF",
-    fontSize: 14,
+    ...VP.typography.body,
+    color: VP.colors.text.secondary,
   },
   // Token Dropdown
   tokenDropdown: {
@@ -1543,258 +1510,246 @@ const styles = StyleSheet.create({
     top: "100%",
     left: 0,
     right: 0,
-    backgroundColor: "#106471",
-    borderRadius: 12,
+    backgroundColor: VP.colors.surfaceElevated,
+    borderRadius: VP.radius.md,
     borderTopWidth: 1,
-    borderTopColor: "rgba(34, 211, 238, 0.3)",
+    borderTopColor: VP.colors.accent.cyanMuted,
     marginTop: 4,
     zIndex: 100,
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    ...VP.shadow.md,
   },
   tokenOption: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    padding: 16,
+    gap: VP.spacing.sm,
+    padding: VP.spacing.md,
     borderTopWidth: 1,
-    borderTopColor: "rgba(34, 211, 238, 0.2)",
+    borderTopColor: VP.colors.ghostBorder,
   },
   tokenOptionFirst: {
     borderTopWidth: 0,
   },
   tokenOptionText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "500",
+    color: VP.colors.text.primary,
+    ...VP.typography.subheader,
   },
   // Section
   section: {
-    marginBottom: 12,
+    marginBottom: VP.spacing.md,
   },
   sectionLabel: {
-    color: "#fff",
-    fontSize: 16,
-    marginBottom: 8,
+    ...VP.typography.label,
+    color: VP.colors.text.secondary,
+    letterSpacing: 1,
+    marginBottom: VP.spacing.sm,
   },
   // Recipient Input
   recipientContainer: {
-    backgroundColor: "transparent",
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: "#22D3EE",
+    backgroundColor: VP.colors.surface,
+    borderRadius: VP.radius.md,
+    borderWidth: 1,
+    borderColor: VP.colors.ghostBorder,
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: VP.spacing.md,
+    paddingVertical: VP.spacing.md,
   },
   recipientInput: {
     flex: 1,
-    color: "#22D3EE",
-    fontSize: 16,
-  },
-  recipientPlaceholder: {
-    color: "#22D3EE",
+    color: VP.colors.accent.cyan,
+    ...VP.typography.mono,
     fontSize: 14,
   },
+  recipientPlaceholder: {
+    color: VP.colors.accent.cyanMuted,
+    ...VP.typography.mono,
+  },
   qrButton: {
-    padding: 4,
+    padding: VP.spacing.xs,
     alignItems: "center",
     justifyContent: "center",
   },
   // From Selector
   fromContainer: {
-    backgroundColor: "#06181B",
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: "#22D3EE",
+    backgroundColor: VP.colors.surface,
+    borderRadius: VP.radius.md,
+    borderWidth: 1,
+    borderColor: VP.colors.ghostBorder,
     overflow: "hidden",
   },
   fromSelector: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 20,
+    paddingHorizontal: VP.spacing.md,
+    paddingVertical: VP.spacing.lg,
   },
   fromPrimaryText: {
-    color: "#22D3EE",
-    fontSize: 16,
-    fontWeight: "500",
+    ...VP.typography.mono,
+    color: VP.colors.accent.cyan,
   },
   fromDropdown: {
     borderTopWidth: 1,
-    borderTopColor: "rgba(34, 211, 238, 0.3)",
+    borderTopColor: VP.colors.ghostBorder,
     maxHeight: 300,
   },
   fromSelectorContent: {
     flexDirection: "column",
   },
   fromSecondaryText: {
-    color: "#9CA3AF",
-    fontSize: 12,
+    ...VP.typography.caption,
+    color: VP.colors.text.secondary,
     marginTop: 2,
   },
   walletModeText: {
-    color: "#22D3EE",
-    fontSize: 10,
+    ...VP.typography.caption,
+    color: VP.colors.accent.cyan,
     marginTop: 2,
-    fontWeight: "600",
+    fontFamily: "JetBrainsMono-Medium",
   },
   fromSection: {
-    paddingVertical: 12,
+    paddingVertical: VP.spacing.md,
   },
   fromSectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 16,
-    marginBottom: 8,
+    paddingHorizontal: VP.spacing.md,
+    marginBottom: VP.spacing.sm,
   },
   fromSectionTitle: {
-    color: "#9CA3AF",
-    fontSize: 12,
-    fontWeight: "600",
+    ...VP.typography.label,
+    color: VP.colors.text.secondary,
     textTransform: "uppercase",
-    letterSpacing: 0.5,
+    letterSpacing: 1,
   },
   fromSectionCount: {
-    color: "#22D3EE",
-    fontSize: 12,
-    fontWeight: "500",
+    ...VP.typography.label,
+    color: VP.colors.accent.cyan,
   },
   fromWalletList: {
-    paddingHorizontal: 12,
+    paddingHorizontal: VP.spacing.md,
   },
   fromWalletOption: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 12,
+    paddingHorizontal: VP.spacing.md,
     paddingVertical: 10,
-    backgroundColor: "#072B31",
-    borderRadius: 8,
+    backgroundColor: VP.colors.surfaceElevated,
+    borderRadius: VP.radius.sm,
     marginBottom: 6,
     borderWidth: 1,
-    borderColor: "#106471",
+    borderColor: VP.colors.ghostBorder,
   },
   fromWalletOptionSelected: {
-    borderColor: "#22D3EE",
-    backgroundColor: "#106471",
+    borderColor: VP.colors.accent.cyan,
+    backgroundColor: VP.colors.accent.cyanGhost,
   },
   fromWalletCheckbox: {
-    marginRight: 12,
+    marginRight: VP.spacing.md,
   },
   fromWalletInfo: {
     flex: 1,
   },
   fromWalletLabel: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "500",
+    ...VP.typography.body,
+    color: VP.colors.text.primary,
+    fontFamily: "SpaceGrotesk-Medium",
   },
   fromWalletBalance: {
-    color: "#22D3EE",
-    fontSize: 14,
-    fontWeight: "600",
+    ...VP.typography.mono,
+    color: VP.colors.accent.cyan,
     marginTop: 2,
   },
   fromWalletAddress: {
-    color: "#9CA3AF",
-    fontSize: 11,
+    ...VP.typography.monoSmall,
+    color: VP.colors.text.secondary,
     marginTop: 2,
   },
   fromTotalBalance: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginTop: 8,
-    backgroundColor: "#06181B",
+    paddingHorizontal: VP.spacing.md,
+    paddingVertical: VP.spacing.sm,
+    marginTop: VP.spacing.sm,
+    backgroundColor: VP.colors.surface,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: "rgba(34, 211, 238, 0.2)",
+    borderColor: VP.colors.ghostBorder,
   },
   fromTotalLabel: {
-    color: "#9CA3AF",
-    fontSize: 12,
+    ...VP.typography.caption,
+    color: VP.colors.text.secondary,
   },
   fromTotalValue: {
-    color: "#22D3EE",
-    fontSize: 14,
-    fontWeight: "600",
+    ...VP.typography.mono,
+    color: VP.colors.accent.cyan,
   },
   fromActions: {
     flexDirection: "row",
     justifyContent: "flex-end",
-    gap: 16,
-    paddingHorizontal: 16,
-    paddingTop: 12,
+    gap: VP.spacing.md,
+    paddingHorizontal: VP.spacing.md,
+    paddingTop: VP.spacing.md,
   },
   fromActionText: {
-    color: "#22D3EE",
-    fontSize: 12,
+    ...VP.typography.label,
+    color: VP.colors.accent.cyan,
     textDecorationLine: "underline",
   },
   fromOption: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
+    paddingHorizontal: VP.spacing.md,
     paddingVertical: 14,
     borderTopWidth: 1,
-    borderTopColor: "rgba(34, 211, 238, 0.2)",
+    borderTopColor: VP.colors.ghostBorder,
   },
   fromOptionText: {
-    color: "#22D3EE",
-    fontSize: 16,
-    fontWeight: "500",
+    ...VP.typography.subheader,
+    color: VP.colors.accent.cyan,
   },
   fromOptionBalance: {
-    color: "#9CA3AF",
-    fontSize: 14,
-    fontWeight: "500",
+    ...VP.typography.body,
+    color: VP.colors.text.secondary,
   },
   createNewButton: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    paddingHorizontal: 16,
+    gap: VP.spacing.sm,
+    paddingHorizontal: VP.spacing.md,
     paddingVertical: 14,
     borderTopWidth: 1,
-    borderTopColor: "rgba(34, 211, 238, 0.2)",
+    borderTopColor: VP.colors.ghostBorder,
   },
   createNewIcon: {
-    color: "#9CA3AF",
+    color: VP.colors.text.secondary,
     fontSize: 18,
     fontWeight: "bold",
   },
   createNewText: {
-    color: "#9CA3AF",
-    fontSize: 14,
-    fontWeight: "500",
+    ...VP.typography.body,
+    color: VP.colors.text.secondary,
   },
   // Send Button
   sendButton: {
-    backgroundColor: "#0C2425",
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: "#22D3EE",
-    paddingVertical: 12,
+    backgroundColor: VP.colors.accent.cyan,
+    borderRadius: VP.radius.md,
+    paddingVertical: 14,
     alignItems: "center",
     justifyContent: "center",
-    marginVertical: 12,
+    marginVertical: VP.spacing.md,
   },
   sendButtonDisabled: {
     opacity: 0.3,
   },
   sendButtonText: {
-    color: "#FFFFFF",
-    fontSize: 20,
-    fontWeight: "500",
+    ...VP.typography.subheader,
+    color: VP.colors.text.inverse,
+    fontFamily: "SpaceGrotesk-Bold",
+    letterSpacing: 1,
   },
   // Connectivity Status
   connectivityBanner: {
@@ -1802,7 +1757,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 6,
-    paddingVertical: 8,
+    paddingVertical: VP.spacing.sm,
   },
   statusDot: {
     width: 6,
@@ -1810,41 +1765,40 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   connectivityText: {
-    color: "#22D3EE",
-    fontSize: 12,
+    ...VP.typography.monoSmall,
+    color: VP.colors.accent.cyan,
   },
   // Transaction Mode Selector
   modeSelector: {
-    marginVertical: 12,
+    marginVertical: VP.spacing.md,
   },
   modeLabel: {
-    color: "#9CA3AF",
-    fontSize: 14,
-    marginBottom: 8,
+    ...VP.typography.body,
+    color: VP.colors.text.secondary,
+    marginBottom: VP.spacing.sm,
   },
   modeButtons: {
     flexDirection: "row",
-    gap: 8,
+    gap: VP.spacing.sm,
   },
   modeButton: {
-    backgroundColor: "#072B31",
-    borderRadius: 8,
+    backgroundColor: VP.colors.surface,
+    borderRadius: VP.radius.sm,
     borderWidth: 1,
-    borderColor: "#106471",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    borderColor: VP.colors.ghostBorder,
+    paddingHorizontal: VP.spacing.md,
+    paddingVertical: VP.spacing.sm,
   },
   modeButtonActive: {
-    backgroundColor: "#106471",
-    borderColor: "#22D3EE",
+    backgroundColor: VP.colors.surfaceElevated,
+    borderColor: VP.colors.accent.cyan,
   },
   modeButtonText: {
-    color: "#9CA3AF",
-    fontSize: 12,
-    fontWeight: "500",
+    ...VP.typography.label,
+    color: VP.colors.text.secondary,
   },
   modeButtonTextActive: {
-    color: "#22D3EE",
+    color: VP.colors.accent.cyan,
   },
   // BLE Status Banner
   bleStatusBanner: {
@@ -1852,70 +1806,71 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 6,
-    paddingVertical: 8,
+    paddingVertical: VP.spacing.sm,
     flexWrap: "wrap",
   },
   bleModeText: {
-    color: "#9CA3AF",
-    fontSize: 10,
+    ...VP.typography.caption,
+    color: VP.colors.text.secondary,
     width: "100%",
     textAlign: "center",
-    marginTop: 4,
+    marginTop: VP.spacing.xs,
   },
   // Wallet List
   walletList: {
     flexDirection: "row",
-    gap: 8,
-    paddingVertical: 4,
+    gap: VP.spacing.sm,
+    paddingVertical: VP.spacing.xs,
   },
   walletCard: {
-    backgroundColor: "#072B31",
-    borderRadius: 12,
+    backgroundColor: VP.colors.surface,
+    borderRadius: VP.radius.md,
     borderWidth: 1,
-    borderColor: "#106471",
-    padding: 12,
+    borderColor: VP.colors.ghostBorder,
+    padding: VP.spacing.md,
     minWidth: 120,
     alignItems: "center",
   },
   walletCardActive: {
-    borderColor: "#22D3EE",
-    backgroundColor: "#106471",
+    borderColor: VP.colors.accent.cyan,
+    backgroundColor: VP.colors.surfaceElevated,
   },
   walletCardLabel: {
-    color: "#9CA3AF",
-    fontSize: 12,
-    marginBottom: 4,
+    ...VP.typography.caption,
+    color: VP.colors.text.secondary,
+    marginBottom: VP.spacing.xs,
   },
   walletCardBalance: {
-    color: "#22D3EE",
+    ...VP.typography.mono,
+    color: VP.colors.accent.cyan,
     fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 4,
+    marginBottom: VP.spacing.xs,
   },
   walletCardAddress: {
-    color: "#9CA3AF",
+    ...VP.typography.monoSmall,
+    color: VP.colors.text.secondary,
     fontSize: 10,
   },
   walletCardCreate: {
-    backgroundColor: "#06181B",
-    borderRadius: 12,
+    backgroundColor: VP.colors.surface,
+    borderRadius: VP.radius.md,
     borderWidth: 1,
-    borderColor: "#106471",
+    borderColor: VP.colors.ghostBorder,
     borderStyle: "dashed",
-    padding: 12,
+    padding: VP.spacing.md,
     minWidth: 120,
     alignItems: "center",
     justifyContent: "center",
   },
   walletCardCreateIcon: {
-    color: "#22D3EE",
+    color: VP.colors.accent.cyan,
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 4,
+    marginBottom: VP.spacing.xs,
   },
   walletCardCreateText: {
-    color: "#22D3EE",
-    fontSize: 10,
+    ...VP.typography.caption,
+    color: VP.colors.accent.cyan,
     textAlign: "center",
   },
   // Checkbox (used in From dropdown)
@@ -1924,63 +1879,62 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 4,
     borderWidth: 2,
-    borderColor: "#9CA3AF",
+    borderColor: VP.colors.text.secondary,
     backgroundColor: "transparent",
     alignItems: "center",
     justifyContent: "center",
   },
   checkboxSelected: {
-    borderColor: "#22D3EE",
-    backgroundColor: "#22D3EE",
+    borderColor: VP.colors.accent.cyan,
+    backgroundColor: VP.colors.accent.cyan,
   },
   checkmark: {
-    color: "#FFFFFF",
+    color: VP.colors.text.inverse,
     fontSize: 12,
     fontWeight: "bold",
   },
   // MWA Mode Banner
   mwaModeBanner: {
-    backgroundColor: "#106471",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginHorizontal: 12,
-    marginTop: 8,
-    borderRadius: 8,
+    backgroundColor: VP.colors.surfaceElevated,
+    paddingHorizontal: VP.spacing.md,
+    paddingVertical: VP.spacing.sm,
+    marginHorizontal: VP.spacing.md,
+    marginTop: VP.spacing.sm,
+    borderRadius: VP.radius.sm,
     borderLeftWidth: 3,
-    borderLeftColor: "#22D3EE",
+    borderLeftColor: VP.colors.accent.cyan,
   },
   mwaModeText: {
-    color: "#22D3EE",
-    fontSize: 12,
-    fontWeight: "600",
+    ...VP.typography.label,
+    color: VP.colors.accent.cyan,
   },
   // Section Actions (for loading spinner)
   fromSectionActions: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: VP.spacing.sm,
   },
   // No wallets message
   noWalletsMessage: {
-    paddingHorizontal: 16,
-    paddingVertical: 24,
+    paddingHorizontal: VP.spacing.md,
+    paddingVertical: VP.spacing.lg,
     alignItems: "center",
   },
   noWalletsText: {
-    color: "#9CA3AF",
-    fontSize: 14,
-    fontWeight: "500",
+    ...VP.typography.body,
+    color: VP.colors.text.secondary,
   },
   noWalletsSubtext: {
-    color: "#6B7280",
-    fontSize: 12,
-    marginTop: 4,
+    ...VP.typography.caption,
+    color: VP.colors.text.disabled,
+    marginTop: VP.spacing.xs,
   },
   // Nonce wallet indicator
   nonceWalletIndicator: {
-    color: "#22D3EE",
-    fontSize: 11,
-    marginLeft: 4,
+    ...VP.typography.monoSmall,
+    color: VP.colors.accent.cyan,
+    marginLeft: VP.spacing.xs,
     fontStyle: "italic",
+    fontSize: 11,
   },
 });

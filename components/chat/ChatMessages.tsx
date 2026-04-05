@@ -5,6 +5,7 @@ import ConnectedBLEIcon from "../icons/ConnectedBLEIcon";
 import HandIcon from "../icons/HandIcon";
 import HourglassMediumIcon from "../icons/HourglassMediumIcon";
 import PaperPlaneIcon from "../icons/PaperPlaneIcon";
+import { VP } from "@/constants/void-protocol";
 
 export interface Message {
   id: string;
@@ -145,7 +146,7 @@ const styles = StyleSheet.create({
   bannerText: {
     flex: 1,
     fontSize: 12,
-    color: "#9ca3af",
+    color: VP.colors.text.secondary,
     fontFamily: "SpaceGrotesk-Regular",
     fontWeight: "400",
     lineHeight: 24,
@@ -153,7 +154,7 @@ const styles = StyleSheet.create({
   bannerTime: {
     width: 45,
     textAlign: "right",
-    color: "#9ca3af",
+    color: VP.colors.text.secondary,
     fontSize: 10,
     fontWeight: "500",
     fontFamily: "SpaceGrotesk-Medium",
@@ -182,54 +183,54 @@ const styles = StyleSheet.create({
   messageContent: {
     flex: 1,
     fontSize: 14,
-    color: "#fff",
+    color: VP.colors.text.primary,
     lineHeight: 24,
     fontFamily: "SpaceGrotesk-Medium",
   },
   commandContent: {
-    color: "#9ca3af",
+    color: VP.colors.text.secondary,
     fontSize: 12,
     fontWeight: "400",
   },
   senderName: {
     fontSize: 14,
     fontWeight: "400",
-    color: "#9ca3af",
+    color: VP.colors.text.secondary,
     fontFamily: "SpaceGrotesk-Regular",
   },
   senderNameMine: {
     fontSize: 14,
     fontWeight: "400",
-    color: "#22d3ee",
+    color: VP.colors.accent.cyan,
     fontFamily: "SpaceGrotesk-Regular",
   },
   specialSender: {
-    color: "#22d3ee",
+    color: VP.colors.accent.cyan,
     fontWeight: "500",
   },
   messageText: {
     fontSize: 14,
-    color: "#fff",
+    color: VP.colors.text.primary,
     lineHeight: 24,
     flex: 1,
     fontFamily: "SpaceGrotesk-Regular",
   },
   messageTextMine: {
     fontSize: 14,
-    color: "#fff",
+    color: VP.colors.text.primary,
     lineHeight: 24,
     flex: 1,
     fontFamily: "SpaceGrotesk-Regular",
   },
   commandText: {
-    color: "#9ca3af",
+    color: VP.colors.text.secondary,
     fontSize: 12,
     fontWeight: "400",
     fontFamily: "SpaceGrotesk-Regular",
   },
   timestamp: {
     fontSize: 10,
-    color: "#9ca3af",
+    color: VP.colors.text.secondary,
     width: 45,
     textAlign: "right",
     fontFamily: "SpaceGrotesk-Medium",

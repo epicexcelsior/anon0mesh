@@ -11,12 +11,12 @@ export const LandingPage: React.FC = () => {
             await SecureStore.setItemAsync('hasSeenIndex', 'true');
             console.log('[Landing] User entered mesh - marked as seen');
             
-            // Navigate to chat
-            router.push('/chat');
+            // Navigate to the main chat tab
+            router.replace('/chat');
         } catch (error) {
             console.error('[Landing] Error marking index as seen:', error);
             // Still navigate even if saving fails
-            router.push('/chat');
+            router.replace('/chat');
         }
     };
     

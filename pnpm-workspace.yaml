@@ -1,0 +1,7 @@
+onlyBuiltDependencies:
+  - bigint-buffer
+  - bufferutil
+  - postinstall-postinstall
+  - react-native-libsodium
+  - unrs-resolver
+  - utf-8-validate

@@ -1,4 +1,4 @@
-import { LinearGradient } from "expo-linear-gradient";
+import { VP } from "@/constants/void-protocol";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -34,7 +34,7 @@ export default function NumericKeyboard({
 
     return (
       <TouchableOpacity
-        key={value}
+        key={String(value)}
         style={styles.percentButton}
         onPress={() => {
           if (!onPercentage || !maxAmount) return;
@@ -43,14 +43,7 @@ export default function NumericKeyboard({
         }}
         activeOpacity={0.7}
       >
-        <LinearGradient
-          colors={["rgba(34, 211, 238, 0.2)", "rgba(34, 211, 238, 0.1)"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.percentGradient}
-        >
-          <Text style={styles.percentText}>{displayText}</Text>
-        </LinearGradient>
+        <Text style={styles.percentText}>{displayText}</Text>
       </TouchableOpacity>
     );
   };
@@ -71,14 +64,7 @@ export default function NumericKeyboard({
         }}
         activeOpacity={0.7}
       >
-        <LinearGradient
-          colors={["rgba(34, 211, 238, 0.15)", "rgba(34, 211, 238, 0.05)"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.keyGradient}
-        >
-          <Text style={styles.keyText}>{isBackspace ? "⌫" : key}</Text>
-        </LinearGradient>
+        <Text style={styles.keyText}>{isBackspace ? "\u232B" : key}</Text>
       </TouchableOpacity>
     );
   };
@@ -109,14 +95,7 @@ export default function NumericKeyboard({
           onPress={onDone}
           activeOpacity={0.8}
         >
-          <LinearGradient
-            colors={["#22D3EE", "#0891B2"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.doneGradient}
-          >
-            <Text style={styles.doneText}>Done</Text>
-          </LinearGradient>
+          <Text style={styles.doneText}>Done</Text>
         </TouchableOpacity>
       )}
     </View>
@@ -135,22 +114,20 @@ const styles = StyleSheet.create({
   percentColumn: {
     justifyContent: "space-between",
     flex: 1,
+    gap: 5,
   },
   percentButton: {
     flex: 1,
     minHeight: 42,
-    borderRadius: 10,
-    overflow: "hidden",
-  },
-  percentGradient: {
-    flex: 1,
+    borderRadius: VP.radius.sm,
+    backgroundColor: VP.colors.accent.cyanMuted,
     justifyContent: "center",
     alignItems: "center",
   },
   percentText: {
     fontSize: 14,
-    fontWeight: "700",
-    color: "#22D3EE",
+    fontFamily: "SpaceGrotesk-Bold",
+    color: VP.colors.accent.cyan,
   },
   keysGrid: {
     flex: 3,
@@ -164,34 +141,28 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 42,
     marginHorizontal: 2,
-    borderRadius: 10,
-    overflow: "hidden",
+    borderRadius: VP.radius.sm,
     borderWidth: 1,
-    borderColor: "rgba(34, 211, 238, 0.3)",
-  },
-  keyGradient: {
-    flex: 1,
+    borderColor: VP.colors.accent.cyanMuted,
+    backgroundColor: VP.colors.surface,
     justifyContent: "center",
     alignItems: "center",
   },
   keyText: {
     fontSize: 20,
-    fontWeight: "600",
-    color: "#FFFFFF",
+    fontFamily: "SpaceGrotesk-SemiBold",
+    color: VP.colors.text.primary,
   },
   doneButton: {
-    borderRadius: 10,
-    overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "#22D3EE",
-  },
-  doneGradient: {
+    borderRadius: VP.radius.sm,
+    backgroundColor: VP.colors.accent.cyan,
     paddingVertical: 8,
     alignItems: "center",
+    marginTop: 5,
   },
   doneText: {
     fontSize: 14,
-    fontWeight: "700",
-    color: "#FFFFFF",
+    fontFamily: "SpaceGrotesk-Bold",
+    color: VP.colors.text.inverse,
   },
 });

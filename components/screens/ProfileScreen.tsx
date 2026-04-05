@@ -1,388 +1,532 @@
+import { VP } from "@/constants/void-protocol";
+import { useMeshChat } from "@/src/contexts/MeshBLEContext";
 import { useWallet } from "@/src/contexts/WalletContext";
 import { Identity } from "@/src/domain/entities/Identity";
 import { identityStateManager } from "@/src/infrastructure/identity";
-import { LinearGradient } from "expo-linear-gradient";
+import * as Clipboard from "expo-clipboard";
+import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
+import {
+  Broadcast,
+  CaretRight,
+  Copy,
+  Gear,
+  Lock,
+  PencilSimple,
+  SlidersHorizontal,
+} from "phosphor-react-native";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
   Keyboard,
+  ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import OctagonTimesIcon from "../icons/OctagonTimesIcon";
-import SeedlingIcon from "../icons/SeedlingIcon";
-import BottomNavWithMenu from "../ui/BottomNavWithMenu";
+import VoidCard from "../ui/VoidCard";
+import VoidScreen from "../ui/VoidScreen";
 
-interface ProfileScreenProps {
-  onNavigateToMessages?: () => void;
-  onNavigateToWallet?: () => void;
-  onNavigateToHistory?: () => void;
-  onNavigateToMeshZone?: () => void;
-  onNavigateToProfile?: () => void;
-  onDisconnect?: () => void;
-}
-
-const ProfileScreen: React.FC<ProfileScreenProps> = ({
-  onNavigateToMessages,
-  onNavigateToWallet,
-  onNavigateToHistory,
-  onNavigateToMeshZone,
-  onNavigateToProfile,
-  onDisconnect,
-}) => {
+export default function ProfileScreen() {
+  const router = useRouter();
   const {
     publicKey: walletPublicKey,
-    isConnected,
+    isConnected: walletConnected,
     connect,
     isLoading: isWalletLoading,
   } = useWallet();
+
+  const {
+    isConnected: meshConnected,
+    myPeerId,
+    connectedPeerCount,
+  } = useMeshChat();
+
   const [nickname, setNickname] = useState("");
-  const [pubKey, setPubKey] = useState<string>("");
-  const [isValidating, setIsValidating] = useState(false);
+  const [pubKey, setPubKey] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Load wallet and nickname on mount
   useEffect(() => {
     let mounted = true;
     (async () => {
       try {
-        // If not connected, trigger connection
-        if (!isConnected && !isWalletLoading) {
-          console.log(
-            "[ProfileScreen] Wallet not connected, triggering connection...",
-          );
+        if (!walletConnected && !isWalletLoading) {
           await connect();
         }
-
         if (walletPublicKey && mounted) {
-          const pubKeyString = walletPublicKey.toBase58();
-          setPubKey(pubKeyString);
+          setPubKey(walletPublicKey.toBase58());
         }
 
-        // Load identity from global state
-        console.log("[ProfileScreen] Loading identity from identityStateManager...");
-        const identity = identityStateManager.getIdentity() || await identityStateManager.initialize();
+        const identity =
+          identityStateManager.getIdentity() ||
+          (await identityStateManager.initialize());
 
         if (identity && mounted) {
-          console.log("[ProfileScreen] Identity loaded:", identity.nickname);
           setNickname(identity.nickname);
         } else if (mounted) {
-          // Fallback to SecureStore nickname if no identity exists
-          console.log(
-            "[ProfileScreen] No identity found, checking SecureStore...",
-          );
           const storedNickname = await SecureStore.getItemAsync("nickname");
           setNickname(storedNickname || "Anonymous");
         }
       } catch (e) {
         console.warn("[ProfileScreen] Failed to initialize", e);
-        if (mounted) {
-          setNickname("Anonymous");
-        }
+        if (mounted) setNickname("Anonymous");
       }
     })();
     return () => {
       mounted = false;
     };
-  }, [isConnected, isWalletLoading, walletPublicKey, connect]);
+  }, [walletConnected, isWalletLoading, walletPublicKey, connect]);
 
-  const validateAndSave = async () => {
-    const trimmedNickname = nickname.trim();
-
-    // Validation rules
-    if (!trimmedNickname) {
-      Alert.alert("Invalid Nickname", "Nickname cannot be empty");
+  const handleSaveNickname = async () => {
+    const trimmed = nickname.trim();
+    if (!trimmed || trimmed.length < 2) {
+      Alert.alert("Invalid", "Nickname must be at least 2 characters.");
       return;
     }
-    if (trimmedNickname.length < 2) {
-      Alert.alert(
-        "Invalid Nickname",
-        "Nickname must be at least 2 characters long",
-      );
+    if (trimmed.length > 20) {
+      Alert.alert("Invalid", "Nickname must be 20 characters or less.");
       return;
     }
-    if (trimmedNickname.length > 20) {
-      Alert.alert("Invalid Nickname", "Nickname must be 20 characters or less");
-      return;
-    }
-    if (!/^[a-zA-Z0-9\s\-_.]+$/.test(trimmedNickname)) {
-      Alert.alert(
-        "Invalid Nickname",
-        "Nickname can only contain letters, numbers, spaces, and basic punctuation",
-      );
+    if (!/^[a-zA-Z0-9\s\-_.]+$/.test(trimmed)) {
+      Alert.alert("Invalid", "Letters, numbers, and basic punctuation only.");
       return;
     }
 
-    setIsValidating(true);
+    setIsSaving(true);
     try {
-      console.log(
-        "[ProfileScreen] Saving nickname to IdentityManager:",
-        trimmedNickname,
-      );
-
-      // Get current identity
       const currentIdentity = identityStateManager.getIdentity();
-
       if (currentIdentity) {
-        // Create a new Identity object with updated nickname
-        const updatedIdentity = new Identity({
+        const updated = new Identity({
           noiseStaticKeyPair: currentIdentity.noiseStaticKeyPair,
           signingKeyPair: currentIdentity.signingKeyPair,
-          nickname: trimmedNickname,
+          nickname: trimmed,
           fingerprint: currentIdentity.fingerprint,
         });
-
-        await identityStateManager.saveIdentity(updatedIdentity);
-        console.log("[ProfileScreen] Global identity updated with new nickname");
+        await identityStateManager.saveIdentity(updated);
       }
-
-      // Also save to SecureStore for compatibility
-      await SecureStore.setItemAsync("nickname", trimmedNickname);
-
-      setNickname(trimmedNickname);
-      Alert.alert("Success", "Nickname updated successfully!");
+      await SecureStore.setItemAsync("nickname", trimmed);
+      setNickname(trimmed);
+      setIsEditing(false);
+      Keyboard.dismiss();
     } catch (error) {
-      console.error("[ProfileScreen] Failed to save nickname:", error);
-      Alert.alert("Error", "Failed to update nickname. Please try again.");
+      console.error("[ProfileScreen] Save failed:", error);
+      Alert.alert("Error", "Failed to update nickname.");
     } finally {
-      setIsValidating(false);
+      setIsSaving(false);
     }
   };
 
-  const handleExportPrivateKey = () => {
-    Alert.alert(
-      "Export Private Key",
-      "This will export your private key. Make sure you're in a secure environment. This action cannot be undone.",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Export",
-          style: "destructive",
-          onPress: () => {
-            // TODO: Implement private key export functionality
-            Alert.alert(
-              "Not Implemented",
-              "Private key export functionality will be implemented.",
-            );
-          },
-        },
-      ],
-    );
+  const handleCopyAddress = async () => {
+    if (!pubKey) return;
+    await Clipboard.setStringAsync(pubKey);
+    Alert.alert("Copied", "Wallet address copied to clipboard.");
   };
 
-  const handleDestroyWallet = () => {
-    Alert.alert(
-      "Destroy Wallet",
-      "This will permanently delete your wallet and all associated data. This action cannot be undone.",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Destroy",
-          style: "destructive",
-          onPress: () => {
-            // TODO: Implement wallet destruction functionality
-            Alert.alert(
-              "Not Implemented",
-              "Wallet destruction functionality will be implemented.",
-            );
-          },
-        },
-      ],
-    );
+  const handleCopyPeerId = async () => {
+    if (!myPeerId) return;
+    await Clipboard.setStringAsync(myPeerId);
+    Alert.alert("Copied", "Mesh Node ID copied to clipboard.");
   };
+
+  const handleOpenWalletSettings = () => {
+    router.push("/wallet/settings");
+  };
+
+  const truncatedPubKey = pubKey
+    ? `${pubKey.slice(0, 6)}...${pubKey.slice(-4)}`
+    : "Not connected";
+  const truncatedPeerId = myPeerId
+    ? `${myPeerId.slice(0, 6)}...${myPeerId.slice(-4)}`
+    : "...";
 
   return (
-    <LinearGradient
-      colors={["#0D0D0D", "#06181B", "#072B31"]}
-      locations={[0, 0.94, 1]}
-      start={{ x: 0.21, y: 0 }}
-      end={{ x: 0.79, y: 1 }}
-      style={{ flex: 1 }}
-    >
-      <SafeAreaView style={{ flex: 1 }}>
-        {/* Header */}
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-            paddingHorizontal: 20,
-            paddingVertical: 16,
-            borderBottomWidth: 2,
-            borderBottomColor: "#22D3EE",
-          }}
+    <VoidScreen>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Profile</Text>
+        <TouchableOpacity
+          style={styles.settingsButton}
+          onPress={() => router.push("/settings")}
+          hitSlop={12}
         >
-          <Text style={{ color: "#FFFFFF", fontSize: 20, fontWeight: "600" }}>
-            Profile
-          </Text>
+          <Gear size={22} color={VP.colors.text.secondary} weight="regular" />
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* ── Identity Card ──────────────────────────── */}
+        <VoidCard elevated style={styles.identityCard}>
+          {/* Avatar */}
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>
+              {(nickname || "AN").slice(0, 2).toUpperCase()}
+            </Text>
+          </View>
+
+          {/* Name + edit */}
+          {isEditing ? (
+            <View style={styles.editRow}>
+              <TextInput
+                style={styles.nicknameInput}
+                value={nickname}
+                onChangeText={setNickname}
+                maxLength={20}
+                autoFocus
+                selectTextOnFocus
+                returnKeyType="done"
+                onSubmitEditing={handleSaveNickname}
+                placeholderTextColor={VP.colors.text.disabled}
+              />
+              <TouchableOpacity
+                style={styles.saveButton}
+                onPress={handleSaveNickname}
+                disabled={isSaving}
+              >
+                <Text style={styles.saveButtonText}>
+                  {isSaving ? "..." : "Save"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={styles.nameRow}
+              onPress={() => setIsEditing(true)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.displayName}>{nickname || "Anonymous"}</Text>
+              <PencilSimple
+                size={16}
+                color={VP.colors.text.secondary}
+                weight="regular"
+              />
+            </TouchableOpacity>
+          )}
+
+          {/* BLE status */}
+          <View style={styles.bleRow}>
+            <View
+              style={[
+                styles.bleDot,
+                !meshConnected && styles.bleDotOffline,
+              ]}
+            />
+            <Text
+              style={[
+                styles.bleLabel,
+                !meshConnected && styles.bleLabelOffline,
+              ]}
+            >
+              {meshConnected ? "BLE ACTIVE" : "BLE OFFLINE"}
+            </Text>
+          </View>
+        </VoidCard>
+
+        {/* ── Public Identity ────────────────────────── */}
+        <Text style={styles.sectionLabel}>PUBLIC IDENTITY</Text>
+
+        <VoidCard style={styles.identityDetails}>
+          {/* Solana address */}
           <TouchableOpacity
-            onPress={validateAndSave}
-            disabled={isValidating || nickname.trim().length === 0}
-            style={{
-              width: 80,
-              height: 36,
-              backgroundColor:
-                isValidating || nickname.trim().length === 0
-                  ? "#072B31"
-                  : "#22D3EE",
-              borderRadius: 10,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
+            style={styles.detailRow}
+            onPress={handleCopyAddress}
             activeOpacity={0.7}
           >
-            <Text
-              style={{
-                color:
-                  isValidating || nickname.trim().length === 0
-                    ? "#4a5555"
-                    : "#0D0D0D",
-                fontSize: 15,
-                fontWeight: "600",
-              }}
-            >
-              {isValidating ? "Saving..." : "Save"}
-            </Text>
+            <Lock size={16} color={VP.colors.accent.purple} weight="fill" />
+            <View style={styles.detailInfo}>
+              <Text style={styles.detailLabel}>Solana Address</Text>
+              <Text style={styles.detailValueMono}>{truncatedPubKey}</Text>
+            </View>
+            <Copy size={16} color={VP.colors.text.disabled} weight="regular" />
           </TouchableOpacity>
+
+          <View style={styles.divider} />
+
+          {/* Mesh Node ID */}
+          <TouchableOpacity
+            style={styles.detailRow}
+            onPress={handleCopyPeerId}
+            activeOpacity={0.7}
+          >
+            <Broadcast size={16} color={VP.colors.accent.cyan} weight="regular" />
+            <View style={styles.detailInfo}>
+              <Text style={styles.detailLabel}>Mesh Node ID</Text>
+              <Text style={styles.detailValueMono}>{truncatedPeerId}</Text>
+            </View>
+            <Copy size={16} color={VP.colors.text.disabled} weight="regular" />
+          </TouchableOpacity>
+        </VoidCard>
+
+        {/* ── Node Stats ─────────────────────────────── */}
+        <Text style={styles.sectionLabel}>NODE STATUS</Text>
+
+        <View style={styles.statsRow}>
+          <VoidCard style={styles.statCard}>
+            <Text style={styles.statValue}>{connectedPeerCount}</Text>
+            <Text style={styles.statLabel}>Active Nodes</Text>
+          </VoidCard>
+          <VoidCard style={styles.statCard}>
+            <Text style={styles.statValue}>
+              {meshConnected ? "Online" : "Offline"}
+            </Text>
+            <Text style={styles.statLabel}>Mesh Status</Text>
+          </VoidCard>
         </View>
-        {/* Content */}
-        <View style={{ flex: 1, paddingHorizontal: 20, paddingTop: 24 }}>
-          {/* Custom Nickname Section */}
-          <View style={{ marginBottom: 24 }}>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: 12,
-              }}
-            >
-              <Text
-                style={{ color: "#FFFFFF", fontSize: 16, fontWeight: "500" }}
-              >
-                Custom Nickname
-              </Text>
-              <Text style={{ color: "#9CA3AF", fontSize: 14 }}>
-                {nickname.length}/20
+
+        {/* ── Wallet Management ─────────────────────── */}
+        <Text style={styles.sectionLabel}>WALLET MANAGEMENT</Text>
+
+        <VoidCard style={styles.securityCard}>
+          <TouchableOpacity
+            style={styles.securityRow}
+            onPress={handleOpenWalletSettings}
+            activeOpacity={0.7}
+          >
+            <SlidersHorizontal
+              size={18}
+              color={VP.colors.accent.cyan}
+              weight="regular"
+            />
+            <View style={styles.securityRowInfo}>
+              <Text style={styles.securityRowLabel}>Wallet Settings</Text>
+              <Text style={styles.securityRowSubtext}>
+                Manage your primary wallet and offline wallets
               </Text>
             </View>
-            <TextInput
-              style={{
-                backgroundColor: "transparent",
-                borderRadius: 12,
-                paddingHorizontal: 16,
-                paddingVertical: 14,
-                color: "#22D3EE",
-                fontSize: 16,
-                borderWidth: 2,
-                borderColor: "#22D3EE",
-                fontFamily: "monospace",
-              }}
-              value={nickname}
-              onChangeText={setNickname}
-              placeholder="Type_custom_nickname"
-              placeholderTextColor="#22D3EE"
-              maxLength={20}
-              autoFocus={false}
-              selectTextOnFocus={true}
-              returnKeyType="done"
-              onSubmitEditing={() => Keyboard.dismiss()}
+            <CaretRight
+              size={16}
+              color={VP.colors.text.disabled}
+              weight="regular"
             />
-          </View>
+          </TouchableOpacity>
+        </VoidCard>
 
-          <View style={{ marginBottom: 32 }}>
-            <Text style={{ color: "#9CA3AF", fontSize: 14, marginBottom: 6 }}>
-              • Letters, numbers and basic punctuation only
-            </Text>
-            <Text style={{ color: "#9CA3AF", fontSize: 14, marginBottom: 6 }}>
-              • Will be visible to other mesh users
-            </Text>
-            <Text style={{ color: "#9CA3AF", fontSize: 14, marginBottom: 6 }}>
-              • Choose something memorable and appropriate
-            </Text>
-            <Text style={{ color: "#9CA3AF", fontSize: 14, marginTop: 12 }}>
-              💡 Your nickname is synced with your mesh identity
-            </Text>
-          </View>
-
-          {/* Danger Zone Buttons */}
-          <View style={{ marginBottom: 32 }}>
-            <TouchableOpacity
-              style={{
-                backgroundColor: "#0c2425",
-                borderWidth: 1,
-                borderColor: "#22D3EE",
-                borderRadius: 10,
-                paddingHorizontal: 15,
-                paddingVertical: 10,
-                marginBottom: 16,
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 10,
-              }}
-              onPress={handleExportPrivateKey}
-              activeOpacity={0.7}
-            >
-              <SeedlingIcon size={20} />
-              <Text
-                style={{
-                  color: "#FFFFFF",
-                  fontSize: 16,
-                  fontFamily: "SpaceGrotesk-Regular",
-                  fontWeight: "400",
-                  letterSpacing: 0.8,
-                }}
-              >
-                Export Private Key
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={{
-                backgroundColor: "#072B31",
-                borderWidth: 1,
-                borderColor: "#22D3EE",
-                borderRadius: 10,
-                paddingHorizontal: 15,
-                paddingVertical: 10,
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 10,
-              }}
-              onPress={handleDestroyWallet}
-              activeOpacity={0.7}
-            >
-              <OctagonTimesIcon size={24} />
-              <Text
-                style={{
-                  color: "#FFFFFF",
-                  fontSize: 16,
-                  fontFamily: "SpaceGrotesk-Regular",
-                  fontWeight: "400",
-                  letterSpacing: 0.8,
-                }}
-              >
-                Destroy Wallet
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Bottom Navigation Bar with Menu */}
-        <BottomNavWithMenu
-          onNavigateToMessages={onNavigateToMessages}
-          onNavigateToWallet={onNavigateToWallet}
-          onNavigateToHistory={onNavigateToHistory}
-          onNavigateToMeshZone={onNavigateToMeshZone}
-          onNavigateToProfile={onNavigateToProfile}
-          onDisconnect={onDisconnect}
-        />
-      </SafeAreaView>
-    </LinearGradient>
+        {/* ── Version ────────────────────────────────── */}
+        <Text style={styles.versionText}>v1.0.0</Text>
+      </ScrollView>
+    </VoidScreen>
   );
-};
+}
 
-export default ProfileScreen;
+// ── Styles ──────────────────────────────────────────────────
+
+const styles = StyleSheet.create({
+  // Header
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: VP.spacing.md,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: VP.colors.ghostBorder,
+  },
+  headerTitle: {
+    ...VP.typography.header,
+    color: VP.colors.text.primary,
+  },
+  settingsButton: {
+    padding: 4,
+  },
+
+  // Scroll
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: VP.spacing.md,
+    paddingTop: VP.spacing.lg,
+    paddingBottom: VP.spacing.xxl,
+  },
+
+  // Identity card
+  identityCard: {
+    alignItems: "center",
+    paddingVertical: VP.spacing.lg,
+    gap: VP.spacing.sm,
+  },
+  avatar: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: VP.colors.accent.cyanMuted,
+    borderWidth: 2,
+    borderColor: VP.colors.accent.cyan,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: VP.spacing.xs,
+  },
+  avatarText: {
+    fontSize: 24,
+    fontFamily: "JetBrainsMono-Medium",
+    color: VP.colors.accent.cyan,
+  },
+  nameRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: VP.spacing.sm,
+  },
+  displayName: {
+    ...VP.typography.header,
+    color: VP.colors.text.primary,
+  },
+  editRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: VP.spacing.sm,
+    width: "100%",
+    paddingHorizontal: VP.spacing.md,
+  },
+  nicknameInput: {
+    flex: 1,
+    ...VP.typography.mono,
+    color: VP.colors.accent.cyan,
+    borderWidth: 1,
+    borderColor: VP.colors.accent.cyan,
+    borderRadius: VP.radius.sm,
+    paddingHorizontal: VP.spacing.sm,
+    paddingVertical: 10,
+  },
+  saveButton: {
+    backgroundColor: VP.colors.accent.cyan,
+    borderRadius: VP.radius.sm,
+    paddingHorizontal: VP.spacing.md,
+    paddingVertical: 10,
+  },
+  saveButtonText: {
+    ...VP.typography.label,
+    color: VP.colors.text.inverse,
+    fontFamily: "SpaceGrotesk-SemiBold",
+    letterSpacing: 1,
+  },
+  bleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: VP.colors.accent.cyanGhost,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: VP.radius.full,
+  },
+  bleDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: VP.colors.accent.cyan,
+    marginRight: 6,
+  },
+  bleDotOffline: {
+    backgroundColor: VP.colors.status.error,
+  },
+  bleLabel: {
+    ...VP.typography.caption,
+    color: VP.colors.accent.cyan,
+    fontFamily: "SpaceGrotesk-Medium",
+    letterSpacing: 1,
+    textTransform: "uppercase",
+  },
+  bleLabelOffline: {
+    color: VP.colors.status.error,
+  },
+
+  // Section labels
+  sectionLabel: {
+    ...VP.typography.label,
+    color: VP.colors.text.secondary,
+    textTransform: "uppercase",
+    marginTop: VP.spacing.lg,
+    marginBottom: VP.spacing.sm,
+  },
+
+  // Identity details
+  identityDetails: {
+    padding: 0,
+    overflow: "hidden",
+  },
+  detailRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 14,
+    paddingHorizontal: VP.spacing.md,
+    gap: VP.spacing.sm,
+  },
+  detailInfo: {
+    flex: 1,
+  },
+  detailLabel: {
+    ...VP.typography.caption,
+    color: VP.colors.text.disabled,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+    marginBottom: 2,
+  },
+  detailValueMono: {
+    ...VP.typography.mono,
+    color: VP.colors.text.primary,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: VP.colors.ghostBorder,
+  },
+
+  // Stats
+  statsRow: {
+    flexDirection: "row",
+    gap: VP.spacing.sm,
+  },
+  statCard: {
+    flex: 1,
+    alignItems: "center",
+    paddingVertical: VP.spacing.md,
+  },
+  statValue: {
+    ...VP.typography.header,
+    color: VP.colors.accent.cyan,
+    marginBottom: 2,
+  },
+  statLabel: {
+    ...VP.typography.caption,
+    color: VP.colors.text.secondary,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+
+  // Security
+  securityCard: {
+    padding: 0,
+    overflow: "hidden",
+  },
+  securityRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 14,
+    paddingHorizontal: VP.spacing.md,
+    gap: VP.spacing.sm,
+  },
+  securityRowInfo: {
+    flex: 1,
+  },
+  securityRowLabel: {
+    ...VP.typography.body,
+    color: VP.colors.text.primary,
+  },
+  securityRowSubtext: {
+    ...VP.typography.caption,
+    color: VP.colors.text.secondary,
+    marginTop: 2,
+  },
+
+  // Version
+  versionText: {
+    ...VP.typography.monoSmall,
+    color: VP.colors.text.disabled,
+    textAlign: "center",
+    marginTop: VP.spacing.xl,
+  },
+});

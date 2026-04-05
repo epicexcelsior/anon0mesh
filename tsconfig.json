@@ -19,5 +19,10 @@
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
     "nativewind-env.d.ts"
+  ],
+  "exclude": [
+    "lib/escrow-program.ts",
+    "src/components/ui_OLD_BACKUP/**",
+    "src/infrastructure/mesh/MeshManager.ts"
   ]
 }

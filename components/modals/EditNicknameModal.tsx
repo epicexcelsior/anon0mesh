@@ -12,7 +12,6 @@ import {
     View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import BottomNavWithMenu from '../ui/BottomNavWithMenu';
 
 interface EditNicknameModalProps {
     visible: boolean;
@@ -272,17 +271,6 @@ const EditNicknameModal: React.FC<EditNicknameModalProps> = ({
                         </View>
                     </View>
 
-                    {/* Bottom Navigation Bar with Menu */}
-                    <BottomNavWithMenu
-                        onNavigateToMessages={handleClose}
-                        onNavigateToWallet={handleClose}
-                        onNavigateToHistory={handleClose}
-                        onNavigateToMeshZone={handleClose}
-                        onNavigateToProfile={() => {
-                            // Already on profile, just close modal
-                        }}
-                        onDisconnect={handleClose}
-                    />
                 </SafeAreaView>
             </LinearGradient>
         </Modal>

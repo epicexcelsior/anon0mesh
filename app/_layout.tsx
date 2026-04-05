@@ -8,12 +8,17 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import "react-native-reanimated";
+import { useFonts } from "expo-font";
 
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import "@/global.css";
+
+// Keep splash screen visible while fonts load
+SplashScreen.preventAutoHideAsync();
 
 // ENHANCED BLE CONTEXTS - Replace original providers for persistent sessions
 // import { BLEProvider } from "@/src/contexts/BLEContextEnhanced";
@@ -85,11 +90,34 @@ export const unstable_settings = {
 export default function RootLayout() {
   const colorScheme = useColorScheme();
 
+  // Load all fonts globally — Space Grotesk (UI) + JetBrains Mono (data)
+  const [fontsLoaded, fontError] = useFonts({
+    "SpaceGrotesk-Light": require("@/assets/fonts/SpaceGrotesk-Light.ttf"),
+    "SpaceGrotesk-Regular": require("@/assets/fonts/SpaceGrotesk-Regular.ttf"),
+    "SpaceGrotesk-Medium": require("@/assets/fonts/SpaceGrotesk-Medium.ttf"),
+    "SpaceGrotesk-SemiBold": require("@/assets/fonts/SpaceGrotesk-SemiBold.ttf"),
+    "SpaceGrotesk-Bold": require("@/assets/fonts/SpaceGrotesk-Bold.ttf"),
+    "JetBrainsMono-Regular": require("@/assets/fonts/JetBrainsMono-Regular.ttf"),
+    "JetBrainsMono-Medium": require("@/assets/fonts/JetBrainsMono-Medium.ttf"),
+    "JetBrainsMono-Bold": require("@/assets/fonts/JetBrainsMono-Bold.ttf"),
+  });
+
   useEffect(() => {
     identityStateManager.initialize().catch((err) => {
       console.error("[RootLayout] Failed to initialize identity state:", err);
     });
   }, []);
+
+  // Hide splash screen once fonts are ready
+  useEffect(() => {
+    if (fontsLoaded || fontError) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, fontError]);
+
+  if (!fontsLoaded && !fontError) {
+    return null;
+  }
 
   return (
     <GluestackUIProvider mode="dark">
@@ -101,14 +129,22 @@ export default function RootLayout() {
           >
             {/* Hide default stack header globally */}
             <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="onboarding" />
+              {/* Tab navigator — main app screens */}
               <Stack.Screen name="(tabs)" />
+              {/* Pre-app screens (no tab bar) */}
+              <Stack.Screen name="onboarding" />
               <Stack.Screen name="landing" />
-              <Stack.Screen name="chat" />
-              <Stack.Screen name="wallet" />
-              <Stack.Screen name="profile" />
-              <Stack.Screen name="zone" />
-              <Stack.Screen name="ble-test" />
+              {/* Push-over screens (hide tab bar) */}
+              <Stack.Screen name="settings" />
+              <Stack.Screen name="chat/selection" />
+              <Stack.Screen name="chat/thread" />
+              <Stack.Screen name="mesh/[peerId]" />
+              <Stack.Screen name="wallet/send" />
+              <Stack.Screen name="wallet/receive" />
+              <Stack.Screen name="wallet/settings" />
+              <Stack.Screen name="wallet/success" />
+              <Stack.Screen name="zone/index" />
+              <Stack.Screen name="zone/create" />
             </Stack>
             <TransactionApprovalModal />
             <StatusBar style="auto" />

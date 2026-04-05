@@ -16,9 +16,7 @@ export * from './value-objects/PeerId';
 export * from './value-objects/Nickname';
 
 // Repositories
-export * from './repositories/IMessageRepository';
-export * from './repositories/IPeerRepository';
-export * from './repositories/IPacketRepository';
+export * from "./repositories/INostrChatRepository";
 
 // Services
 export * from './services/MessageRoutingService';
