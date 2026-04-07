@@ -33,6 +33,7 @@ export default function WalletSettingsScreen() {
     isSolanaMobile,
     deviceInfo,
     wallet,
+    disconnect,
   } = useWallet();
 
   const connection = useMemo(
@@ -169,6 +170,24 @@ export default function WalletSettingsScreen() {
       return;
     }
     setIsCreateModalVisible(true);
+  };
+
+  const handleDisconnectWallet = () => {
+    Alert.alert(
+      "Disconnect Wallet",
+      "Disconnect the current wallet and return to onboarding?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Disconnect",
+          style: "destructive",
+          onPress: async () => {
+            await disconnect();
+            router.replace("/onboarding");
+          },
+        },
+      ],
+    );
   };
 
   const handleCreateAddress = async (
@@ -369,6 +388,14 @@ export default function WalletSettingsScreen() {
         >
           <Plus size={18} color={VP.colors.accent.cyan} weight="regular" />
           <Text style={styles.createButtonText}>Create new offline wallet</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.disconnectButton}
+          onPress={handleDisconnectWallet}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.disconnectButtonText}>Disconnect wallet</Text>
         </TouchableOpacity>
       </ScrollView>
 
@@ -602,5 +629,21 @@ const styles = StyleSheet.create({
     ...VP.typography.body,
     color: VP.colors.accent.cyan,
     fontFamily: "SpaceGrotesk-Medium",
+  },
+  disconnectButton: {
+    marginTop: VP.spacing.md,
+    borderRadius: VP.radius.md,
+    borderWidth: 1,
+    borderColor: VP.colors.status.error,
+    backgroundColor: "rgba(255, 107, 107, 0.08)",
+    paddingVertical: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  disconnectButtonText: {
+    ...VP.typography.body,
+    color: VP.colors.status.error,
+    fontFamily: "SpaceGrotesk-Medium",
+    textTransform: "uppercase",
   },
 });
