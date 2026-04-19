@@ -1,5 +1,4 @@
 import {
-  Connection,
   Keypair,
   LAMPORTS_PER_SOL,
   PublicKey,
@@ -10,17 +9,13 @@ import type { Transaction } from '@/src/domain/entities/Transaction';
 import type { Wallet } from '@/src/domain/entities/Wallet';
 import type { SendParams, WalletService } from '@/src/domain/services/WalletService';
 import { LocalWallet } from './LocalWallet';
-import { solanaTransactionService } from '@/src/infrastructure/solana';
-
-const SOLANA_RPC = 'https://api.devnet.solana.com';
+import { solanaConnection, solanaTransactionService } from '@/src/infrastructure/solana';
 
 export class LocalWalletAdapter implements WalletService {
   private wallet: LocalWallet;
-  private connection: Connection;
 
   constructor() {
     this.wallet = new LocalWallet();
-    this.connection = new Connection(SOLANA_RPC, 'confirmed');
   }
 
   async getWallet(): Promise<Wallet | null> {
@@ -31,7 +26,7 @@ export class LocalWalletAdapter implements WalletService {
     const pubkey = this.wallet.getPublicKey();
     if (!pubkey) return null;
 
-    const balance = await this.connection.getBalance(pubkey);
+    const balance = await solanaConnection.getBalance(pubkey);
     const solAmount = (balance / LAMPORTS_PER_SOL).toFixed(6);
 
     return {
@@ -49,7 +44,7 @@ export class LocalWalletAdapter implements WalletService {
     }
     const pubkey = this.wallet.getPublicKey();
     if (!pubkey) return;
-    await this.connection.getBalance(pubkey);
+    await solanaConnection.getBalance(pubkey);
   }
 
   async send(params: SendParams): Promise<Transaction> {
@@ -74,7 +69,7 @@ export class LocalWalletAdapter implements WalletService {
       }),
     );
 
-    const { blockhash } = await this.connection.getLatestBlockhash();
+    const { blockhash } = await solanaConnection.getLatestBlockhash();
     tx.recentBlockhash = blockhash;
     tx.feePayer = senderPubkey;
 
@@ -85,7 +80,7 @@ export class LocalWalletAdapter implements WalletService {
     secretKey.fill(0); // zero key material immediately after signing
 
     const rawTx = tx.serialize();
-    const signature = await this.connection.sendRawTransaction(rawTx);
+    const signature = await solanaConnection.sendRawTransaction(rawTx);
 
     const now = Date.now();
     const domainTx: Transaction = {

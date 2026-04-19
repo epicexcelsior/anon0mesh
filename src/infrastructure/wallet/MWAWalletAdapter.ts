@@ -1,5 +1,4 @@
 import {
-  Connection,
   LAMPORTS_PER_SOL,
   PublicKey,
   SystemProgram,
@@ -12,17 +11,13 @@ import type { Transaction } from '@/src/domain/entities/Transaction';
 import type { Wallet } from '@/src/domain/entities/Wallet';
 import type { SendParams, WalletService } from '@/src/domain/services/WalletService';
 import { MWAWallet } from './MWAWallet';
-import { solanaTransactionService } from '@/src/infrastructure/solana';
-
-const SOLANA_RPC = 'https://api.devnet.solana.com';
+import { solanaConnection, solanaTransactionService } from '@/src/infrastructure/solana';
 
 export class MWAWalletAdapter implements WalletService {
   private wallet: MWAWallet;
-  private connection: Connection;
 
   constructor() {
     this.wallet = new MWAWallet();
-    this.connection = new Connection(SOLANA_RPC, 'confirmed');
   }
 
   private assertAndroid(): void {
@@ -46,7 +41,7 @@ export class MWAWalletAdapter implements WalletService {
     const pubkey = this.wallet.getPublicKey();
     if (!pubkey) return null;
 
-    const balance = await this.connection.getBalance(pubkey);
+    const balance = await solanaConnection.getBalance(pubkey);
     const solAmount = (balance / LAMPORTS_PER_SOL).toFixed(6);
 
     return {
@@ -68,7 +63,7 @@ export class MWAWalletAdapter implements WalletService {
     }
     const pubkey = this.wallet.getPublicKey();
     if (!pubkey) return;
-    await this.connection.getBalance(pubkey);
+    await solanaConnection.getBalance(pubkey);
   }
 
   async send(params: SendParams): Promise<Transaction> {
@@ -89,7 +84,7 @@ export class MWAWalletAdapter implements WalletService {
     const recipientPubkey = new PublicKey(params.recipientAddress);
     const lamports = Math.round(parseFloat(params.amount) * LAMPORTS_PER_SOL);
 
-    const { blockhash } = await this.connection.getLatestBlockhash();
+    const { blockhash } = await solanaConnection.getLatestBlockhash();
 
     const tx = new SolanaTransaction().add(
       SystemProgram.transfer({
@@ -103,12 +98,20 @@ export class MWAWalletAdapter implements WalletService {
     let signature: string | null = null;
 
     await transact(async (mwaWallet) => {
-      // Read the session account for feePayer to avoid pre-cached key mismatch
       const auth = await mwaWallet.reauthorize({
         auth_token: (await SecureStore.getItemAsync('anon_mwa_auth_token_v1')) ?? '',
         identity: { name: 'anonmesh', uri: 'https://anonme.sh', icon: '/favicon.ico' },
       });
       const sessionPubkey = new PublicKey(Buffer.from(auth.accounts[0].address, 'base64'));
+      // I5 — the wallet app may return a different selected account on reauthorize than
+      // the one cached at connect(). Submitting with a feePayer that doesn't match the
+      // tx's fromPubkey produces a malformed tx that fails on-chain. Abort early with a
+      // clear error instead of sending a broken tx.
+      if (sessionPubkey.toBase58() !== senderPubkey.toBase58()) {
+        throw new Error(
+          `MWA account mismatch — expected ${senderPubkey.toBase58().slice(0, 8)}…, wallet returned ${sessionPubkey.toBase58().slice(0, 8)}…. Please reconnect the correct account.`,
+        );
+      }
       tx.feePayer = sessionPubkey;
       const signatures = await mwaWallet.signAndSendTransactions({
         transactions: [tx],
