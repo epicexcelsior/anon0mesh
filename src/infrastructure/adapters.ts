@@ -1,12 +1,18 @@
-import type { Adapters } from "@/src/providers/AdapterProvider";
+import { LocalWalletAdapter } from '@/src/infrastructure/wallet';
+import { solanaTransactionService } from '@/src/infrastructure/solana';
+import { bleMeshAdapter } from '@/src/infrastructure/ble';
+import { beaconAdapter } from '@/src/infrastructure/beacon';
 
-// Stub real adapters — replace each with real implementations in Phase 4+.
-const stub = () => { throw new Error("Real adapter not yet implemented"); };
+// Messaging: use FixtureMessagingAdapter for now — no real messaging backend (LXMF handles this later)
+import { fixtureMessagingAdapter } from '@/src/infrastructure/fixtures';
+import type { Adapters } from '@/src/providers/AdapterProvider';
+
+const walletAdapter = new LocalWalletAdapter();
 
 export const realAdapters: Adapters = {
-  wallet: { getWallet: stub, refreshBalances: stub, send: stub, getHistory: stub },
-  transaction: { getById: stub, list: stub, updateStatus: stub },
-  mesh: { startScan: stub, stopScan: stub, getPeers: stub, trust: stub, block: stub },
-  messaging: { getThreads: stub, getMessages: stub, send: stub },
-  beacon: { getMode: stub, setMode: stub, isAdvertising: stub },
+  wallet: walletAdapter,
+  transaction: solanaTransactionService,
+  mesh: bleMeshAdapter,
+  messaging: fixtureMessagingAdapter,
+  beacon: beaconAdapter,
 };
