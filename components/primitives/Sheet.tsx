@@ -8,6 +8,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import React, { forwardRef, useCallback, useRef } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import { appMotion } from "@/src/design-system/motion";
 import { appTheme as theme } from "@/src/design-system/theme";
 
 interface SheetProps {
@@ -43,6 +44,7 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(function Sheet(
 
   return (
     <BottomSheet
+      animationConfigs={appMotion.spring.sheet}
       backdropComponent={renderBackdrop}
       backgroundStyle={styles.bg}
       enablePanDownToClose
