@@ -1,1 +1,2 @@
-export {};
+export { MeshStatusStrip } from "./MeshStatusStrip";
+

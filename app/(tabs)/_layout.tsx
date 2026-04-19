@@ -5,6 +5,7 @@ import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 
 import BottomNav from "@/components/primitives/BottomNav";
 import type { AppTab } from "@/components/primitives/BottomNav";
+import { MeshStatusStrip } from "@/components/mesh/MeshStatusStrip";
 
 function CustomTabBar({ state, navigation }: BottomTabBarProps) {
   const routeName = state.routes[state.index]?.name as AppTab | undefined;
@@ -23,6 +24,7 @@ function CustomTabBar({ state, navigation }: BottomTabBarProps) {
 export default function TabsLayout() {
   return (
     <View style={styles.root}>
+      <MeshStatusStrip />
       <Tabs
         screenOptions={{ headerShown: false }}
         tabBar={(props) => <CustomTabBar {...props} />}
