@@ -124,14 +124,14 @@ const styles = StyleSheet.create({
   },
   actionIconCyan: {
     backgroundColor: theme.colors.cyanSoft,
-    borderColor: "rgba(0, 218, 243, 0.18)",
+    borderColor: theme.colors.cyanSoft,
   },
   actionIconGreen: {
     backgroundColor: theme.colors.greenSoft,
-    borderColor: "rgba(60, 227, 106, 0.18)",
+    borderColor: theme.colors.greenSoft,
   },
   actionIconNeutral: {
-    backgroundColor: "rgba(255,255,255,0.05)",
+    backgroundColor: theme.colors.surfaceMuted,
     borderColor: theme.colors.line,
   },
   actionLabel: {

@@ -113,11 +113,11 @@ const styles = StyleSheet.create({
   },
   sendBadge: {
     backgroundColor: theme.colors.cyanSoft,
-    borderColor: "rgba(0, 218, 243, 0.14)",
+    borderColor: theme.colors.cyanSoft,
   },
   receiveBadge: {
     backgroundColor: theme.colors.greenSoft,
-    borderColor: "rgba(60, 227, 106, 0.14)",
+    borderColor: theme.colors.greenSoft,
   },
   rowMeta: {
     flex: 1,

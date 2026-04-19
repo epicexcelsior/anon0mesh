@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
   avatarCircle: {
     alignItems: "center",
     backgroundColor: theme.colors.cyanSoft,
-    borderColor: "rgba(0, 218, 243, 0.18)",
+    borderColor: theme.colors.cyanSoft,
     borderRadius: theme.radius.pill,
     borderWidth: 1,
     height: 34,
