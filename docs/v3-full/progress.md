@@ -90,3 +90,25 @@ Parallel LXMF agent (if running): see `lxmf-brief.md`, work in `../lxmf_react_na
 ---
 
 <!-- append future session blocks below -->
+
+## 2026-04-18 — session 2 (execution start)
+
+- **Model:** Sonnet 4.6
+- **Agent / human:** Claude Code (automated session)
+- **Goal:** Execute Phase 0 (scaffolding) and Phase 1 (navigation shell) of implementation-plan.md
+
+### Shipped
+
+- (in progress — see end-of-session update)
+
+### Deviations from decisions.md
+
+- Step 0.4 deviation: fonts kept in `components/fonts/` (workbench canonical location) rather than `assets/fonts/` as plan spec'd. Reason: workbench `useWorkbenchFonts.ts` uses `@/components/fonts/` paths; moving them would require rewriting import paths. Low-risk, aligns with existing convention.
+
+### Open issues
+
+- (to be filled at session end)
+
+### Handoff
+
+- (to be filled at session end)
