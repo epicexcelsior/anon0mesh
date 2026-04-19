@@ -31,6 +31,7 @@ export class SolanaTransactionService implements TransactionService {
   async updateStatus(id: string, status: TransferStatus): Promise<void> {
     const tx = this.store.get(id);
     if (!tx) return;
+    if (tx.status === status) return;  // idempotency guard
     tx.status = status;
     if (status === 'Settled') {
       tx.settledAt = Date.now();

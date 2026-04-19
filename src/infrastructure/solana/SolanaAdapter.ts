@@ -14,8 +14,9 @@ export async function checkConfirmation(signature: string): Promise<'Settled' | 
       searchTransactionHistory: true,
     });
     if (
-      status?.value?.confirmationStatus === 'confirmed' ||
-      status?.value?.confirmationStatus === 'finalized'
+      (status?.value?.confirmationStatus === 'confirmed' ||
+        status?.value?.confirmationStatus === 'finalized') &&
+      status.value.err === null
     ) {
       return 'Settled';
     }
