@@ -31,6 +31,8 @@ function PeerRow({
 }) {
   return (
     <TouchableOpacity
+      accessibilityLabel={`Message ${peer.alias}`}
+      accessibilityRole="button"
       activeOpacity={0.75}
       onPress={onPress}
       style={styles.peerRow}
@@ -83,6 +85,8 @@ export const NewConversationSheet = forwardRef<
       {/* Close button row */}
       <View style={styles.sheetHeader}>
         <TouchableOpacity
+          accessibilityLabel="Close"
+          accessibilityRole="button"
           activeOpacity={0.7}
           hitSlop={8}
           onPress={handleClose}

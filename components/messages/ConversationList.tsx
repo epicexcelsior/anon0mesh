@@ -35,7 +35,7 @@ function EmptyState() {
       <Icon name="message-circle" size={32} color={theme.colors.textMuted} />
       <Text style={styles.emptyTitle}>No conversations yet</Text>
       <Text style={styles.emptySubtitle}>
-        Start a conversation from the Peers sheet
+        Tap + to start a new conversation
       </Text>
     </View>
   );
