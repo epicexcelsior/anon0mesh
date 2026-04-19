@@ -1,0 +1,266 @@
+# screen-inventory.md — v3-full surface map
+
+Every surface in scope. Each row: where it lives, what it contains, which source artifact contributes what, known blockers.
+
+Read `decisions.md` and `architecture.md` first.
+
+## Legend
+
+- **Route:** expo-router path.
+- **Source — design:** where the visual language comes from.
+- **Source — content:** where the copy / info architecture / data structure comes from.
+- **Backend:** real, stub, or fixture-only for this session.
+
+## Pre-app
+
+### 1. Landing
+
+- **Route:** `app/index.tsx`
+- **Purpose:** Immersive first impression. Single CTA "ENTER THE MESH". Version footer.
+- **Source — design:** workbench aesthetic + wireframe's dark immersive pattern. Mesh-particle canvas + animated logo is **polish pass** (deferred). For initial ship: static logo + gradient background + CTA.
+- **Source — content:** `design/SCREEN_MAP.md` item 1.
+- **Backend:** none. Pure UI.
+- **Notes:** no tab bar, no status bar chrome.
+
+### 2. Onboarding — Welcome
+
+- **Route:** `app/onboarding/welcome.tsx`
+- **Purpose:** Step 1 of 2. "Private by default" framing. 3-4 feature highlights with icons. Two CTAs: "GET STARTED" (new user) and "I have an identity" (import path).
+- **Source — design:** workbench primitives (DepthButton, type, spacing). Restrained.
+- **Source — content:** Stitch Welcome (design/SCREEN_MAP.md item 2).
+- **Backend:** none.
+- **Tech drawer entry point:** small "Under the hood" link opens tech deep-dive drawer.
+
+### 3. Onboarding — Setup
+
+- **Route:** `app/onboarding/setup.tsx`
+- **Purpose:** Step 2 of 2. Identity (display name optional, auto-generated mesh alias shown). Permission priming cards (Bluetooth, notifications — explanation only, no toggles). Wallet path picker: Create New / Connect (MWA, Android only).
+- **Source — design:** workbench.
+- **Source — content:** Stitch Setup (design/SCREEN_MAP.md item 3).
+- **Backend:** real — wires into `useWallet` (create local or MWA connect). MWA path Android-only; on iOS, show only Create New.
+- **CTA:** "ENTER THE MESH" fires OS permission dialogs, then creates/connects wallet, then navigates to Home.
+
+### 4. Tech deep-dive drawer
+
+- **Route:** `app/onboarding/tech-drawer.tsx` (modal presentation)
+- **Purpose:** Optional "Under the hood" content — brief primer on LXMF, Reticulum, BLE mesh, Solana stealth. Not a tutorial, not blocking.
+- **Source — design:** workbench `Sheet` primitive, scrollable.
+- **Source — content:** written during execution; short paragraphs per topic, link out to sources.
+- **Backend:** none.
+
+## Home tab
+
+### 5. Home
+
+- **Route:** `app/(tabs)/home.tsx`
+- **Purpose:** Wallet hero + mesh status + recent activity.
+- **Structure (top to bottom):**
+  - Header: identity chip (top-left), QR icon (top-right)
+  - Mesh status strip (persistent band): node count, iface, signal
+  - Hero: balance (SOL + USD), big numerals
+  - Primary actions row: **Send Privately** (workbench CTA), Receive, History
+  - Segmented control: Balance ↔ History
+  - Recent activity list (or history list if segment toggled)
+- **Source — design:** workbench Home + v3 wallet screen patterns. Numerals = Space Grotesk. Balance card uses `glass-strong` surface.
+- **Source — content:** v3 `components/wallet/` + workbench fixtures.
+- **Backend:**
+  - Balance: real via `useWallet` → `SolanaTransactionService.getBalance`.
+  - Recent activity: real via `useTransaction` → Solana RPC recent sigs; fallback to fixture when offline.
+  - Mesh status: real via `useMesh` → BLE adapter; fixture fallback when mesh not running.
+
+### 6. Mesh status strip (component, not a route)
+
+- **Location:** rendered inside Home header (decision D6; see `decisions.md` open questions — may also live above tab bar on all tabs; resolve during execution, lean Home-only).
+- **Content:** `00 nodes`, `iface LXMF`, signal bars.
+- **Interaction:** tap → Peers sheet.
+- **Source — design:** wireframe's mesh status bar, ported to workbench glass-soft surface + mono type for metrics.
+- **Backend:** real mesh data via `useMesh`.
+
+### 7. Peers sheet
+
+- **Route:** `app/peers/index.tsx` (presented as a sheet on top of tabs)
+- **Purpose:** Full peer list. Surfaces info team lead wants without adding a tab.
+- **Structure:**
+  - Header: summary (node count, iface, signal).
+  - Peer rows: identity chip, signal strength, last-seen, beacon-stake badge if any, per-peer actions (message, send payment).
+  - Empty state: copy on mesh state (scanning, no peers found, permission denied with action).
+- **Source — design:** workbench Sheet primitive. Rows = workbench list pattern + wireframe peer-row information density.
+- **Source — content:** v3 `components/nodes/` + wireframe nodes screen.
+- **Backend:** real via `usePeers`; fixture fallback.
+
+### 8. Peer detail
+
+- **Route:** `app/peers/[peerId].tsx`
+- **Purpose:** Deep info on a peer — connection stats (type, latency, distance if available), mesh routing info, encryption status, beacon stake (if node is beacon), per-peer actions.
+- **Source — design:** workbench + wireframe peer-detail.
+- **Source — content:** v3 `components/nodes/`.
+- **Backend:** real via `usePeers(peerId)`.
+
+### 9. Send — Recipient
+
+- **Route:** `app/send/recipient.tsx`
+- **Purpose:** Step 1 of send flow. Input recipient (address paste, QR scan, mesh peer selection).
+- **Source — design:** workbench Send recipient + v3 send.
+- **Source — content:** workbench + Stitch Send Payment.
+- **Backend:** real via `useTransaction.startSend`.
+
+### 10. Send — Amount
+
+- **Route:** `app/send/amount.tsx`
+- **Purpose:** Step 2. Amount keypad, SOL display + USD equivalent, balance check.
+- **Source — design:** workbench.
+- **Backend:** uses current balance from `useWallet`.
+
+### 11. Send — Review
+
+- **Route:** `app/send/review.tsx`
+- **Purpose:** Step 3. Recipient, amount, fee estimate, route (on-chain vs mesh-relayed), privacy mode toggle (stealth). **SlideToConfirm** widget at bottom.
+- **Source — design:** workbench SlideToConfirm with shadow-twin knob trick. Do not add Skia; keep the no-Skia path.
+- **Source — content:** workbench send flow + Stitch send.
+- **Backend:** calls `useTransaction.submit`; returns status `Queued on device` → transitions through `Handed to mesh` → `Settled` when real BLE/relay paths activate.
+
+### 12. Send — Success
+
+- **Route:** `app/send/success.tsx`
+- **Purpose:** Checkmark, amount sent, tx signature (short + copy), "View on Explorer" + "Share Receipt" actions.
+- **Source — design:** workbench Transfer Success.
+- **Backend:** displays result from submit; tx signature may be stub for mesh-relayed path until settlement.
+
+### 13. Receive
+
+- **Route:** `app/receive.tsx`
+- **Purpose:** QR code of wallet address, address text (copy), share action, optional "request amount" input.
+- **Source — design:** Stitch Receive + workbench card pattern.
+- **Backend:** real via `useWallet.getAddress`.
+
+### 14. Transaction detail
+
+- **Route:** `app/history/[txId].tsx`
+- **Purpose:** Push from history row. Mirrors Success layout with extra fields (block time, slot, fee, counterparty identity if mesh-tagged).
+- **Source — design:** workbench + v3.
+- **Backend:** `useTransaction(txId)`.
+
+## Messages tab
+
+### 15. Messages list
+
+- **Route:** `app/(tabs)/messages.tsx`
+- **Purpose:** Conversation list: recent conversations, peer avatars, last message preview, unread indicators, encryption lock icons. "New" action in header.
+- **Source — design:** workbench Messages.
+- **Source — content:** v3 `components/messages/`.
+- **Backend:** `useMessages.list`; fixture fallback.
+
+### 16. Conversation detail
+
+- **Route:** `app/messages/[peerId].tsx`
+- **Purpose:** 1-on-1 thread. Peer info header, message bubbles, timestamps with lock icons, composer bar.
+- **Source — design:** workbench bubble + typography.
+- **Source — content:** v3 `components/messages/` bubble shapes.
+- **Backend:** `useMessages(peerId)`; sends via MessagingService (stub when LXMF not ready — queue locally, display as `Queued on device`).
+
+### 17. New conversation (PeersDrawer pattern)
+
+- **Route:** presented from Messages list header "New" button as a sheet.
+- **Purpose:** Choose recipient. Recent peers + mesh peer search.
+- **Source — design:** workbench Sheet + v3 PeersDrawer (recent commit in v3).
+- **Source — content:** v3 `components/messages/PeersDrawer` pattern.
+- **Backend:** `usePeers`.
+
+## Settings tab
+
+### 18. Settings home
+
+- **Route:** `app/(tabs)/settings.tsx`
+- **Purpose:** Sections for identity, network, privacy, beacon registry, wallet, about. Each section navigates to a sub-page.
+- **Source — design:** workbench Settings + v3 settings.
+- **Backend:** pulls identity/alias from `useWallet`; peer count for a preview from `useMesh`.
+
+### 19. Identity modal
+
+- **Route:** `app/settings/identity.tsx` (modal or push)
+- **Purpose:** Display name edit, mesh alias, QR code of identity, identity export.
+- **Source — design:** v3 + workbench.
+- **Backend:** `useWallet.getIdentity`.
+
+### 20. Wallet export modal
+
+- **Route:** `app/settings/wallet-export.tsx` (modal, requires biometric)
+- **Purpose:** Export seed phrase or private key with clear warnings. Requires biometric unlock.
+- **Source — design:** v3 export flow (recent commit: "export wallet modal, QR identity modal").
+- **Backend:** real — reads from SecureStore via `LocalWalletAdapter.exportSeed`.
+
+### 21. Network config
+
+- **Route:** `app/settings/network.tsx`
+- **Purpose:** BLE on/off, LoRa (future), LXMF iface selection (BleOnly / TcpClient / TcpServer / Reticulum), auto-connect toggle.
+- **Source — design:** workbench list rows.
+- **Source — content:** Stitch Settings + v3 patterns + LXMF package `LxmfNodeMode` enum.
+- **Backend:** real for BLE toggle; stub for LXMF mode (writes to config, no-op until parallel agent lands).
+
+### 22. Privacy toggles
+
+- **Route:** `app/settings/privacy.tsx`
+- **Purpose:** Stealth default on/off, tx privacy mode, key rotation cadence.
+- **Source — design:** workbench.
+- **Source — content:** Stitch Settings.
+- **Backend:** writes to user preferences service; stealth toggle wires to `useTransaction` default.
+
+### 23. Beacon registry
+
+- **Route:** `app/settings/beacon.tsx`
+- **Purpose:** Stake SOL to co-sign confidential txs as a beacon node. Display current stake, stake action, earnings preview. **UI surface only this session**; stake flow displays "coming soon" state after review screen.
+- **Source — design:** workbench.
+- **Source — content:** v3 recent commit "BeaconRegistry — stake SOL".
+- **Backend:** stub — `useBeacon` returns placeholder data; real staking lands later.
+
+### 24. About / Tech deep-dive
+
+- **Route:** `app/settings/about.tsx`
+- **Purpose:** Version, licenses, links, "how this works" content (same as onboarding tech drawer, reachable from Settings too).
+- **Source — design:** workbench minimal.
+- **Backend:** none.
+
+## Global
+
+### 25. QR scanner
+
+- **Route:** presented as modal on demand from Send recipient and other flows.
+- **Purpose:** Scan wallet addresses or identity QRs.
+- **Source — design:** OS-standard camera view with overlay. Minimal chrome.
+- **Backend:** uses Expo Camera + barcode scanner.
+
+### 26. Toasts / confirmation modals / error banners
+
+- **Location:** primitives in `components/primitives/`, orchestrated from `src/providers/`.
+- **Backend:** none.
+
+### 27. `/dev` catalog (dev builds only)
+
+- **Route:** `app/dev/index.tsx`
+- **Purpose:** Ported from workbench — catalog mode to preview every screen with fixture presets.
+- **Source — design:** workbench existing.
+- **Backend:** fixture adapters only.
+- **Gate:** visible only when `__DEV__` is true (or env flag).
+
+---
+
+## Source-of-truth summary
+
+| Area | Winning source | Secondary pulls |
+|---|---|---|
+| Design language (colors, type, motion, depth, glass, sound) | **Workbench** | Wireframe `styles.css` (glass variants), v3 `theme/` |
+| Primitives (DepthButton, Sheet, SlideToConfirm) | **Workbench** | v3 useGlass (merged into new glass factory) |
+| Screen structure + copy | **v3 branch** + **Stitch SCREEN_MAP** | wireframe for extra ideas |
+| Send flow | Workbench Send | v3 send + Stitch |
+| Mesh status surfaces | Wireframe pattern + workbench type | v3 nodes components |
+| Peer components | v3 `components/nodes/` | wireframe peer row |
+| Messages components | v3 `components/messages/` | workbench Messages |
+| Wallet components | v3 `components/wallet/` + workbench | Stitch |
+| Onboarding | Stitch SCREEN_MAP + workbench primitives | v3 onboarding recent commits |
+| Icons | Feather | wireframe custom icons, Anonmesh brand assets |
+
+## Related
+
+- [decisions.md](./decisions.md)
+- [architecture.md](./architecture.md)
+- [implementation-plan.md](./implementation-plan.md)
