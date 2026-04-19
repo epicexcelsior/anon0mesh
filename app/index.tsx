@@ -1,39 +1,80 @@
-import { isSeekerDevice } from '@/src/types/solana';
-import { useRouter } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
-import { useEffect } from 'react';
+import React from "react";
+import { Image, StyleSheet, Text, View } from "react-native";
+import { useRouter } from "expo-router";
 
-export default function Index() {
-    const router = useRouter();
-    const isSeekerUser = isSeekerDevice();
+import { DepthButton } from "@/components/primitives";
+import { LandingCanvas } from "@/components/onboarding/LandingCanvas";
+import { appTheme as theme } from "@/src/design-system/theme";
 
-    useEffect(() => {
-        (async () => {
-        // Check if wallet is initialized
-        const savedPubKey = await SecureStore.getItemAsync('pubKey');
-        const savedPrivKey = await SecureStore.getItemAsync('privKey');
-        
-        // Check if user has seen index
-        const hasSeenIndex = await SecureStore.getItemAsync('hasSeenIndex');
+export default function LandingScreen() {
+  const router = useRouter();
 
-        if (isSeekerUser) {
-            // Seeker devices don't need privKey stored
-            router.replace('/(tabs)');
-            return;
-        }
-        
-        if (!savedPubKey || !savedPrivKey) {
-            // No wallet - go to onboarding
-            router.replace('/onboarding');
-        } else if (hasSeenIndex !== 'true') {
-            // Has wallet but hasn't seen landing - show landing
-            router.replace('/landing');
-        } else {
-            // Has wallet and seen landing - go to chat
-            router.replace('/(tabs)');
-        }
-        })();
-    }, [router, isSeekerUser]);
+  return (
+    <View style={styles.root}>
+      <LandingCanvas />
+      <View style={styles.content}>
+        <View style={styles.logoBlock}>
+          <Image
+            source={require("@/assets/brand/anonmesh-logo.png")}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+          <Text style={styles.wordmark}>ANONMESH</Text>
+          <Text style={styles.tagline}>Private by default.</Text>
+        </View>
 
-    return null;
+        <DepthButton
+          label="ENTER THE MESH"
+          variant="primary"
+          tone="cyan"
+          size="lg"
+          onPress={() => router.push("/onboarding/welcome")}
+        />
+
+        <Text style={styles.version}>v0.3.0 — alpha</Text>
+      </View>
+    </View>
+  );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
+  content: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: theme.spacing.xxl,
+    paddingTop: 80,
+    paddingBottom: 48,
+  },
+  logoBlock: {
+    alignItems: "center",
+    gap: theme.spacing.md,
+    marginTop: 40,
+  },
+  logo: {
+    width: 80,
+    height: 80,
+  },
+  wordmark: {
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.headingBold,
+    fontSize: 28,
+    letterSpacing: 6,
+  },
+  tagline: {
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.body,
+    fontSize: theme.type.body,
+    letterSpacing: 0.3,
+  },
+  version: {
+    color: theme.colors.textMuted,
+    fontFamily: theme.fonts.mono,
+    fontSize: theme.type.caption,
+    letterSpacing: 0.5,
+  },
+});
