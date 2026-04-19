@@ -12,6 +12,7 @@ import type { Transaction } from '@/src/domain/entities/Transaction';
 import type { Wallet } from '@/src/domain/entities/Wallet';
 import type { SendParams, WalletService } from '@/src/domain/services/WalletService';
 import { MWAWallet } from './MWAWallet';
+import { solanaTransactionService } from '@/src/infrastructure/solana';
 
 const SOLANA_RPC = 'https://api.devnet.solana.com';
 
@@ -132,6 +133,8 @@ export class MWAWalletAdapter implements WalletService {
       settledAt: null,
       signature,
     };
+
+    solanaTransactionService.add(domainTx);
 
     return domainTx;
   }
