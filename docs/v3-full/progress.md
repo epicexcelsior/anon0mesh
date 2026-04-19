@@ -291,3 +291,27 @@ Phases 0–4 complete. All screens in scope are implemented and rendering. Next:
 Phase 5 complete. All 7 steps shipped. Real adapters wired: LocalWallet, MWA (Android), Solana tx log, BLE mesh scan, LXMF stub (D25), stealth stub, beacon stub.
 
 Next: **Phase 6 — Polish** (empty/loading/error states, motion timing, sound+haptics, accessibility, copy pass). Then Phase 7 (final gates). Quality gates still clean: lint 0 errors, tsc 4 pre-existing, terminology 0 violations.
+
+---
+
+## 2026-04-19 — session 6 (Phase 5.5 hardening — pre-Phase-6 review fixes)
+
+- **Model:** Opus 4.7
+- **Agent / human:** Claude Code (review + fix session) + @intern
+- **Goal:** Land pre-Phase-6 fixes from Opus code review: C1 (wallet key zeroing), C2 (D15 layer violation in app/_layout), I1 (useLxmf API shape), X1 (stub providers), M1 (MWA selector), I2 (Solana connection), I3 (BLE error surfacing), I4 (migration hardening), I5 (MWA reauthorize guard), X2 (threadId lookup).
+
+### Shipped
+
+(filled at session end)
+
+### Deviations from decisions.md
+
+(filled at session end)
+
+### Open issues
+
+(filled at session end)
+
+### Handoff
+
+(filled at session end)

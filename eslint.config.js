@@ -10,9 +10,10 @@ module.exports = defineConfig([
   {
     ignores: ['dist/*'],
   },
-  // Layer: components/ — cannot import src/infrastructure/
+  // Layer: components/ and app/ — cannot import src/infrastructure/
+  //   app/ composes providers only; it must go through src/providers/ for the adapter seam.
   {
-    files: ['components/**/*.{ts,tsx}'],
+    files: ['components/**/*.{ts,tsx}', 'app/**/*.{ts,tsx}'],
     rules: {
       'no-restricted-imports': ['error', {
         patterns: ['**/src/infrastructure/**'],
