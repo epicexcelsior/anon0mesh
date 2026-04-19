@@ -56,13 +56,14 @@ Copy this block when starting a new session. Delete the template instructions on
   - `README.md`
   - `decisions.md` (D1–D29)
   - `architecture.md`
-  - `screen-inventory.md`
-  - `quality-gates.md`
+  - `screen-inventory.md` (27 surfaces)
+  - `quality-gates.md` (incl. testing approach)
   - `progress.md` (this file)
-  - `implementation-plan.md` (pending write this session)
-  - `lxmf-brief.md` (pending write this session)
-  - `handoff.md` (pending write this session)
-- Mempool ADR 0004 (pending write this session).
+  - `implementation-plan.md` (7 phases, file-by-file)
+  - `lxmf-brief.md` (self-contained parallel agent brief)
+  - `handoff.md` (fresh-chat kickoff)
+- Mempool ADR 0004 committed.
+- Self-review pass: discovered workbench has a comprehensive `src/design-system/` tree (`foundation`, `semantic`, `component`, `state`, `motion`, `registry`) with full typed tokens. Updated D8, architecture folder tree, and Phase 0 steps in implementation-plan to **port the workbench design-system verbatim** rather than rebuild from primitives. Significantly de-risks Phase 0 execution.
 
 ### Deviations from decisions.md
 

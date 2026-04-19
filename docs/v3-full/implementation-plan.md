@@ -56,7 +56,8 @@ docs/v3-full/ (exists), docs/ui-system/ (pending port)
 **Files:** `package.json`, `package-lock.json`.
 
 **Actions:**
-- Base deps from `upstream/main` `package.json` kept as-is. Diff against v3 branch's `mobile_app/package.json` to adopt:
+- Base deps from `upstream/main` `package.json` kept as-is.
+- Add or upgrade these deps (versions verified against workbench + v3):
   - `@solana/web3.js`
   - `@solana-mobile/mobile-wallet-adapter-protocol`
   - `@solana-mobile/mobile-wallet-adapter-protocol-mobile`
@@ -64,159 +65,243 @@ docs/v3-full/ (exists), docs/ui-system/ (pending port)
   - `expo-secure-store`
   - `expo-local-authentication`
   - `expo-haptics`
-  - `expo-av` (for sound) or `expo-audio` (whichever workbench uses — verify)
+  - `expo-audio` (`~1.1.1` per workbench)
+  - `expo-blur` (`~15.0.8` per workbench)
   - `@expo/vector-icons` (Feather set)
   - `react-native-reanimated`
   - `react-native-gesture-handler`
+  - `react-native-svg` (for wireframe custom icons)
+  - `react-native-qrcode-svg`
   - `@react-native-async-storage/async-storage`
-  - Space Grotesk, Manrope, JetBrains Mono via `expo-font` (local TTFs under `assets/fonts/`)
-- Add dev deps for lint/types.
+- Fonts: Space Grotesk, Manrope — already present on workbench (`useWorkbenchFonts`). Add JetBrains Mono.
+- Add dev deps for lint/types if missing.
 - `npm install`.
 
 **Success:** `npm install` clean; `npx tsc --noEmit` passes with empty project.
 
-**Commit:** `chore(deps): port deps from v3 for wallet/mesh/font/audio/haptics`
+**Commit:** `chore(deps): port deps from workbench/v3 for wallet/mesh/font/audio/blur/svg`
 
-### Step 0.3 — Token files
+### Step 0.3 — Port workbench design-system verbatim
 
-**Files:**
-- `src/design/tokens/colors.ts`
-- `src/design/tokens/space.ts`
-- `src/design/tokens/type.ts`
-- `src/design/tokens/motion.ts`
-- `src/design/tokens/depth.ts`
-- `src/design/tokens/glass.ts`
-- `src/design/tokens/sound.ts`
-- `src/design/tokens/haptics.ts`
-- `src/design/tokens/index.ts` (barrel)
+**Files (ported from workbench):**
+- `src/design-system/tokens/foundation.ts`
+- `src/design-system/tokens/semantic.ts`
+- `src/design-system/tokens/component.ts`
+- `src/design-system/tokens/state.ts`
+- `src/design-system/tokens/motion.ts`
+- `src/design-system/tokens/registry.ts`
+- `src/design-system/tokens/index.ts`
 
 **Actions:**
-- `colors.ts`: semantic palette from D12 as typed const. Include surface scale (surface0–3), text tiers, semantic (active, queued, settled, stealth, destructive), hairlines. Format:
 
-```ts
-export const colors = {
-  void: '#050A0A',
-  surface0: '#0C0C10',
-  surface1: '#101015',
-  surface2: '#14141A',
-  surface3: '#1A1A22',
-  hairline: 'rgba(255,255,255,0.06)',
-  hairlineStrong: 'rgba(255,255,255,0.1)',
-  textPrimary: '#E8E8EA',
-  textDim: '#8A8A92',
-  textMuted: '#555560',
-  active: '#22D3EE',
-  queued: '<verify amber hex from workbench>',
-  settled: '#00FF88',
-  stealth: '#8B5CF6',
-  destructive: '#FF3B5C',
-  mesh: '#00FF88',  // same as settled; used on mesh-specific surfaces only
-} as const;
-export type ColorKey = keyof typeof colors;
+Copy the workbench design-system verbatim — this is a production-tested token system; do not rebuild.
+
+```bash
+git checkout epic/ui-workbench-fixtures -- src/design-system/
+git status  # verify files staged
 ```
 
-Verify actual hex values against workbench's `components/dev/workbench/theme.ts` before committing. Replace placeholders.
+Then verify imports resolve:
 
-- `space.ts`: scale from workbench `theme.spacing`. Typed as const object.
-- `type.ts`: font family names + size scale + weight scale from workbench typography + D6. Add a `mono` family for JetBrains Mono.
-- `motion.ts`: port workbench `components/dev/workbench/motion.ts` verbatim.
-- `depth.ts`: port workbench `theme.depth` + `DepthButton` config (scale 0.94, translateY 1, 80ms / 160ms springs).
-- `glass.ts`: 4 variants from wireframe `styles.css`:
-
-```ts
-export const glass = {
-  regular: {
-    bg: 'rgba(255,255,255,0.045)',
-    blur: 18,
-    saturate: 1.5,
-    border: '0.5px solid rgba(255,255,255,0.1)',
-    shadowInsetTop: 'inset 0 0.5px 0 rgba(255,255,255,0.08)',
-    shadowInsetBottom: 'inset 0 -0.5px 0 rgba(0,0,0,0.3)',
-    shadowDrop: '0 8px 24px rgba(0,0,0,0.35)',
-  },
-  soft: { /* ... */ },
-  accent: { /* ... */ },
-  strong: { /* ... */ },
-} as const;
+```bash
+npx tsc --noEmit
 ```
 
-Note: React Native doesn't have `backdrop-filter`. Use `@react-native-community/blur` (`BlurView`) or `expo-blur` (`BlurView`). Glass factory wraps content in `BlurView` with matching intensity + overlay bg color. Document the blur→intensity mapping in code comments.
+If the import in `foundation.ts` uses `@/src/design-system/tokens/foundation` (it does), confirm `tsconfig.json` on `v3-full` has the `@/*` path alias — port from workbench `tsconfig.json` if missing.
 
-- `sound.ts`: port workbench `soundCatalog.ts` event names + WAV mapping.
-- `haptics.ts`: map event names (`press`, `confirm`, `error`) to `expo-haptics` styles.
-- `index.ts`: `export * from './colors'; ...`
+**Content check (after port):**
+- `foundation.ts` defines `palette` (obsidian scale, cyan, amber, green, red, purple, slate, frost), `spacing`, `radius`, `type` scale, and `fonts` (Space Grotesk + Manrope setup).
+- `semantic.ts` defines `semanticColorTokens` mapping palette to roles (background, surface, text tiers, cyan/amber/green/red/purple with soft/glow variants).
+- `state.ts` holds `depth`, `feedback` (press config for DepthButton).
+- `motion.ts` holds the overdamped springs + durations.
+- `component.ts` holds component-scoped tokens.
+- `registry.ts` powers the design-system catalog view used by `/dev`.
+- `index.ts` exports `foundationTokens`, `semanticTokens`, `componentTokens`, `stateTokens`, `motionTokens`, plus the registry.
 
-**Success:** `import { colors, space, motion } from '@/src/design/tokens'` resolves; typecheck clean.
+**Extend:** Add JetBrains Mono to `foundation.ts` `fonts` block (new key `mono`). This is the one addition on top of the verbatim port:
 
-**Commit:** `feat(design): token files — colors, space, type, motion, depth, glass, sound, haptics`
+```ts
+// foundation.ts — append to fonts:
+mono: Platform.select({
+  ios: 'JetBrainsMono-Regular',
+  android: 'JetBrainsMono-Regular',
+  default: 'monospace',
+}),
+```
+
+**Success:** `import { foundationTokens, semanticTokens } from '@/src/design-system/tokens'` resolves; typecheck clean; `foundationTokens.palette.cyan500` === `'#00daf3'`.
+
+**Commit:** `feat(design-system): port workbench tokens verbatim + add mono font slot`
 
 ### Step 0.4 — Fonts
 
 **Files:**
-- `assets/fonts/{SpaceGrotesk-*,Manrope-*,JetBrainsMono-*}.ttf` (copy from v3/workbench, or download)
-- `src/design/useFonts.ts`
+- `assets/fonts/SpaceGrotesk-*.ttf`, `Manrope-*.ttf`, `JetBrainsMono-*.ttf`
+- `src/design-system/useFonts.ts` (port from workbench `components/dev/workbench/useWorkbenchFonts.ts`)
 
 **Actions:**
-- Copy existing Space Grotesk + Manrope TTFs from workbench (`git show epic/ui-workbench-fixtures:assets/fonts/*` or v3 `mobile_app/assets/fonts/`).
-- Add JetBrains Mono TTF (Regular + Medium). Download or copy if present.
-- `useFonts.ts`: wraps `expo-font`'s `useFonts` with our font list.
 
-**Success:** `const loaded = useFonts(); if (!loaded) return null;` in `_layout.tsx` works.
+```bash
+# Port TTFs from workbench
+git checkout epic/ui-workbench-fixtures -- assets/fonts/
+# Port the fonts hook
+git checkout epic/ui-workbench-fixtures -- components/dev/workbench/useWorkbenchFonts.ts
+mv components/dev/workbench/useWorkbenchFonts.ts src/design-system/useFonts.ts
+```
 
-**Commit:** `feat(design): font loading — Space Grotesk + Manrope + JetBrains Mono`
+After move, inside `useFonts.ts`:
+- Rename `useWorkbenchFonts` → `useFonts`.
+- Add JetBrains Mono TTFs to the font map.
+
+Download JetBrains Mono (Regular + Medium) from https://fonts.google.com/specimen/JetBrains+Mono if not already in workbench. Place under `assets/fonts/`.
+
+**Success:** In `app/_layout.tsx`, `const loaded = useFonts(); if (!loaded) return null;` works; fonts render in any text primitive.
+
+**Commit:** `feat(design-system): port font loader + TTFs, add JetBrains Mono`
 
 ### Step 0.5 — Glass hook + BlurView integration
 
 **Files:**
-- `src/design/useGlass.ts`
+- `src/design-system/glass.ts` (new — variant config)
+- `src/design-system/useGlass.ts`
 - `components/primitives/GlassSurface.tsx`
 
 **Actions:**
-- Install `expo-blur` if not present.
-- `useGlass(variant: 'regular' | 'soft' | 'accent' | 'strong')` returns style + blur intensity.
-- `GlassSurface` component: wraps children in `BlurView` + overlay View with border + inset shadows. Receives variant prop.
 
-**Success:** A dev-only test screen renders `<GlassSurface variant="strong">Hi</GlassSurface>` with visible blur.
+Workbench has `WorkbenchBlur.tsx` but not a 4-variant system. The wireframe defines 4 variants. Reconcile:
 
-**Commit:** `feat(design): glass surface primitive with 4 variants`
+1. Port workbench `WorkbenchBlur.tsx` as a reference:
+
+```bash
+git show epic/ui-workbench-fixtures:components/dev/workbench/WorkbenchBlur.tsx
+```
+
+2. Create `src/design-system/glass.ts` with 4 variants matching wireframe `styles.css`:
+
+```ts
+export type GlassVariant = 'regular' | 'soft' | 'accent' | 'strong';
+
+export const glassVariants: Record<GlassVariant, {
+  overlay: string; blurIntensity: number; border: string;
+}> = {
+  regular: {
+    overlay: 'rgba(255,255,255,0.045)',
+    blurIntensity: 40,   // expo-blur scale, tuned
+    border: 'rgba(255,255,255,0.1)',
+  },
+  soft: {
+    overlay: 'rgba(255,255,255,0.03)',
+    blurIntensity: 30,
+    border: 'rgba(255,255,255,0.08)',
+  },
+  accent: {
+    overlay: 'rgba(60,227,106,0.08)',
+    blurIntensity: 40,
+    border: 'rgba(60,227,106,0.22)',
+  },
+  strong: {
+    overlay: 'rgba(255,255,255,0.07)',
+    blurIntensity: 60,
+    border: 'rgba(255,255,255,0.14)',
+  },
+};
+```
+
+3. `src/design-system/useGlass.ts`: hook returning resolved variant config.
+
+4. `components/primitives/GlassSurface.tsx`: wraps children in `<BlurView intensity=... />` from `expo-blur`, with an overlay `<View />` at matching bg color + border, optional drop shadow. Props: `variant`, `style`, `children`.
+
+**Acceptance smoke test:** Add a temporary dev screen rendering each variant side-by-side; verify visually on device that each blurs differently.
+
+**Success:** `<GlassSurface variant="strong">Hi</GlassSurface>` shows distinct blur vs other variants.
+
+**Commit:** `feat(design-system): glass factory with 4 variants (wireframe ported)`
 
 ### Step 0.6 — Core primitives
 
-**Files:** `components/primitives/`
-- `DepthButton.tsx` (port from workbench `components/dev/workbench/DepthButton.tsx`)
-- `Sheet.tsx` (port from workbench `WorkbenchSheet` — rename to `Sheet`)
-- `SlideToConfirm.tsx` (port from workbench; keep shadow-twin trick; NO Skia)
-- `Pill.tsx` (new — extract from wireframe `shell.jsx`)
-- `SegmentedControl.tsx` (new — standard segmented)
-- `TextInput.tsx` (wrapped RN TextInput with tokens)
-- `SectionLabel.tsx` (port from wireframe pattern)
-- `SignalBars.tsx` (port from wireframe)
-- `Icon.tsx` (Feather wrapper + custom SVG map)
-- `index.ts` (barrel)
+**Files (ports from workbench):**
+- `components/primitives/DepthButton.tsx` ← `components/dev/workbench/DepthButton.tsx`
+- `components/primitives/Sheet.tsx` ← `components/dev/workbench/WorkbenchSheet.tsx` (renamed)
+- `components/primitives/SlideToConfirm.tsx` ← workbench version (keep shadow-twin; no Skia)
+- `components/primitives/NumericKeypad.tsx` ← workbench version
+- `components/primitives/BottomNav.tsx` ← `components/dev/workbench/WorkbenchBottomNav.tsx` (renamed, will be used by `app/(tabs)/_layout.tsx`)
+- `components/primitives/Backdrop.tsx` ← `components/dev/workbench/WorkbenchBackdrop.tsx` (renamed)
+- `components/primitives/primitives.tsx` ← workbench (the shared atomic primitives file)
+
+**Files (new):**
+- `components/primitives/Pill.tsx` — extract from wireframe `shell.jsx` `Pill`
+- `components/primitives/SegmentedControl.tsx` — standard segmented, 2–3 segments, uses `depth` token
+- `components/primitives/TextInput.tsx` — wraps RN `TextInput` with tokens
+- `components/primitives/SectionLabel.tsx` — wireframe pattern
+- `components/primitives/SignalBars.tsx` — wireframe pattern
+- `components/primitives/Icon.tsx` — Feather + custom SVG registry
+- `components/primitives/index.ts` — barrel
 
 **Actions:**
-- Port verbatim where possible, then migrate to the new token imports.
-- Remove any `workbench` naming; use generic primitive names.
 
-**Success:** All primitives compile. Props are typed. A smoke-test dev page can render each.
+```bash
+# Port workbench primitives
+for f in DepthButton.tsx WorkbenchSheet.tsx SlideToConfirm.tsx NumericKeypad.tsx \
+         WorkbenchBottomNav.tsx WorkbenchBackdrop.tsx primitives.tsx; do
+  git checkout epic/ui-workbench-fixtures -- "components/dev/workbench/$f"
+done
+mkdir -p components/primitives
+git mv components/dev/workbench/DepthButton.tsx      components/primitives/DepthButton.tsx
+git mv components/dev/workbench/WorkbenchSheet.tsx   components/primitives/Sheet.tsx
+git mv components/dev/workbench/SlideToConfirm.tsx   components/primitives/SlideToConfirm.tsx
+git mv components/dev/workbench/NumericKeypad.tsx    components/primitives/NumericKeypad.tsx
+git mv components/dev/workbench/WorkbenchBottomNav.tsx components/primitives/BottomNav.tsx
+git mv components/dev/workbench/WorkbenchBackdrop.tsx  components/primitives/Backdrop.tsx
+git mv components/dev/workbench/primitives.tsx       components/primitives/primitives.tsx
+rmdir components/dev/workbench components/dev 2>/dev/null || true
+```
 
-**Commit (grouped):** `feat(primitives): port DepthButton, Sheet, SlideToConfirm; add Pill, SegmentedControl, SectionLabel, SignalBars, Icon`
+Inside each moved file:
+- Rename exported symbol from `WorkbenchSheet` → `Sheet`, `WorkbenchBottomNav` → `BottomNav`, `WorkbenchBackdrop` → `Backdrop`.
+- Fix imports from `@/components/dev/workbench/<x>` → `@/components/primitives/<x>`.
+- Fix imports from `@/components/dev/workbench/theme` → `@/src/design-system/tokens`.
+
+Write the new primitives (`Pill`, `SegmentedControl`, `TextInput`, `SectionLabel`, `SignalBars`, `Icon`) using ported tokens only.
+
+**Success:** A smoke-test dev screen imports all primitives and renders without error; lint passes; typecheck clean.
+
+**Commit (grouped, but each primitive = 1 commit if clean):**
+1. `refactor(primitives): move workbench primitives to components/primitives/ with renames`
+2. `feat(primitives): Pill, SegmentedControl, TextInput, SectionLabel, SignalBars, Icon`
 
 ### Step 0.7 — Workbench sound + haptics wiring
 
 **Files:**
-- `assets/sounds/workbench/` (copy 6 WAVs from workbench `assets/sounds/workbench/`)
-- `src/design/useSound.ts`
-- `src/design/useHaptic.ts`
+- `assets/sounds/` (6 WAVs from workbench `assets/sounds/workbench/`)
+- `src/design-system/sound.ts` ← workbench `components/dev/workbench/sound.ts`
+- `src/design-system/soundCatalog.ts` ← workbench `components/dev/workbench/soundCatalog.ts`
+- `src/design-system/useSound.ts` (factor hook out of sound.ts if coupled)
+- `src/design-system/haptics.ts` ← workbench `components/dev/workbench/haptics.ts`
+- `src/design-system/useHaptic.ts` (factor hook out)
 
 **Actions:**
-- Port sound catalog + hook from workbench.
-- Port haptic map.
-- Wire into `DepthButton` + `SlideToConfirm` so press fires haptic + sound per token config.
 
-**Success:** Pressing `DepthButton` triggers haptic on device. Sound plays on a device with audio.
+```bash
+git checkout epic/ui-workbench-fixtures -- assets/sounds/workbench/
+git mv assets/sounds/workbench assets/sounds/system   # or keep under /workbench/ if referenced by filename
+git checkout epic/ui-workbench-fixtures -- \
+  components/dev/workbench/sound.ts \
+  components/dev/workbench/soundCatalog.ts \
+  components/dev/workbench/haptics.ts
+git mv components/dev/workbench/sound.ts        src/design-system/sound.ts
+git mv components/dev/workbench/soundCatalog.ts src/design-system/soundCatalog.ts
+git mv components/dev/workbench/haptics.ts      src/design-system/haptics.ts
+```
 
-**Commit:** `feat(design): sound + haptic hooks wired into primitives`
+Fix imports inside each file. Update sound file path references if you renamed the asset folder.
+
+Ensure primitives (`DepthButton`, `SlideToConfirm`) fire the catalog events by name:
+- `DepthButton.onPress` → `playSound('press')` + `hapticLight`.
+- `SlideToConfirm.onConfirm` → `playSound('confirm')` + `hapticMedium`.
+
+**Success:** Press `DepthButton` on device: haptic tick + sound. Slide `SlideToConfirm` to complete: stronger haptic + confirm sound.
+
+**Commit:** `feat(design-system): port sound catalog + haptics, wire into primitives`
 
 ### Step 0.8 — Logo + brand assets
 

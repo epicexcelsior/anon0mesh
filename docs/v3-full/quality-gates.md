@@ -49,6 +49,55 @@ The v3-full docs are the living contract. If code and docs drift, we are lost.
 
 5. **No future tense in committed docs.** Decisions and architecture docs describe what is, not what will be. Future work belongs in `progress.md` open-issues or an ADR in the mempool.
 
+## Testing approach (TDD-adapted)
+
+Straight TDD cycles (write failing test → watch it fail → implement → pass → commit) fit some layers of this project and not others. Apply each layer's appropriate discipline.
+
+### Where TDD applies (write tests first)
+
+- `src/domain/` — pure logic, types, services. Write interface tests against expected behavior before any implementation.
+- `src/hooks/` — hook state transitions. Test with `@testing-library/react-hooks` or equivalent: initial state → action → expected state.
+- `src/infrastructure/` adapters — test the interface contract against a fake backend (or mocked platform calls) before real integration.
+- Utility functions in `src/design-system/` or elsewhere that take pure inputs → pure outputs.
+
+Format per skill: failing test → run → implement → run → commit. One logical assertion per test. No snapshot tests for domain logic.
+
+### Where TDD does not fit (visual verification)
+
+- `components/` primitives and domain components — React Native UI rarely benefits from pre-written tests. Snapshot tests rot fast; pixel-diffing requires device farms. Instead:
+  1. Build the component.
+  2. Render under `/dev` catalog preview with the relevant fixture preset.
+  3. Visually verify on device (Android + iOS when possible) — render, layout, motion, haptic, sound.
+  4. If a prop has discrete variants (e.g. `Pill tone`), enumerate them in the catalog view.
+- `app/` routes — same rule: visual review against `/dev` fixture presets.
+- Motion timings — verify on device; timing tests in isolation don't catch perceptual issues.
+
+### Required tests for v3-full (minimum bar)
+
+- All `src/domain/status/TransferStatus.ts` transitions — unit tests.
+- All `src/domain/services/` interfaces — one contract test each.
+- All `src/hooks/` — at least a "returns initial state" test + one action path test.
+- All fixture adapters — a smoke test that domain operations return expected fixture shapes.
+- Terminology lock — a CI-runnable grep (see below).
+
+### Required visual checks (minimum bar)
+
+- Every surface in `screen-inventory.md` renders without error under the matching fixture preset.
+- Motion feels right (no bounce, overdamped).
+- Haptics + sound fire on primary interactions.
+- Screens render correctly in both portrait and landscape (or portrait-only if locked).
+
+### Test commands
+
+```bash
+npm test                   # unit tests, once Jest or Vitest is configured
+npm run lint
+npx tsc --noEmit
+grep -rnE '\b(Pending|Broadcasting|Confirmed|Incognito)\b' app/ components/ src/hooks/ src/fixtures/ | grep -v node_modules
+```
+
+Add `npm test` to the pre-commit habit once the domain + hook test suite exists.
+
 ## Code quality gates
 
 ### Pre-commit (automated where possible)
@@ -64,7 +113,7 @@ Both must exit 0. If they don't, fix before commit.
 
 Before marking a screen "done" in `progress.md`:
 
-- [ ] All tokens used come from `src/design/tokens/`. No inline hex, no inline spacing numbers.
+- [ ] All tokens used come from `src/design-system/tokens/`. No inline hex, no inline spacing numbers.
 - [ ] No direct imports from `src/infrastructure/` into `components/`.
 - [ ] Terminology lock holds (see grep gate below).
 - [ ] Motion + haptics + sound hooked for primary interactions (press, confirm, error).

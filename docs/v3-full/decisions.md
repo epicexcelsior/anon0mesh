@@ -81,7 +81,7 @@ The team needs one production-grade MVP. This effort merges the three into a sin
 
 ### Design system
 
-**D8. Token storage.** TypeScript typed constants in `src/design/tokens/`. Files: `colors.ts`, `space.ts`, `type.ts`, `motion.ts`, `depth.ts`, `sound.ts`, `glass.ts`. Barrel export `src/design/tokens/index.ts`. **No CSS** — React Native cannot load CSS at runtime; the wireframe's `styles.css` is a source reference only, ported to TS. Rationale: industry standard for Expo/RN apps; type safety; avoids parse-time ambiguity.
+**D8. Token storage.** Port the existing workbench tree at `src/design-system/tokens/` verbatim, preserving file names. Files: `foundation.ts` (palette, spacing, radius, type scale, fonts), `semantic.ts` (semantic color tokens, shadow), `component.ts`, `state.ts` (depth, feedback), `motion.ts`, `registry.ts`, `index.ts` barrel. Keep the path `src/design-system/` for zero-rename port. **No CSS** — React Native cannot load CSS at runtime; the wireframe's `styles.css` is a source reference only, ported to TS where tokens are missing (glass variants). Rationale: industry standard for Expo/RN apps; type safety; reuses the extensive token registry already built in the workbench.
 
 **D9. Token source merge rules.**
 
@@ -101,20 +101,24 @@ The team needs one production-grade MVP. This effort merges the three into a sin
 
 **D11. Tab bar style.** Flush glass-strong at bottom, safe-area-padded. Keep workbench's larger active-tab highlight and sliding animation behavior. Not floating. Rationale: floating tab bars read as imitation of other apps; flush + glass looks intentional on top of our content.
 
-**D12. Palette.** Workbench semantic wins:
+**D12. Palette.** Workbench semantic wins. Actual values (verified against workbench `src/design-system/tokens/foundation.ts` + `semantic.ts`):
 
 ```
-void        #050A0A (base bg, workbench obsidian slightly darker than wireframe #08080A)
-slate-0..3  graphite surfaces
-cyan        #22D3EE  — active, selection, links
-amber       queued / handoff / in-transit
-green       settled / success / mesh-connected
-purple      stealth (rare)
-red         destructive (rare)
-text        #E8E8EA primary / #8A8A92 dim / #555560 muted
+background       palette.obsidian950 (#0A0B0D)
+backgroundSoft   palette.obsidian900 (#0d0e10)
+backgroundRaised palette.obsidian850 (#131416)
+surface          palette.obsidian800 (#161718)
+surfaceMuted     palette.obsidian775 (#1b1c1e)
+surfaceElevated  palette.obsidian750 (#1f2022)
+textPrimary      palette.frost50 (#f3f7fa)
+cyan             palette.cyan500 (#00daf3)   — active, selection, links
+amber            palette.amber500 (#ffbf00)  — queued / handoff
+green            palette.green500 (#3ce36a)  — settled / mesh-connected
+purple           palette.purple500 (#8b5fbf) — stealth
+red              palette.red500 (#cc6666)    — destructive
 ```
 
-Final hex values confirmed in `src/design/tokens/colors.ts` when written.
+Plus per-semantic soft/glow variants already defined in workbench `semantic.ts`. Port verbatim.
 
 **D13. Workbench polish preservation.** `motion.ts`, `soundCatalog.ts` + WAVs, haptics, `DepthButton`, `SlideToConfirm` (with shadow-twin trick for no-Skia), `WorkbenchSheet` (renamed `Sheet`), the terminology lock. Port incrementally alongside each screen to avoid a "we'll add polish later" trap that loses polish. See `quality-gates.md` § "polish discipline".
 

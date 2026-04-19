@@ -22,11 +22,11 @@ src/domain/           (pure — types, entities, service interfaces, policies)
 src/infrastructure/   (side-effectful adapters — implement domain interfaces)
 ```
 
-- `components/` imports `src/hooks/`, `src/design/`, and other `components/` only.
+- `components/` imports `src/hooks/`, `src/design-system/`, and other `components/` only.
 - `src/hooks/` imports `src/domain/` and React. Does not import from `src/infrastructure/` directly; receives adapters via a wallet/app-level context or provider composition.
 - `src/domain/` imports nothing except types from itself.
 - `src/infrastructure/<adapter>/` imports `src/domain/` (to satisfy an interface) and platform modules. Never imports from `components/` or `src/hooks/`.
-- `src/design/` is leaf. It's imported by `components/` and nothing else depends on it.
+- `src/design-system/` is leaf. It's imported by `components/` and nothing else depends on it.
 
 Enforcement: a lint rule on `import/no-restricted-paths` with these boundaries. Set up in `eslint.config.js` as part of scaffolding.
 
@@ -77,20 +77,20 @@ v3-full/
 │   └── shared/                     # Header, SectionLabel, Toast, ErrorBanner, LoadingShimmer
 │
 ├── src/
-│   ├── design/
+│   ├── design-system/              # ported verbatim from workbench
 │   │   ├── tokens/
-│   │   │   ├── colors.ts
-│   │   │   ├── space.ts
-│   │   │   ├── type.ts             # fonts + sizes + weights
-│   │   │   ├── motion.ts           # durations, easings, springs
-│   │   │   ├── depth.ts            # shadows, morphic-press config
-│   │   │   ├── glass.ts            # 4 variants: glass, glass-soft, glass-accent, glass-strong
-│   │   │   ├── sound.ts            # soundCatalog + event names
-│   │   │   ├── haptics.ts          # haptic event map
+│   │   │   ├── foundation.ts       # palette, spacing, radius, type scale, fonts
+│   │   │   ├── semantic.ts         # semantic color tokens, shadow
+│   │   │   ├── component.ts        # component-scoped tokens
+│   │   │   ├── state.ts            # depth, feedback, press config
+│   │   │   ├── motion.ts           # durations, easings, springs (overdamped, no bounce)
+│   │   │   ├── registry.ts         # token registry for catalog mode
 │   │   │   └── index.ts            # barrel
+│   │   ├── glass.ts                # NEW — 4-variant factory from wireframe styles.css
 │   │   ├── useGlass.ts             # glass variant hook
 │   │   ├── useFonts.ts             # Space Grotesk + Manrope + JetBrains Mono loader
-│   │   └── useSound.ts             # play named event
+│   │   ├── useSound.ts             # play named event
+│   │   └── useHaptic.ts            # haptic event trigger
 │   │
 │   ├── domain/
 │   │   ├── entities/
@@ -188,12 +188,13 @@ v3-full/
 
 ## Layer responsibilities
 
-### `src/design/`
+### `src/design-system/`
 
-- Defines all visual tokens (colors, spacing, type, motion, depth, glass, sound, haptics).
-- Exposes hooks (`useGlass`, `useFonts`, `useSound`).
+- Defines all visual tokens (palette, spacing, radius, type, motion, depth, glass, sound, haptics).
+- Exposes hooks (`useGlass`, `useFonts`, `useSound`, `useHaptic`).
 - Does not depend on domain or infrastructure. Pure.
-- **Rule:** every color, size, spring timing, or shadow used in `components/` comes from `src/design/tokens/`. No ad-hoc values. Violations caught by review + lint where feasible.
+- **Rule:** every color, size, spring timing, or shadow used in `components/` comes from `src/design-system/tokens/`. No ad-hoc values. Violations caught by review + lint where feasible.
+- Ported verbatim from workbench `src/design-system/` (foundation, semantic, component, state, motion, registry) to avoid rebuilding a working token system. Glass is an addition from the wireframe that the workbench did not cover.
 
 ### `src/domain/`
 
@@ -257,7 +258,7 @@ Use this type everywhere. Do not let a `string` flow into a status display. Grep
 
 ## Theme provider
 
-`src/providers/ThemeProvider.tsx` re-exports workbench's theme pattern. Components access theme via a `useTheme` hook that returns typed tokens. No inline style values; all values trace back to `src/design/tokens/`.
+`src/providers/ThemeProvider.tsx` re-exports workbench's theme pattern. Components access theme via a `useTheme` hook that returns typed tokens. No inline style values; all values trace back to `src/design-system/tokens/`.
 
 ## Related
 
