@@ -6,5 +6,5 @@ export { usePeers } from './usePeers';
 export { useMessages, useConversation } from './useMessages';
 export type { Thread } from './useMessages';
 export { useBeacon } from './useBeacon';
-export { useLxmf } from './useLxmf';
-export type { LxmfState, LxmfStatus, LxmfNodeMode } from './useLxmf';
+export { useLxmf, LxmfNodeMode } from './useLxmf';
+export type { Beacon, LxmfEvent, LxmfNodeStatus, LxmfReturnShape, TcpInterface, UseLxmfOptions } from './useLxmf';

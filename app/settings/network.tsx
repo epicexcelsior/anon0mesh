@@ -14,9 +14,16 @@ import { useLxmf, LxmfNodeMode } from "@/src/hooks/useLxmf";
 import { appTheme as theme } from "@/src/design-system/theme";
 
 const LXMF_SEGMENTS = [
-  { id: "BleOnly", label: "BLE Only" },
-  { id: "Reticulum", label: "Reticulum" },
+  { id: String(LxmfNodeMode.BleOnly), label: "BLE Only" },
+  { id: String(LxmfNodeMode.Reticulum), label: "Reticulum" },
 ];
+
+const LXMF_MODE_LABEL: Record<LxmfNodeMode, string> = {
+  [LxmfNodeMode.BleOnly]: "BLE Only",
+  [LxmfNodeMode.TcpClient]: "TCP Client",
+  [LxmfNodeMode.TcpServer]: "TCP Server",
+  [LxmfNodeMode.Reticulum]: "Reticulum",
+};
 
 function connectionPillTone(state: string): "green" | "amber" | "neutral" {
   if (state === "Live") return "green";
@@ -28,13 +35,12 @@ export default function NetworkScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { connectionState, nodeCount } = useMesh();
-  const { mode: lxmfMode } = useLxmf();
+  const { status: lxmfStatus } = useLxmf();
+  const currentLxmfMode: LxmfNodeMode = (lxmfStatus?.mode as LxmfNodeMode | undefined) ?? LxmfNodeMode.BleOnly;
 
   const [bleEnabled, setBleEnabled] = useState(true);
   const [autoConnect, setAutoConnect] = useState(true);
-  const [selectedLxmfMode, setSelectedLxmfMode] = useState<LxmfNodeMode>(
-    lxmfMode === "BleOnly" || lxmfMode === "Reticulum" ? lxmfMode : "BleOnly"
-  );
+  const [selectedLxmfMode, setSelectedLxmfMode] = useState<LxmfNodeMode>(currentLxmfMode);
 
   function handleBleToggle(value: boolean) {
     setBleEnabled(value);
@@ -47,8 +53,9 @@ export default function NetworkScreen() {
   }
 
   function handleLxmfModeSelect(id: string) {
-    setSelectedLxmfMode(id as LxmfNodeMode);
-    console.log("[Network] LXMF mode:", id);
+    const mode = Number(id) as LxmfNodeMode;
+    setSelectedLxmfMode(mode);
+    console.log("[Network] LXMF mode:", LXMF_MODE_LABEL[mode]);
   }
 
   return (
@@ -116,14 +123,14 @@ export default function NetworkScreen() {
               </View>
               <View style={styles.rowMid}>
                 <Text style={styles.rowLabel}>LXMF Mode</Text>
-                <Text style={styles.rowSublabel}>Current: {lxmfMode}</Text>
+                <Text style={styles.rowSublabel}>Current: {LXMF_MODE_LABEL[currentLxmfMode]}</Text>
               </View>
             </View>
 
             <View style={styles.segmentRow}>
               <SegmentedControl
                 segments={LXMF_SEGMENTS}
-                selected={selectedLxmfMode}
+                selected={String(selectedLxmfMode)}
                 onSelect={handleLxmfModeSelect}
               />
             </View>

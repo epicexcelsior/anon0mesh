@@ -1,27 +1,23 @@
-// Stub hook mirroring @lxmf/react-native public API shape (D25).
-// When the parallel agent publishes the real package, this becomes a re-export.
-export type LxmfNodeMode = 'BleOnly' | 'TcpClient' | 'TcpServer' | 'Reticulum';
-export type LxmfStatus = 'idle' | 'starting' | 'running' | 'stopped' | 'error';
+// useLxmf — thin hook delegating to LxmfStubAdapter. Mirrors the @lxmf/react-native public API (D25).
+// When the parallel agent publishes the real package, swap this body for a re-export:
+//   export { useLxmf, LxmfNodeMode } from '@lxmf/react-native';
+// No component code changes required.
 
-export interface LxmfState {
-  status: LxmfStatus;
-  mode: LxmfNodeMode;
-  nodeId: string | null;
-  beacons: string[];
-}
+import { lxmfStub, LxmfNodeMode } from "@/src/infrastructure/lxmf/LxmfStubAdapter";
+import type {
+  Beacon,
+  LxmfEvent,
+  LxmfNodeStatus,
+  LxmfReturnShape,
+  TcpInterface,
+  UseLxmfOptions,
+} from "@/src/infrastructure/lxmf/LxmfStubAdapter";
 
-export function useLxmf(): LxmfState & {
-  start: (mode: LxmfNodeMode) => Promise<void>;
-  stop: () => Promise<void>;
-  send: (to: string, payload: Uint8Array) => Promise<void>;
-} {
-  return {
-    status: 'idle',
-    mode: 'BleOnly',
-    nodeId: null,
-    beacons: [],
-    start: async () => {},
-    stop: async () => {},
-    send: async () => {},
-  };
+export { LxmfNodeMode };
+export type { Beacon, LxmfEvent, LxmfNodeStatus, LxmfReturnShape, TcpInterface, UseLxmfOptions };
+
+export function useLxmf(_options: UseLxmfOptions = {}): LxmfReturnShape {
+  // Stub implementation: returns a frozen state + no-op actions. No React state because
+  // the stub has no dynamic behavior. Real package will maintain running state via native events.
+  return lxmfStub;
 }
