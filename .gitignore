@@ -84,3 +84,6 @@ yarn-error.*
 
 # @end expo-cli*.apk
 *.apk
+
+# stale upstream/v3 artifact — reference mobile_app/ via `git show upstream/v3:mobile_app/<path>`, not a checkout
+/mobile_app/
