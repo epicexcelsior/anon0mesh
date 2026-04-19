@@ -115,9 +115,13 @@ export class MWAWalletAdapter implements WalletService {
       signature = signatures[0] ?? null;
     });
 
+    if (!signature) {
+      throw new Error('MWA wallet returned no signature — transaction may not have been submitted');
+    }
+
     const now = Date.now();
     const domainTx: Transaction = {
-      id: signature ?? `mwa-${now}`,
+      id: signature,
       direction: 'send',
       amount: params.amount,
       symbol: params.symbol,

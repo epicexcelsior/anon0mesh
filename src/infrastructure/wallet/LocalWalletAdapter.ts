@@ -81,6 +81,7 @@ export class LocalWalletAdapter implements WalletService {
     const secretKey = await this.wallet.exportSecretKey();
     const keypair = Keypair.fromSecretKey(secretKey);
     tx.sign(keypair);
+    secretKey.fill(0); // zero key material immediately after signing
 
     const rawTx = tx.serialize();
     const signature = await this.connection.sendRawTransaction(rawTx);

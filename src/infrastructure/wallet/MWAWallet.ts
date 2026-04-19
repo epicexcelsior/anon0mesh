@@ -40,6 +40,7 @@ export class MWAWallet implements IWalletAdapter {
     });
 
     const account = result.accounts[0];
+    if (!account) throw new Error('MWA wallet returned no accounts during authorization');
     // MWA v2 returns base64-encoded 32-byte public key in address field
     const pubkeyBytes = Buffer.from(account.address, 'base64');
     this.publicKey = new PublicKey(pubkeyBytes);

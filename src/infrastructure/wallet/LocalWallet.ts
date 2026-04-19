@@ -66,7 +66,17 @@ async function readAndDecrypt(opts: SecureStore.SecureStoreOptions): Promise<Key
 
   // Legacy format: plain byte array stored before AES layer was added
   if (Array.isArray(parsed)) {
-    return Keypair.fromSecretKey(new Uint8Array(parsed));
+    const keypair = Keypair.fromSecretKey(new Uint8Array(parsed));
+    // Migrate to AES-encrypted format in-place
+    try {
+      const aesKey = randomBytes(32);
+      const payload = aesEncrypt(aesKey, keypair.secretKey);
+      await SecureStore.setItemAsync(AES_KEY_STORE, Buffer.from(aesKey).toString('base64'));
+      await SecureStore.setItemAsync(SECRET_KEY, JSON.stringify(payload), opts);
+    } catch {
+      // Migration failed (e.g. biometric not enrolled) — wallet still functional for export in this session
+    }
+    return keypair;
   }
 
   if (!isStoredPayload(parsed)) throw new Error('Corrupted wallet data');
@@ -79,10 +89,12 @@ async function readAndDecrypt(opts: SecureStore.SecureStoreOptions): Promise<Key
 
 export class LocalWallet implements IWalletAdapter {
   private _publicKey: PublicKey | null = null;
+  private _exportAvailable: boolean = true;
 
   getMode(): WalletMode { return 'local'; }
   getPublicKey(): PublicKey | null { return this._publicKey; }
   isConnected(): boolean { return this._publicKey !== null; }
+  canExport(): boolean { return this._exportAvailable; }
 
   // No biometric — reads public key only. Biometric fires only on exportSecretKey().
   async connect(): Promise<void> {
@@ -97,6 +109,7 @@ export class LocalWallet implements IWalletAdapter {
 
   // Triggers fresh biometric prompt — intentional, keeps secret key out of memory at rest
   async exportSecretKey(): Promise<Uint8Array> {
+    if (!this._exportAvailable) throw new Error('Biometric setup required to export wallet key. Please enable device biometrics in Settings.');
     return (await readAndDecrypt(EXPORT_OPTS)).secretKey;
   }
 
@@ -119,15 +132,17 @@ export class LocalWallet implements IWalletAdapter {
     await SecureStore.setItemAsync(AES_KEY_STORE, Buffer.from(aesKey).toString('base64'));
     await SecureStore.setItemAsync(PUBLIC_KEY_STORE, keypair.publicKey.toBase58());
     await SecureStore.setItemAsync(MARKER_KEY, 'true');
+    const w = new LocalWallet();
+    w._publicKey = keypair.publicKey;
+
     try {
       await SecureStore.setItemAsync(SECRET_KEY, JSON.stringify(payload), AUTH_OPTS);
     } catch {
       // Biometric key setup failed (no enrollment, emulator, etc.) — export will be unavailable
       // until the user sets up device biometrics and recreates. Wallet identity persists.
+      w._exportAvailable = false;
     }
 
-    const w = new LocalWallet();
-    w._publicKey = keypair.publicKey;
     return w;
   }
 
