@@ -189,16 +189,30 @@ Phase 0 and Phase 1 are complete. Next session resumes at **Phase 2 — Home tab
 
 ### Shipped
 
-<!-- filled at session end -->
+- **tsconfig fix:** `"exclude": ["proxy_transfer_program/**"]` — tsc gate now meaningful (4 pre-existing upstream errors remain; all in untouched files)
+- **Step 2.1:** `components/mesh/MeshStatusStrip.tsx` (D6 locked — persistent 32px glass-soft strip across all tabs), `components/home/{HomeHero,BalanceCard,RecentActivity}.tsx`, full `app/(tabs)/home.tsx` layout, stub `useMesh`/`useWallet`/`useTransaction` hooks. Commit: 19a22f6
+- **Step 2.2:** Remaining 4 hooks — `usePeers`, `useMessages`/`useConversation`, `useBeacon`, `useLxmf` (stub matching `@lxmf/react-native` API per D25). Commit: 59fd00e
+- **Step 2.3:** `src/fixtures/{peers,conversations,transactions,presets}.ts`, `src/infrastructure/fixtures/Fixture*Adapter.ts` (4 adapters), `app/dev/index.tsx` (`__DEV__` gated catalog). Commits: 775b3ea, 8332bcb
+- **Step 2.4:** MeshStatusStrip already wired to useMesh — verified, no additional commit needed.
+- **Steps 2.5–2.6:** `app/peers/index.tsx` (modal), `app/peers/[peerId].tsx`, `components/mesh/{PeerCard,PeersList,PeerDetail}.tsx`. Commit: adf292a
+- **Steps 2.7–2.10:** Full 4-screen send flow — `app/send/{recipient,amount,review,success}.tsx`, `components/send/{RecipientPicker,AmountKeypad,ReviewCard,SuccessCard}.tsx`. SlideToConfirm on review screen, no Skia. Commit: 1268c33
+- **Step 2.11:** `app/receive.tsx`, `components/shared/ReceiveCard.tsx` — QR (react-native-qrcode-svg), address copy (expo-clipboard). Commit: 2ce8503
+- **Steps 2.12–2.13:** `app/history/{index,\[txId\]}.tsx`, `components/home/HistoryList.tsx`, `components/shared/{TxRow,TxDetail}.tsx`, home segment toggle wired. Commits: 1f4ca52, 7a8451d
+- **Quality fixes:** token violations in MeshStatusStrip (STRIP_HEIGHT) + SlideToConfirm (shadowColor). Commit: 59dde3b
 
 ### Deviations from decisions.md
 
-<!-- filled at session end -->
+- None. All decisions followed. rgba values in `SlideToConfirm.interpolateColor` are unavoidable (Reanimated string-array requirement) — documented as accepted technical debt, not a decision violation.
 
 ### Open issues
 
-<!-- filled at session end -->
+- `GlassSurface` `ENABLE_BLUR = false` — still needs `npx expo prebuild` before flip.
+- `useConversation(peerId)` calls `getMessages(peerId)` but `MessagingService.getMessages(threadId)` takes a `threadId`. Works with fixtures (adapter maps it); needs proper `threadId` lookup when real messaging lands.
+- Send flow `SlideToConfirm` has rgba values in `interpolateColor` stops — these can't use theme tokens (Reanimated API constraint). Static `StyleSheet` values fixed; animated ones remain raw strings.
+- Phase 3 (Messages tab) not started. Ready to begin.
 
 ### Handoff
 
-<!-- filled at session end -->
+Phase 2 complete. All 13 steps shipped. Lint: 0 errors, 30 pre-existing warnings. TSC: 4 pre-existing errors, 0 new. Terminology clean in all new files.
+
+Next session resumes at **Phase 3 — Messages tab** (Step 3.1: Messages list, Step 3.2: New conversation sheet, Step 3.3: Conversation detail). Read this progress block + decisions.md before starting. The `useMessages`/`useConversation` hooks are already wired; fixtures have 3 conversations. Focus: port v3 `components/messages/` patterns + workbench Sheet/bubble styling.
