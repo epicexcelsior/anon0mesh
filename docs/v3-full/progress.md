@@ -345,16 +345,49 @@ Phase 5.5 hardening pass complete. v3-full is clean at HEAD `f3d8939` (10 fixes 
 
 ### Shipped
 
-_(filling in at session end)_
+- **Step 6.1 — Empty/loading/error states:**
+  - `useTransaction`: added `loading` state; resolves to `false` on success or error.
+  - `RecentActivity`: shows spinner + "Loading activity…" while loading.
+  - `PeersList`: `PermissionDeniedState` (bluetooth icon, "Bluetooth unavailable") when `error` prop set; `LoadingState` shows "Scanning for peers…".
+  - `MeshStatusStrip`: wired `bleError` from `useMesh()`; renders red "BLE Error" pill + "0 nodes" + 0 signal bars on error.
+  - `app/peers/index.tsx`: passes `bleError` to `<PeersList>`.
+  - `app/settings/network.tsx`: Status row Pill shows "Error"/red when `bleError`; inline error banner below row.
+  - Commits: e35ba9a, 65c2b89
+
+- **Step 6.2 — Motion timing audit:**
+  - `Sheet.tsx`: added `animationConfigs={appMotion.spring.sheet}` to `<BottomSheet>` — eliminates default bounce, enforces `overshootClamping: true`.
+  - Commit: 7b63d08
+
+- **Step 6.3 — Sound + haptic tuning:**
+  - `SuccessCard`: mount `useEffect` fires `sound.successResolve()` + `haptics.confirm()`.
+  - `settings/privacy.tsx`: `handleStealthToggle` fires `haptics.select()` + `toggleOn/Off`; cycle buttons fire `haptics.tap()` + `sound.buttonTap()`.
+  - `settings/network.tsx`: both toggle handlers fire `haptics.select()` + sound; removed `console.log`.
+  - Commit: 4c9d1e8
+
+- **Step 6.4 — Accessibility pass:**
+  - Added `accessibilityRole="button"` + `accessibilityLabel` to every `TouchableOpacity` and `Pressable` across all 25+ v3-full screens and components.
+  - Coverage: home action row, back buttons (11 screens), PeerCard (card + message + send actions), ConversationRow, MeshStatusStrip, HomeHero QR button, messages new-convo button, send flow (RecipientPicker back/QR/peer chips, AmountKeypad back, ReviewCard back + stealth toggle), SuccessCard (copy/explorer/share), settings rows, all settings screen back buttons, history back buttons, DepthButton (`label` prop forwarded as `accessibilityLabel`), NewConversationSheet PeerRow + close.
+  - Commits: 911cc28
+
+- **Step 6.5 — Copy pass:**
+  - Terminology grep: 0 banned synonyms (Pending/Broadcasting/Confirmed/Incognito) in any v3-full screen or component. Legacy hits confined to untouched `components/screens/` upstream files.
+  - Fixed `ConversationList` empty state: "Start a conversation from the Peers sheet" → "Tap + to start a new conversation" (accurate to UI affordance).
+  - Tone audit: all empty states, error messages, and footer notes are calm and action-oriented.
+  - Commit: 99d408e
 
 ### Deviations from decisions.md
 
-_(filling in at session end)_
+- None. All decisions honored. `DepthButton` accessibility forwards `label` prop as `accessibilityLabel` — graceful no-op when `label` is undefined.
 
 ### Open issues
 
-_(filling in at session end)_
+- `GlassSurface` `ENABLE_BLUR = false` still needs `npx expo prebuild` before flip. Unchanged from prior sessions.
+- Real LXMF integration awaiting parallel agent. When `@lxmf/react-native` publishes, swap `LxmfStubAdapter.ts` for real adapter.
+- MWA mainnet flip: change devnet → mainnet-beta in `src/infrastructure/solana/SolanaAdapter.ts` before launch.
+- Baseline: lint 0 errors / 30 warnings (all pre-existing). TSC: 4 pre-existing errors in untouched upstream files.
 
 ### Handoff
 
-_(filling in at session end)_
+Phase 6 complete. All 5 steps shipped across 5 commits on `v3-full`. App is feature-complete for demo: empty/loading/error states wired, BLE error surfacing end-to-end, sheet motion is smooth, all primary interactions have audio+haptic feedback, every interactive element has accessibility role + label, terminology is clean.
+
+**Next: Phase 7 — Final gates + PR.** Read `quality-gates.md` fully before starting. Phase 7 agent should: (1) run the full quality-gate checklist, (2) verify the `__DEV__`-gate on `/dev` route, (3) run a final `grep -r "console.log"` sweep, (4) flip `ENABLE_BLUR` if `expo prebuild` is available, (5) open PR to `main`. Branch is `v3-full` at HEAD `99d408e`.
