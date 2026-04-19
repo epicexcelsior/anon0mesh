@@ -216,3 +216,41 @@ Phase 0 and Phase 1 are complete. Next session resumes at **Phase 2 — Home tab
 Phase 2 complete. All 13 steps shipped. Lint: 0 errors, 30 pre-existing warnings. TSC: 4 pre-existing errors, 0 new. Terminology clean in all new files.
 
 Next session resumes at **Phase 3 — Messages tab** (Step 3.1: Messages list, Step 3.2: New conversation sheet, Step 3.3: Conversation detail). Read this progress block + decisions.md before starting. The `useMessages`/`useConversation` hooks are already wired; fixtures have 3 conversations. Focus: port v3 `components/messages/` patterns + workbench Sheet/bubble styling.
+
+---
+
+## 2026-04-18 — session 4 continued (Phase 3 + Phase 4)
+
+- **Model:** Sonnet 4.6
+- **Agent / human:** Claude Code (subagent-driven) + @intern
+- **Goal:** Phase 3 (Messages tab) + Phase 4 (Settings tab)
+
+### Shipped
+
+**Phase 3 — Messages:**
+- Step 3.1: `components/messages/{ConversationRow,ConversationList}.tsx`, `app/(tabs)/messages.tsx` full layout. Commits: 4d5c66b
+- Step 3.2: `components/messages/NewConversationSheet.tsx` — ref-driven BottomSheet with peer search. Commit: c1ec81e
+- Step 3.3: `app/messages/[peerId].tsx`, `components/messages/{MessageBubble,ComposerBar}.tsx` — inverted FlatList, KeyboardAvoidingView, DepthButton send. Commit: f10f9c3
+
+**Phase 4 — Settings:**
+- Step 4.1: `app/(tabs)/settings.tsx`, `components/settings/{IdentityCard,SettingsRow,SettingsSection}.tsx`. Commit: a6f8e92
+- Step 4.2: `app/settings/identity.tsx` — QR, address, name edit. Commit: d74c6f5
+- Step 4.3: `app/settings/wallet-export.tsx` — biometric gate via expo-local-authentication. Commit: 853967a
+- Step 4.4: `app/settings/network.tsx` — BLE toggle, LXMF mode picker. Commit: 3190d52
+- Step 4.5: `app/settings/privacy.tsx` — stealth default, privacy mode, key rotation. Commit: c469ed4
+- Step 4.6: `app/settings/beacon.tsx` — stub UI, 0 SOL staked, "coming soon" stake flow. Commit: 1b0d9c3
+- Step 4.7: `app/settings/about.tsx` — logo, version, tech paragraph, links. Commit: 3f5ddf1
+
+### Deviations from decisions.md
+
+- `NewConversationSheet` uses ref-driven pattern (Sheet's `@gorhom/bottom-sheet` API) rather than a visible/onClose prop pattern. No decision update needed — implementation detail.
+- `settings/about.tsx`: TechDrawerContent reuse skipped (component exists but wasn't wired as a sub-router push — inlined tech paragraph instead). Low impact.
+
+### Open issues
+
+- Same as previous session: useConversation threadId/peerId mismatch to fix in Phase 5.
+- Phase 5 (backend wiring) not yet started.
+
+### Handoff
+
+Phases 0–4 complete. All screens in scope are implemented and rendering. Next: **Phase 5 — Backend wiring** (real LocalWalletAdapter, MWA adapter, SolanaTransactionService, BLE mesh context, LXMF stub finalize). Then Phase 6 (polish) and Phase 7 (final gates). Quality gates still clean: lint 0 errors, tsc 4 pre-existing, terminology 0 violations.
