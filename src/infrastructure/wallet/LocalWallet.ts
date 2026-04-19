@@ -66,16 +66,24 @@ async function readAndDecrypt(opts: SecureStore.SecureStoreOptions): Promise<Key
 
   // Legacy format: plain byte array stored before AES layer was added
   if (Array.isArray(parsed)) {
-    const keypair = Keypair.fromSecretKey(new Uint8Array(parsed));
-    // Migrate to AES-encrypted format in-place
+    const legacyBytes = new Uint8Array(parsed);
+    const keypair = Keypair.fromSecretKey(legacyBytes);
+    legacyBytes.fill(0);
+    // Migrate to AES-encrypted format in-place. On failure, surface the error so the caller
+    // can decide whether to block export. Silently swallowing left keys in the weaker format
+    // forever with no indication to the user.
+    const aesKey = randomBytes(32);
     try {
-      const aesKey = randomBytes(32);
       const payload = aesEncrypt(aesKey, keypair.secretKey);
       await SecureStore.setItemAsync(AES_KEY_STORE, Buffer.from(aesKey).toString('base64'));
       await SecureStore.setItemAsync(SECRET_KEY, JSON.stringify(payload), opts);
-    } catch {
-      // Migration failed (e.g. biometric not enrolled) — wallet still functional for export in this session
+    } catch (e) {
+      if (__DEV__) console.warn('[LocalWallet] legacy-format migration failed:', e);
+      // Re-throw so exportSecretKey surfaces the failure. Caller catches and marks export unavailable.
+      aesKey.fill(0);
+      throw new Error('Wallet migration failed — please set up device biometrics and re-export');
     }
+    aesKey.fill(0);
     return keypair;
   }
 
@@ -83,8 +91,14 @@ async function readAndDecrypt(opts: SecureStore.SecureStoreOptions): Promise<Key
 
   const rawAesKey = await SecureStore.getItemAsync(AES_KEY_STORE);
   if (!rawAesKey) throw new Error('AES key missing — wallet may be corrupted, please recreate');
-  const secretKey = aesDecrypt(new Uint8Array(Buffer.from(rawAesKey, 'base64')), parsed);
-  return Keypair.fromSecretKey(secretKey);
+  const aesKey = new Uint8Array(Buffer.from(rawAesKey, 'base64'));
+  const secretKey = aesDecrypt(aesKey, parsed);
+  const keypair = Keypair.fromSecretKey(secretKey);
+  // Zero transient key material. Keypair.fromSecretKey copies into an internal buffer,
+  // so we can safely wipe the local Uint8Arrays here.
+  secretKey.fill(0);
+  aesKey.fill(0);
+  return keypair;
 }
 
 export class LocalWallet implements IWalletAdapter {
@@ -125,6 +139,8 @@ export class LocalWallet implements IWalletAdapter {
     const aesKey  = randomBytes(32);
     const seed    = randomBytes(32);
     const keypair = Keypair.fromSeed(seed);
+    // Keypair.fromSeed copies internally; wipe the seed buffer now.
+    seed.fill(0);
     const payload = aesEncrypt(aesKey, keypair.secretKey);
 
     // Write marker and pubkey FIRST (no auth) so wallet persists even if biometric op fails.
@@ -142,6 +158,9 @@ export class LocalWallet implements IWalletAdapter {
       // until the user sets up device biometrics and recreates. Wallet identity persists.
       w._exportAvailable = false;
     }
+
+    // Zero the last-use copy of the AES key after it has been persisted to SecureStore.
+    aesKey.fill(0);
 
     return w;
   }
