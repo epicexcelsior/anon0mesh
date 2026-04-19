@@ -7,12 +7,14 @@ import { Backdrop } from "@/components/primitives/Backdrop";
 import { Icon } from "@/components/primitives/Icon";
 import { SignalBars } from "@/components/primitives/SignalBars";
 import { PeersList } from "@/components/mesh/PeersList";
+import { useMesh } from "@/src/hooks/useMesh";
 import { usePeers } from "@/src/hooks/usePeers";
 import { appTheme as theme } from "@/src/design-system/theme";
 
 export default function PeersScreen() {
   const router = useRouter();
   const { peers, loading } = usePeers();
+  const { bleError } = useMesh();
 
   const firstPeer = peers[0];
   const signalStrength = firstPeer ? firstPeer.signalStrength : (0 as const);
@@ -55,6 +57,7 @@ export default function PeersScreen() {
           <PeersList
             peers={peers}
             loading={loading}
+            error={bleError}
             onPressPeer={(id) => router.push((`/peers/${id}`) as Parameters<typeof router.push>[0])}
           />
         </View>

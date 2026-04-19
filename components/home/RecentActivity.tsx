@@ -1,5 +1,5 @@
 import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { Icon } from "@/components/primitives/Icon";
 import { Pill } from "@/components/primitives/Pill";
@@ -59,7 +59,16 @@ function ActivityRow({ tx }: { tx: Transaction }) {
 }
 
 export function RecentActivity() {
-  const { recent } = useTransaction();
+  const { recent, loading } = useTransaction();
+
+  if (loading) {
+    return (
+      <View style={styles.emptyState}>
+        <ActivityIndicator size="small" color={theme.colors.cyan} />
+        <Text style={styles.emptyText}>Loading activity…</Text>
+      </View>
+    );
+  }
 
   if (recent.length === 0) {
     return (

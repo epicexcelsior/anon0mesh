@@ -34,7 +34,7 @@ function connectionPillTone(state: string): "green" | "amber" | "neutral" {
 export default function NetworkScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { connectionState, nodeCount } = useMesh();
+  const { connectionState, nodeCount, bleError } = useMesh();
   const { status: lxmfStatus } = useLxmf();
   const currentLxmfMode: LxmfNodeMode = (lxmfStatus?.mode as LxmfNodeMode | undefined) ?? LxmfNodeMode.BleOnly;
 
@@ -106,10 +106,17 @@ export default function NetworkScreen() {
                 <Text style={styles.rowSublabel}>{nodeCount} peer{nodeCount !== 1 ? "s" : ""} visible</Text>
               </View>
               <Pill
-                label={connectionState}
-                tone={connectionPillTone(connectionState)}
+                label={bleError ? "Error" : connectionState}
+                tone={bleError ? "red" : connectionPillTone(connectionState)}
               />
             </View>
+
+            {bleError ? (
+              <View style={styles.errorBanner}>
+                <Icon name="alert-circle" size={14} color={theme.colors.red} />
+                <Text style={styles.errorBannerText}>{bleError}</Text>
+              </View>
+            ) : null}
           </GlassSurface>
         </View>
 
@@ -279,5 +286,21 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.body,
     fontSize: theme.type.caption,
     lineHeight: theme.type.caption * 1.6,
+  },
+  errorBanner: {
+    alignItems: "center",
+    borderTopColor: theme.colors.line,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    flexDirection: "row",
+    gap: theme.spacing.xs,
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.sm,
+  },
+  errorBannerText: {
+    color: theme.colors.red,
+    flex: 1,
+    fontFamily: theme.fonts.body,
+    fontSize: theme.type.caption,
+    lineHeight: theme.type.caption * 1.5,
   },
 });

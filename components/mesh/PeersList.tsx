@@ -15,7 +15,20 @@ import { PeerCard } from "./PeerCard";
 interface PeersListProps {
   peers: Peer[];
   loading: boolean;
+  error?: string | null;
   onPressPeer: (id: string) => void;
+}
+
+function PermissionDeniedState() {
+  return (
+    <View style={styles.emptyContainer}>
+      <Icon name="bluetooth" size={32} color={theme.colors.textMuted} />
+      <Text style={styles.emptyTitle}>Bluetooth unavailable</Text>
+      <Text style={styles.emptySubtitle}>
+        Enable Bluetooth in device settings to discover peers
+      </Text>
+    </View>
+  );
 }
 
 function LoadingState() {
@@ -39,7 +52,8 @@ function EmptyState() {
   );
 }
 
-export function PeersList({ peers, loading, onPressPeer }: PeersListProps) {
+export function PeersList({ peers, loading, error, onPressPeer }: PeersListProps) {
+  if (error) return <PermissionDeniedState />;
   if (loading) return <LoadingState />;
   if (peers.length === 0) return <EmptyState />;
 

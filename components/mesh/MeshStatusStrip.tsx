@@ -54,11 +54,12 @@ function stateSignalColor(state: ConnectionState): string {
 
 export function MeshStatusStrip() {
   const router = useRouter();
-  const { nodeCount, connectionState } = useMesh();
+  const { nodeCount, connectionState, bleError } = useMesh();
 
-  const tone = stateTone(connectionState);
-  const signalStrength = stateSignalStrength(connectionState);
-  const signalColor = stateSignalColor(connectionState);
+  const tone = bleError ? "red" : stateTone(connectionState);
+  const signalStrength = bleError ? 0 : stateSignalStrength(connectionState);
+  const signalColor = bleError ? theme.colors.red : stateSignalColor(connectionState);
+  const pillLabel = bleError ? "BLE Error" : connectionState;
 
   return (
     <TouchableOpacity
@@ -73,9 +74,9 @@ export function MeshStatusStrip() {
           activeColor={signalColor}
         />
         <Text style={styles.nodeCount}>
-          {nodeCount} {nodeCount === 1 ? "node" : "nodes"}
+          {bleError ? "0 nodes" : `${nodeCount} ${nodeCount === 1 ? "node" : "nodes"}`}
         </Text>
-        <Pill label={connectionState} tone={tone} style={styles.pill} />
+        <Pill label={pillLabel} tone={tone} style={styles.pill} />
       </GlassSurface>
     </TouchableOpacity>
   );
