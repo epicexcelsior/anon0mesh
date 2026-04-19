@@ -42,6 +42,12 @@ export default function RootLayout() {
                   <Stack.Screen name="history/index" options={{ headerShown: false }} />
                   <Stack.Screen name="history/[txId]" options={{ headerShown: false }} />
                   <Stack.Screen name="messages/[peerId]" options={{ headerShown: false }} />
+                  <Stack.Screen name="settings/identity" options={{ headerShown: false }} />
+                  <Stack.Screen name="settings/wallet-export" options={{ headerShown: false }} />
+                  <Stack.Screen name="settings/network" options={{ headerShown: false }} />
+                  <Stack.Screen name="settings/privacy" options={{ headerShown: false }} />
+                  <Stack.Screen name="settings/beacon" options={{ headerShown: false }} />
+                  <Stack.Screen name="settings/about" options={{ headerShown: false }} />
                 </Stack>
               </MeshProvider>
             </WalletProvider>
