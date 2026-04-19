@@ -1,0 +1,98 @@
+import { foundationTokens } from "@/src/design-system/tokens/foundation";
+import { semanticColorTokens } from "@/src/design-system/tokens/semantic";
+
+const spacing = foundationTokens.spacing;
+const radius = foundationTokens.radius;
+const type = foundationTokens.type;
+
+export const componentTokens = {
+  surface: {
+    gradients: {
+      default: [semanticColorTokens.surfaceCardTop, semanticColorTokens.surfaceCardBottom],
+      cyan: [semanticColorTokens.cardCyanTop, semanticColorTokens.cardCyanBottom],
+      proof: [semanticColorTokens.surfaceProofTop, semanticColorTokens.surfaceProofBottom],
+      soft: [semanticColorTokens.surfaceUtilityTop, semanticColorTokens.surfaceUtilityBottom],
+      success: [semanticColorTokens.surfaceSuccessTop, semanticColorTokens.surfaceSuccessBottom],
+    },
+  },
+  button: {
+    sizes: {
+      sm: { minHeight: 36, paddingX: spacing.md, fontSize: type.caption },
+      md: { minHeight: 48, paddingX: spacing.lg, fontSize: type.body },
+      lg: { minHeight: 56, paddingX: spacing.xl, fontSize: type.bodyLg },
+    },
+    contentGap: spacing.sm,
+    highlightInset: spacing.lg,
+  },
+  nav: {
+    barHeight: 74,
+    wrapperInset: spacing.lg,
+    minimumBottomOffset: 12,
+    paddingX: spacing.lg,
+    paddingY: spacing.md,
+    tabMinHeight: 48,
+    indicatorInsetY: spacing.md,
+    indicatorInsetX: spacing.lg,
+    indicatorGlowInset: 12,
+  },
+  rows: {
+    info: {
+      minHeight: 64,
+    },
+    list: {
+      minHeight: 64,
+      iconSize: 36,
+      paddingX: spacing.lg,
+      paddingY: spacing.md,
+      dividerInset: 64,
+    },
+    identity: {
+      minHeight: 76,
+      avatarSize: 48,
+      presenceDotSize: 12,
+      trailingMinWidth: 48,
+      paddingX: spacing.lg,
+      paddingY: spacing.md,
+    },
+    activity: {
+      minHeight: 76,
+      iconSize: 36,
+      trailingMinWidth: 72,
+      paddingX: spacing.lg,
+      paddingY: spacing.md,
+    },
+    badge: {
+      minHeight: 22,
+      minWidth: 22,
+    },
+    statePill: {
+      minHeight: 22,
+    },
+  },
+  sheet: {
+    topRadius: radius.xxl,
+    paddingX: spacing.xl,
+    paddingTop: spacing.sm,
+    contentBottomBase: spacing.xxl,
+    handleWidth: 36,
+    highlightInset: spacing.xl,
+    actionMinHeight: 52,
+  },
+  slider: {
+    trackHeight: 60,
+    trackRadius: 30,
+    knobSize: 52,
+    knobRadius: 26,
+    knobInset: 4,
+    threshold: 0.72,
+    magnetStart: 0.58,
+    resistanceStart: 0.84,
+  },
+  recipes: {
+    heroCardRadius: radius.xxl,
+    moduleCardRadius: radius.lg,
+    utilityCardRadius: radius.lg,
+  },
+} as const;
+
+export type ComponentTokens = typeof componentTokens;
