@@ -26,19 +26,20 @@ function isMeshDevice(
     (u) => u.toLowerCase() === MESH_SERVICE_UUID.toLowerCase(),
   ) ?? false;
   const hasAnonPrefix = localName?.startsWith('anon-') ?? false;
-  // Permissive: accept any device meeting the RSSI threshold that also
-  // advertises the mesh UUID or an 'anon-' local name.  When neither
-  // criterion is met we still accept the device (fully permissive mode).
-  void hasMeshUUID;
-  void hasAnonPrefix;
-  return true;
+  return hasMeshUUID || hasAnonPrefix;
 }
 
 export class BLEMeshAdapter implements MeshService {
-  private readonly manager = new BleManager();
+  private _manager: BleManager | null = null;
   private readonly peers = new Map<string, Peer>();
   private readonly trustedIds = new Set<string>();
   private readonly blockedIds = new Set<string>();
+  private isScanning = false;
+
+  private get manager(): BleManager {
+    if (!this._manager) this._manager = new BleManager();
+    return this._manager;
+  }
 
   async startScan(): Promise<void> {
     const state = await this.manager.state();
@@ -46,7 +47,9 @@ export class BLEMeshAdapter implements MeshService {
       throw new Error('BLE not ready — check permissions and device settings');
     }
 
+    this.isScanning = true;
     this.manager.startDeviceScan(null, null, (error, device) => {
+      if (!this.isScanning) return;
       if (error) {
         if (__DEV__) console.warn('[BLEMeshAdapter] scan error:', error.message);
         return;
@@ -77,6 +80,7 @@ export class BLEMeshAdapter implements MeshService {
   }
 
   stopScan(): Promise<void> {
+    this.isScanning = false;
     this.manager.stopDeviceScan();
     return Promise.resolve();
   }
@@ -90,6 +94,7 @@ export class BLEMeshAdapter implements MeshService {
   }
 
   trust(peerId: string): Promise<void> {
+    this.blockedIds.delete(peerId);
     this.trustedIds.add(peerId);
     const peer = this.peers.get(peerId);
     if (peer) {
