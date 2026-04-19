@@ -1,6 +1,6 @@
 // /dev catalog route — visible only in dev builds
 import React from 'react';
-import { ScrollView, Text, View, TouchableOpacity, StyleSheet } from 'react-native';
+import { ScrollView, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { appTheme as theme } from '@/src/design-system/theme';
 
