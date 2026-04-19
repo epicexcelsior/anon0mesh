@@ -10,8 +10,10 @@ import { Backdrop } from "@/components/primitives/Backdrop";
 import { SegmentedControl } from "@/components/primitives/SegmentedControl";
 import { Icon } from "@/components/primitives/Icon";
 import { BalanceCard } from "@/components/home/BalanceCard";
+import { HistoryList } from "@/components/home/HistoryList";
 import { HomeHero } from "@/components/home/HomeHero";
 import { RecentActivity } from "@/components/home/RecentActivity";
+import { useTransaction } from "@/src/hooks";
 import { appTheme as theme } from "@/src/design-system/theme";
 
 const SEGMENTS = [
@@ -23,6 +25,7 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const [segment, setSegment] = useState("balance");
+  const { transactions } = useTransaction();
 
   return (
     <View style={styles.root}>
@@ -82,12 +85,15 @@ export default function HomeScreen() {
 
         {/* Content area */}
         {segment === "balance" ? (
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Recent Activity</Text>
-          </View>
-        ) : null}
-
-        <RecentActivity />
+          <>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Recent Activity</Text>
+            </View>
+            <RecentActivity />
+          </>
+        ) : (
+          <HistoryList transactions={transactions} />
+        )}
       </View>
     </View>
   );
