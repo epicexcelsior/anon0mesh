@@ -38,6 +38,9 @@ export default function RootLayout() {
                   <Stack.Screen name="send/amount" options={{ headerShown: false }} />
                   <Stack.Screen name="send/review" options={{ headerShown: false }} />
                   <Stack.Screen name="send/success" options={{ headerShown: false }} />
+                  <Stack.Screen name="receive" options={{ headerShown: false }} />
+                  <Stack.Screen name="history/index" options={{ headerShown: false }} />
+                  <Stack.Screen name="history/[txId]" options={{ headerShown: false }} />
                 </Stack>
               </MeshProvider>
             </WalletProvider>
