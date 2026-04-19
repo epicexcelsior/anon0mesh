@@ -13,7 +13,7 @@ import { appTheme as theme } from "@/src/design-system/theme";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyHref = any;
 
-const STRIP_HEIGHT = 32;
+const STRIP_HEIGHT = theme.spacing.xxxl; // 32px — matches theme token
 
 function stateTone(state: ConnectionState): PillTone {
   switch (state) {

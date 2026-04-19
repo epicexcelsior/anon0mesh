@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
     height: KNOB_SIZE,
     left: KNOB_INSET,
     position: "absolute",
-    shadowColor: "#000",
+    shadowColor: theme.colors.shadow,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.4,
     shadowRadius: 12,
