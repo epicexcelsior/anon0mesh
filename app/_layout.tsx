@@ -31,7 +31,10 @@ export default function RootLayout() {
             <WalletProvider>
               <MeshProvider>
                 <StatusBar style="light" translucent backgroundColor="transparent" />
-                <Stack screenOptions={{ headerShown: false, animation: "fade" }} />
+                <Stack screenOptions={{ headerShown: false, animation: "fade" }}>
+                  <Stack.Screen name="peers/index" options={{ presentation: "modal", headerShown: false }} />
+                  <Stack.Screen name="peers/[peerId]" options={{ headerShown: false }} />
+                </Stack>
               </MeshProvider>
             </WalletProvider>
           </ThemeProvider>
