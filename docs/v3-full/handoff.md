@@ -54,6 +54,17 @@ Pasting the kickoff prompt above is sufficient. The plan's Phase 2 section is se
 - **Fixtures are yours to write** per Step 2.3 (`src/fixtures/{peers,conversations,transactions,presets}.ts`). They were intentionally not pre-created.
 - **Routes are clean** — all stale upstream routes were deleted in session 3. `app/` contains only: `index.tsx`, `_layout.tsx`, `onboarding/`, `(tabs)/`. Anything else in `app/` before Phase 2 work starts means someone else is touching the branch.
 
+### Starting Phase 6 (polish after Phase 5 + 5.5)
+
+Pasting the kickoff prompt above is sufficient. Additional context the Phase 6 agent should know:
+
+- **Phase 5.5 (hardening) landed in session 6** — 10 review findings fixed. Read progress.md session 6 block before touching anything; the "Handoff" section lists the concrete Phase 6 priorities.
+- **`useMesh` now returns `bleError`** — use this in Peers sheet empty / permission-denied copy as part of step 6.1. Do not add another error channel.
+- **LxmfService lives in `src/domain/services/LxmfService.ts`** — types + numeric `LxmfNodeMode` enum. When the parallel LXMF agent's package ships, the stub adapter swaps with no hook or component changes.
+- **Wallet adapter selection** — `WalletFactory.isSolanaMobile()` picks MWA on Saga/Seeker, LocalWallet elsewhere. Phase 6 should not touch this logic; only UI polish for the wallet export + identity modals.
+- **Solana RPC is centralized** — do not reintroduce per-adapter Connection constructors. If you need the connection, import `solanaConnection` from `@/src/infrastructure/solana` (but only from `src/providers/` or `src/infrastructure/`, never from app/ or components/).
+- **Phase 6 scope is polish, not feature work.** Anything tempting to add is a Phase 7 or post-launch concern — drop it into progress.md open-issues.
+
 ## Context budget
 
 The planning folder is comprehensive but not huge (~2000 lines total). Load on demand:

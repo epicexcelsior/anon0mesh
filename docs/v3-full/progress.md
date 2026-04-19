@@ -302,16 +302,35 @@ Next: **Phase 6 — Polish** (empty/loading/error states, motion timing, sound+h
 
 ### Shipped
 
-(filled at session end)
+All 10 review findings addressed, one commit per logical group:
+
+- **400ef4a — C2 + X1:** deleted stub `WalletProvider.tsx` + `MeshProvider.tsx` (both held hardcoded empty state, nothing consumed them); new `src/providers/MeshProvider.tsx` re-exports `MeshBLEProvider` from infrastructure so `app/_layout.tsx` no longer reaches into `src/infrastructure/` directly; simplified provider stack in `_layout.tsx` (AdapterProvider > ThemeProvider > MeshProvider); tightened `eslint.config.js` so `app/**` is bound by the same no-infrastructure-import rule as `components/**` (providers/ remains unrestricted as the adapter seam).
+- **b81388a — C1 + I4:** LocalWallet now zeros `seed`, `aesKey`, and the intermediate `secretKey` Uint8Arrays after `Keypair.fromSeed`/`Keypair.fromSecretKey` have copied internally; legacy-format migration no longer silently swallows `setItemAsync` failures — logs in `__DEV__` and throws a clear error so `exportSecretKey` callers can surface "Wallet migration failed — please set up device biometrics and re-export" to the user.
+- **6a00e54 + 2e0b26f — I1 + M1:** `src/hooks/useLxmf.ts` now returns `LxmfReturnShape` verbatim (D25 swap-in contract honored); introduced `src/domain/services/LxmfService.ts` (types + numeric `LxmfNodeMode` enum, sourced from `lxmf_react_native_rust/expo-module/src/useLxmf.ts`); `LxmfStubAdapter.ts` implements `LxmfService`; added `lxmf: LxmfService` to `Adapters` interface; wired `lxmfStub` into real + fixture composition; updated `app/settings/network.tsx` to read `mode` from `status.mode` and use the numeric enum through a `LXMF_MODE_LABEL` display map. M1: `src/infrastructure/adapters.ts` now uses `WalletFactory.isSolanaMobile() ? MWAWalletAdapter : LocalWalletAdapter` so Saga/Seeker users get the intended MWA path per D16.
+- **5a12114 — I2 + I5:** deleted duplicate `SOLANA_RPC` + `Connection` construction in both `LocalWalletAdapter` and `MWAWalletAdapter`; both now import `solanaConnection` from `src/infrastructure/solana/SolanaAdapter.ts`. Mainnet flip at launch is now a one-file change. I5: `MWAWalletAdapter.send()` asserts `sessionPubkey === senderPubkey` after `reauthorize()` and throws a clear account-mismatch error before any `signAndSendTransactions` call — prevents a malformed tx from reaching the wallet app if the user switches accounts between connect and send.
+- **07764b9 — I3:** `useMesh` now reads `bleError` from `useMeshBLE` (via `src/providers/`) and returns it alongside the peer data. Consumer UI (Peers sheet empty/permission-denied copy) lands in Phase 6 step 6.1 — this commit just makes the signal reachable.
+- **f3d8939 — X2:** clarified `MessagingService.getMessages(threadOrPeerId)` contract: v3-full MVP is 1:1-only, so threadId ≡ peerId by convention; param renamed and a note added for when group threads land. `useConversation` gets a comment on the convention. Fixture adapter's OR-lookup remains correct under the clarified contract.
 
 ### Deviations from decisions.md
 
-(filled at session end)
+- None in behavior. D15 enforcement tightened via eslint (app/ now bound by the same rule as components/); this matches the doc's intent ("app/ — Expo-router routes. Thin. Glue primitives and components into a screen.") without requiring a D# update. D25 honored correctly now via the domain-level `LxmfService` shape.
 
 ### Open issues
 
-(filled at session end)
+- **MWA mainnet flip.** `MWAWallet.ts` and `MWAWalletAdapter.ts` operate against devnet via the centralized `solanaConnection`; before launch, flip devnet → mainnet-beta in `src/infrastructure/solana/SolanaAdapter.ts` (single site now). Track via a pre-launch checklist item.
+- **`ENABLE_BLUR = false`** in `GlassSurface` still requires `npx expo prebuild` before flipping. Unchanged from prior sessions.
+- **Real LXMF integration.** Awaiting parallel agent. When `@lxmf/react-native` publishes, swap `src/infrastructure/lxmf/LxmfStubAdapter.ts` → real adapter; hook stays as-is.
+- **BLE error UI treatment.** `bleError` is now reachable via `useMesh`; Peers sheet + mesh surfaces should render a permission-denied / BLE-unavailable state in Phase 6 step 6.1.
 
 ### Handoff
 
-(filled at session end)
+Phase 5.5 hardening pass complete. v3-full is clean at HEAD `f3d8939` (10 fixes over 6 commits on top of Phase 5). Lint 0 errors / 30 warnings (same as post-Phase-5 baseline — all pre-existing upstream + 2 intentional `require()` in AdapterProvider + 1 unused eslint-disable in MeshStatusStrip). TSC 4 errors, all pre-existing upstream in excluded files. Terminology grep 0 violations in new code.
+
+**Next: Phase 6 — Polish.** Fresh chat, Sonnet 4.6, `handoff.md` kickoff prompt. Phase 6 agent should read this session block first and focus on:
+
+1. Step 6.1 empty/loading/error states — wire `useMesh().bleError` into Peers sheet + mesh status surfaces.
+2. Step 6.2 motion timing audit — verify no bounce anywhere, DepthButton 80/160ms, Sheet spring, tab bar active-indicator.
+3. Step 6.3 sound + haptic tuning — catalog event coverage on primary interactions.
+4. Step 6.4 accessibility — labels + roles + focus order.
+5. Step 6.5 copy pass — terminology lock grep + tone audit.
+6. Then Phase 7 — final gates + PR to main.
