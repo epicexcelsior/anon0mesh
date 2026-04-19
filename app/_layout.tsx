@@ -41,6 +41,7 @@ export default function RootLayout() {
                   <Stack.Screen name="receive" options={{ headerShown: false }} />
                   <Stack.Screen name="history/index" options={{ headerShown: false }} />
                   <Stack.Screen name="history/[txId]" options={{ headerShown: false }} />
+                  <Stack.Screen name="messages/[peerId]" options={{ headerShown: false }} />
                 </Stack>
               </MeshProvider>
             </WalletProvider>
