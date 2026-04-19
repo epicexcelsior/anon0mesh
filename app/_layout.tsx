@@ -34,6 +34,10 @@ export default function RootLayout() {
                 <Stack screenOptions={{ headerShown: false, animation: "fade" }}>
                   <Stack.Screen name="peers/index" options={{ presentation: "modal", headerShown: false }} />
                   <Stack.Screen name="peers/[peerId]" options={{ headerShown: false }} />
+                  <Stack.Screen name="send/recipient" options={{ headerShown: false }} />
+                  <Stack.Screen name="send/amount" options={{ headerShown: false }} />
+                  <Stack.Screen name="send/review" options={{ headerShown: false }} />
+                  <Stack.Screen name="send/success" options={{ headerShown: false }} />
                 </Stack>
               </MeshProvider>
             </WalletProvider>
