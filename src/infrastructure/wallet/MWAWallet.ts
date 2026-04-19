@@ -34,7 +34,7 @@ export class MWAWallet implements IWalletAdapter {
         }
       }
       return wallet.authorize({
-        cluster: 'mainnet-beta',
+        cluster: 'devnet',
         identity: APP_IDENTITY,
       });
     });

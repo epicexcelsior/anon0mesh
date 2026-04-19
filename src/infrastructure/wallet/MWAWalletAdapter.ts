@@ -6,6 +6,7 @@ import {
   Transaction as SolanaTransaction,
 } from '@solana/web3.js';
 import { transact } from '@solana-mobile/mobile-wallet-adapter-protocol-web3js';
+import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 import type { Transaction } from '@/src/domain/entities/Transaction';
 import type { Wallet } from '@/src/domain/entities/Wallet';
@@ -19,10 +20,6 @@ export class MWAWalletAdapter implements WalletService {
   private connection: Connection;
 
   constructor() {
-    if (Platform.OS !== 'android') {
-      // Methods below guard individually — construction is allowed so the class
-      // can be instantiated cross-platform, but every call throws on iOS.
-    }
     this.wallet = new MWAWallet();
     this.connection = new Connection(SOLANA_RPC, 'confirmed');
   }
@@ -64,6 +61,8 @@ export class MWAWalletAdapter implements WalletService {
     this.assertAndroid();
 
     if (!this.wallet.isConnected()) {
+      const hasCached = await MWAWallet.hasCachedToken();
+      if (!hasCached) return;
       await this.wallet.connect();
     }
     const pubkey = this.wallet.getPublicKey();
@@ -79,6 +78,8 @@ export class MWAWalletAdapter implements WalletService {
     }
 
     if (!this.wallet.isConnected()) {
+      const hasCached = await MWAWallet.hasCachedToken();
+      if (!hasCached) throw new Error('MWA wallet not authorized');
       await this.wallet.connect();
     }
     const senderPubkey = this.wallet.getPublicKey();
@@ -97,11 +98,17 @@ export class MWAWalletAdapter implements WalletService {
       }),
     );
     tx.recentBlockhash = blockhash;
-    tx.feePayer = senderPubkey;
 
     let signature: string | null = null;
 
     await transact(async (mwaWallet) => {
+      // Read the session account for feePayer to avoid pre-cached key mismatch
+      const auth = await mwaWallet.reauthorize({
+        auth_token: (await SecureStore.getItemAsync('anon_mwa_auth_token_v1')) ?? '',
+        identity: { name: 'anonmesh', uri: 'https://anonme.sh', icon: '/favicon.ico' },
+      });
+      const sessionPubkey = new PublicKey(Buffer.from(auth.accounts[0].address, 'base64'));
+      tx.feePayer = sessionPubkey;
       const signatures = await mwaWallet.signAndSendTransactions({
         transactions: [tx],
       });
