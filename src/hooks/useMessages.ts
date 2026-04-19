@@ -32,6 +32,8 @@ export function useConversation(peerId: string) {
   const adapters = useAdapters();
 
   useEffect(() => {
+    // MVP: 1:1 conversations only. threadId === peerId per MessagingService contract.
+    // When group threads land, resolve peerId → threadId via getThreads() first.
     adapters.messaging.getMessages(peerId).then(setMessages).catch(() => {});
   }, [adapters, peerId]);
 
