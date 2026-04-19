@@ -178,3 +178,27 @@ Commits: 60a08d8, 090d483, 883f66d (Phase 1); a97d173, b56a066, ec6c81f (Phase 0
 ### Handoff
 
 Phase 0 and Phase 1 are complete. Next session resumes at **Phase 2 — Home tab + Send flow + Peers** (implementation-plan.md line ~485). Start with Step 2.1 (Home shell): HomeHero, BalanceCard, MeshStatusStrip, RecentActivity, action row. Read decisions.md D3/D6/D19 before touching Home layout. The tab screens at app/(tabs)/home.tsx are currently empty placeholders — Phase 2 fills them in.
+
+---
+
+## 2026-04-18 — session 4 (Phase 2 execution)
+
+- **Model:** Sonnet 4.6
+- **Agent / human:** Claude Code (subagent-driven execution) + @intern
+- **Goal:** Execute Phase 2 end-to-end — Home shell, MeshStatusStrip, hooks, fixtures, peers, send flow, receive, history.
+
+### Shipped
+
+<!-- filled at session end -->
+
+### Deviations from decisions.md
+
+<!-- filled at session end -->
+
+### Open issues
+
+<!-- filled at session end -->
+
+### Handoff
+
+<!-- filled at session end -->
