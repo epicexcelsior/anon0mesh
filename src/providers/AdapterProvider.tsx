@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useMemo } from "react";
 
 import type { BeaconService } from "@/src/domain/services/BeaconService";
+import type { LxmfService } from "@/src/domain/services/LxmfService";
 import type { MeshService } from "@/src/domain/services/MeshService";
 import type { MessagingService } from "@/src/domain/services/MessagingService";
 import type { TransactionService } from "@/src/domain/services/TransactionService";
@@ -12,6 +13,7 @@ export interface Adapters {
   mesh: MeshService;
   messaging: MessagingService;
   beacon: BeaconService;
+  lxmf: LxmfService;
 }
 
 const AdapterContext = createContext<Adapters | null>(null);

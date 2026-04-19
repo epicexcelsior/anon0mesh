@@ -3,6 +3,7 @@ import { fixtureWalletAdapter } from '@/src/infrastructure/fixtures/FixtureWalle
 import { fixtureMeshAdapter } from '@/src/infrastructure/fixtures/FixtureMeshAdapter';
 import { fixtureMessagingAdapter } from '@/src/infrastructure/fixtures/FixtureMessagingAdapter';
 import { fixtureTransactionAdapter } from '@/src/infrastructure/fixtures/FixtureTransactionAdapter';
+import { lxmfStub } from '@/src/infrastructure/lxmf';
 
 // Fixture adapters for development / Storybook-style rendering.
 export const fixtureAdapters: Adapters = {
@@ -15,4 +16,5 @@ export const fixtureAdapters: Adapters = {
     setMode: async () => {},
     isAdvertising: async () => false,
   },
+  lxmf: lxmfStub,
 };
