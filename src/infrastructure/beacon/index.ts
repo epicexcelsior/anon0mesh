@@ -1,1 +1,1 @@
-export {};
+export { BeaconAdapter, beaconAdapter } from './BeaconAdapter';
