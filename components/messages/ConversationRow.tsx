@@ -41,6 +41,8 @@ export function ConversationRow({ thread, alias, onPress }: ConversationRowProps
 
   return (
     <TouchableOpacity
+      accessibilityLabel={`Open conversation with ${displayName}`}
+      accessibilityRole="button"
       activeOpacity={0.75}
       onPress={onPress}
       style={styles.row}

@@ -29,6 +29,8 @@ export default function PeersScreen() {
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Peers</Text>
           <TouchableOpacity
+            accessibilityLabel="Close"
+            accessibilityRole="button"
             activeOpacity={0.7}
             hitSlop={8}
             onPress={() => router.back()}

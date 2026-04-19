@@ -72,6 +72,8 @@ export function ReviewCard({ to, amount, symbol }: ReviewCardProps) {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity
+            accessibilityLabel="Back"
+            accessibilityRole="button"
             activeOpacity={0.7}
             hitSlop={8}
             onPress={() => router.back()}
@@ -152,6 +154,8 @@ export function ReviewCard({ to, amount, symbol }: ReviewCardProps) {
                 </Text>
               </View>
               <TouchableOpacity
+                accessibilityLabel={stealthEnabled ? "Disable stealth" : "Enable stealth"}
+                accessibilityRole="button"
                 activeOpacity={0.8}
                 hitSlop={12}
                 onPress={() => setStealthEnabled((v) => !v)}

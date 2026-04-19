@@ -334,3 +334,27 @@ Phase 5.5 hardening pass complete. v3-full is clean at HEAD `f3d8939` (10 fixes 
 4. Step 6.4 accessibility — labels + roles + focus order.
 5. Step 6.5 copy pass — terminology lock grep + tone audit.
 6. Then Phase 7 — final gates + PR to main.
+
+---
+
+## 2026-04-19 — session 7 (Phase 6 polish)
+
+- **Model:** Sonnet 4.6
+- **Agent / human:** Claude Code (subagent-driven) + @intern
+- **Goal:** Phase 6 — Polish (empty/loading/error states, motion timing, sound+haptics, accessibility, copy pass)
+
+### Shipped
+
+_(filling in at session end)_
+
+### Deviations from decisions.md
+
+_(filling in at session end)_
+
+### Open issues
+
+_(filling in at session end)_
+
+### Handoff
+
+_(filling in at session end)_

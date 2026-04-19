@@ -27,7 +27,7 @@ export default function AboutScreen() {
 
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + theme.spacing.sm }]}>
-        <TouchableOpacity onPress={() => router.back()} hitSlop={8} style={styles.backBtn}>
+        <TouchableOpacity accessibilityLabel="Back" accessibilityRole="button" onPress={() => router.back()} hitSlop={8} style={styles.backBtn}>
           <Icon name="arrow-left" size={22} color={theme.colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>About</Text>
@@ -67,6 +67,8 @@ export default function AboutScreen() {
           <SectionLabel label="Links" />
           <GlassSurface variant="regular" style={styles.linksCard}>
             <TouchableOpacity
+              accessibilityLabel="View on GitHub"
+              accessibilityRole="button"
               style={[styles.linkRow, styles.linkRowBordered]}
               onPress={handleGitHub}
               activeOpacity={0.7}
@@ -79,6 +81,8 @@ export default function AboutScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity
+              accessibilityLabel="Licenses"
+              accessibilityRole="button"
               style={styles.linkRow}
               onPress={handleLicenses}
               activeOpacity={0.7}

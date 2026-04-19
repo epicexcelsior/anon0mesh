@@ -56,6 +56,8 @@ export function RecipientPicker() {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity
+            accessibilityLabel="Back"
+            accessibilityRole="button"
             activeOpacity={0.7}
             hitSlop={8}
             onPress={() => router.back()}
@@ -67,6 +69,8 @@ export function RecipientPicker() {
           <Text style={styles.headerTitle}>Send to</Text>
 
           <TouchableOpacity
+            accessibilityLabel="Scan QR code"
+            accessibilityRole="button"
             activeOpacity={0.7}
             hitSlop={8}
             onPress={handleQrScan}
@@ -114,6 +118,8 @@ export function RecipientPicker() {
               <View style={styles.peersList}>
                 {peers.slice(0, 5).map((peer) => (
                   <TouchableOpacity
+                    accessibilityLabel={`Select ${peer.alias}`}
+                    accessibilityRole="button"
                     activeOpacity={0.7}
                     key={peer.id}
                     onPress={() => handleSelectPeer(peer.publicKey)}

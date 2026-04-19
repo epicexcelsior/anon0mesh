@@ -24,6 +24,8 @@ export default function PeerDetailScreen() {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity
+            accessibilityLabel="Back"
+            accessibilityRole="button"
             activeOpacity={0.7}
             hitSlop={8}
             onPress={() => router.back()}

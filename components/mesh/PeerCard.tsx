@@ -58,6 +58,8 @@ export function PeerCard({ peer, onPress }: PeerCardProps) {
 
   return (
     <TouchableOpacity
+      accessibilityLabel={`View ${peer.alias} peer details`}
+      accessibilityRole="button"
       activeOpacity={0.75}
       onPress={onPress}
       style={styles.card}
@@ -92,6 +94,8 @@ export function PeerCard({ peer, onPress }: PeerCardProps) {
       {/* Action buttons */}
       <View style={styles.actions}>
         <TouchableOpacity
+          accessibilityLabel={`Message ${peer.alias}`}
+          accessibilityRole="button"
           activeOpacity={0.7}
           hitSlop={8}
           onPress={() => router.push(("/messages/" + peer.id) as AnyHref)}
@@ -100,6 +104,8 @@ export function PeerCard({ peer, onPress }: PeerCardProps) {
           <Icon name="message-circle" size={18} color={theme.colors.textMuted} />
         </TouchableOpacity>
         <TouchableOpacity
+          accessibilityLabel={`Send to ${peer.alias}`}
+          accessibilityRole="button"
           activeOpacity={0.7}
           hitSlop={8}
           onPress={() => router.push(("/send/recipient?to=" + peer.id) as AnyHref)}

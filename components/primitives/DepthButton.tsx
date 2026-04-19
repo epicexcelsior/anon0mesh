@@ -199,6 +199,8 @@ export function DepthButton({
 
   return (
     <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
       disabled={disabled}
       hitSlop={6}
       onPress={onPress}

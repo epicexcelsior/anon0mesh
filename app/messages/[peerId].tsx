@@ -39,6 +39,8 @@ export default function ConversationScreen() {
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + theme.spacing.sm }]}>
         <TouchableOpacity
+          accessibilityLabel="Back"
+          accessibilityRole="button"
           activeOpacity={0.7}
           hitSlop={8}
           onPress={() => router.back()}

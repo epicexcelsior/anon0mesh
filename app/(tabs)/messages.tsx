@@ -41,6 +41,8 @@ export default function MessagesScreen() {
       <View style={[styles.header, { paddingTop: insets.top + theme.spacing.md }]}>
         <Text style={styles.title}>Messages</Text>
         <TouchableOpacity
+          accessibilityLabel="New conversation"
+          accessibilityRole="button"
           activeOpacity={0.7}
           hitSlop={8}
           onPress={openNewConversation}

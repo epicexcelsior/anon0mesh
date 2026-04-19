@@ -79,6 +79,8 @@ export function SuccessCard({ txId, amount, symbol }: SuccessCardProps) {
           {/* Tx signature */}
           {txId ? (
             <TouchableOpacity
+              accessibilityLabel="Copy transaction ID"
+              accessibilityRole="button"
               activeOpacity={0.7}
               onPress={handleCopyTxId}
               style={styles.sigRow}
@@ -100,6 +102,8 @@ export function SuccessCard({ txId, amount, symbol }: SuccessCardProps) {
 
           <View style={styles.secondaryActions}>
             <TouchableOpacity
+              accessibilityLabel="View on Explorer"
+              accessibilityRole="button"
               activeOpacity={0.7}
               hitSlop={8}
               onPress={handleViewExplorer}
@@ -112,6 +116,8 @@ export function SuccessCard({ txId, amount, symbol }: SuccessCardProps) {
             <View style={styles.actionDot} />
 
             <TouchableOpacity
+              accessibilityLabel="Share receipt"
+              accessibilityRole="button"
               activeOpacity={0.7}
               hitSlop={8}
               onPress={handleShareReceipt}

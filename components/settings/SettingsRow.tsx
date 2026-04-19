@@ -25,6 +25,8 @@ export function SettingsRow({
 }: SettingsRowProps) {
   return (
     <TouchableOpacity
+      accessibilityLabel={label}
+      accessibilityRole="button"
       onPress={onPress}
       activeOpacity={onPress ? 0.7 : 1}
       style={[styles.row, showSeparator && styles.bordered]}

@@ -63,6 +63,8 @@ export function MeshStatusStrip() {
 
   return (
     <TouchableOpacity
+      accessibilityLabel={bleError ? "BLE error, 0 nodes" : `${nodeCount} ${nodeCount === 1 ? "node" : "nodes"}, ${connectionState}`}
+      accessibilityRole="button"
       activeOpacity={0.75}
       onPress={() => router.push("/peers" as AnyHref)}
       style={styles.touchable}

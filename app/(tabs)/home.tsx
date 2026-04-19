@@ -41,6 +41,8 @@ export default function HomeScreen() {
         {/* Action row */}
         <View style={styles.actionRow}>
           <TouchableOpacity
+            accessibilityLabel="Send"
+            accessibilityRole="button"
             style={styles.actionButton}
             onPress={() => router.push("/send/recipient" as AnyHref)}
             activeOpacity={0.75}
@@ -52,6 +54,8 @@ export default function HomeScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
+            accessibilityLabel="Receive"
+            accessibilityRole="button"
             style={styles.actionButton}
             onPress={() => router.push("/receive" as AnyHref)}
             activeOpacity={0.75}
@@ -63,6 +67,8 @@ export default function HomeScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
+            accessibilityLabel="History"
+            accessibilityRole="button"
             style={styles.actionButton}
             onPress={() => router.push("/history" as AnyHref)}
             activeOpacity={0.75}

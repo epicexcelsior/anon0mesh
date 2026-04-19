@@ -34,6 +34,8 @@ export function HomeHero() {
 
       {/* QR / Receive icon — right */}
       <TouchableOpacity
+        accessibilityLabel="Show receive QR code"
+        accessibilityRole="button"
         onPress={() => router.push("/receive" as AnyHref)}
         style={styles.qrButton}
         hitSlop={8}
