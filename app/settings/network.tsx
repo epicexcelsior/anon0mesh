@@ -3,6 +3,8 @@ import { ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from "re
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import * as haptics from "@/src/design-system/haptics";
+import * as sound from "@/src/design-system/sound";
 import { Backdrop } from "@/components/primitives/Backdrop";
 import { GlassSurface } from "@/components/primitives/GlassSurface";
 import { Pill } from "@/components/primitives/Pill";
@@ -44,12 +46,14 @@ export default function NetworkScreen() {
 
   function handleBleToggle(value: boolean) {
     setBleEnabled(value);
-    console.log("[Network] BLE enabled:", value);
+    haptics.select();
+    if (value) sound.toggleOn(); else sound.toggleOff();
   }
 
   function handleAutoConnectToggle(value: boolean) {
     setAutoConnect(value);
-    console.log("[Network] Auto-connect:", value);
+    haptics.select();
+    if (value) sound.toggleOn(); else sound.toggleOff();
   }
 
   function handleLxmfModeSelect(id: string) {

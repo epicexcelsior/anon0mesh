@@ -3,6 +3,8 @@ import { ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from "re
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import * as haptics from "@/src/design-system/haptics";
+import * as sound from "@/src/design-system/sound";
 import { Backdrop } from "@/components/primitives/Backdrop";
 import { GlassSurface } from "@/components/primitives/GlassSurface";
 import { Pill } from "@/components/primitives/Pill";
@@ -25,14 +27,24 @@ export default function PrivacyScreen() {
   const PRIVACY_MODES: PrivacyMode[] = ["Standard", "Enhanced", "Maximum"];
   const ROTATION_CADENCES: RotationCadence[] = ["Weekly", "Monthly", "Never"];
 
+  function handleStealthToggle(value: boolean) {
+    setStealthByDefault(value);
+    haptics.select();
+    if (value) sound.toggleOn(); else sound.toggleOff();
+  }
+
   function cyclePrivacyMode() {
     const idx = PRIVACY_MODES.indexOf(privacyMode);
     setPrivacyMode(PRIVACY_MODES[(idx + 1) % PRIVACY_MODES.length]);
+    haptics.tap();
+    sound.buttonTap();
   }
 
   function cycleRotationCadence() {
     const idx = ROTATION_CADENCES.indexOf(rotationCadence);
     setRotationCadence(ROTATION_CADENCES[(idx + 1) % ROTATION_CADENCES.length]);
+    haptics.tap();
+    sound.buttonTap();
   }
 
   return (
@@ -72,7 +84,7 @@ export default function PrivacyScreen() {
               </View>
               <Switch
                 value={stealthByDefault}
-                onValueChange={setStealthByDefault}
+                onValueChange={handleStealthToggle}
                 trackColor={{ false: theme.colors.surfaceMuted, true: theme.colors.purpleSoft }}
                 thumbColor={stealthByDefault ? theme.colors.purple : theme.colors.textMuted}
               />

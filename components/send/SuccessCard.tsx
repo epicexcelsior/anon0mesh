@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Alert,
   StyleSheet,
@@ -12,6 +12,8 @@ import { useRouter } from "expo-router";
 
 import { Backdrop } from "@/components/primitives/Backdrop";
 import { DepthButton } from "@/components/primitives/DepthButton";
+import * as haptics from "@/src/design-system/haptics";
+import * as sound from "@/src/design-system/sound";
 import { Icon } from "@/components/primitives/Icon";
 import { Pill } from "@/components/primitives/Pill";
 import { appTheme as theme } from "@/src/design-system/theme";
@@ -29,6 +31,11 @@ interface SuccessCardProps {
 
 export function SuccessCard({ txId, amount, symbol }: SuccessCardProps) {
   const router = useRouter();
+
+  useEffect(() => {
+    sound.successResolve();
+    haptics.confirm();
+  }, []);
 
   async function handleCopyTxId() {
     await Clipboard.setStringAsync(txId);
