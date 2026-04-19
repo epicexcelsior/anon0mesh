@@ -43,6 +43,17 @@ First action: read the required reading. Then review progress.md. Then claim the
 Do NOT start writing code until you have read docs/v3-full/decisions.md and docs/v3-full/architecture.md end to end.
 ```
 
+## Phase-specific notes
+
+### Starting Phase 2 (first execution session after scaffolding)
+
+Pasting the kickoff prompt above is sufficient. The plan's Phase 2 section is self-contained. Additional context the Phase 2 agent should know on day one:
+
+- **D6 is locked** (2026-04-18 session 3): mesh status strip is a persistent slim band across every tab, implemented in `app/(tabs)/_layout.tsx` above the Stack/Slot. See decisions.md D6 body + screen-inventory.md item 6 + implementation-plan.md Step 2.1 for the locked spec.
+- **First Phase 2 commit should also fix the tsc baseline** — add `"exclude": ["proxy_transfer_program/**"]` to `tsconfig.json`. Without this, `npx tsc --noEmit` will keep reporting ~40 errors from a nested Vite project that is not part of the expo build. Details in progress.md session 3 open issues.
+- **Fixtures are yours to write** per Step 2.3 (`src/fixtures/{peers,conversations,transactions,presets}.ts`). They were intentionally not pre-created.
+- **Routes are clean** — all stale upstream routes were deleted in session 3. `app/` contains only: `index.tsx`, `_layout.tsx`, `onboarding/`, `(tabs)/`. Anything else in `app/` before Phase 2 work starts means someone else is touching the branch.
+
 ## Context budget
 
 The planning folder is comprehensive but not huge (~2000 lines total). Load on demand:

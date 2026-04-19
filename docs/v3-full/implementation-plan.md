@@ -486,19 +486,21 @@ Goal: app boots, renders landing, navigates through onboarding to tab shell. Emp
 
 Biggest phase. Split into sub-phases; commit per surface.
 
-### Step 2.1 — Home shell
+### Step 2.1 — Home shell + global MeshStatusStrip
 
-**Files:** `app/(tabs)/home.tsx`, `components/home/{HomeHero,BalanceCard,RecentActivity,MeshStatusStrip}.tsx`
+**Files:** `app/(tabs)/home.tsx`, `app/(tabs)/_layout.tsx` (edit), `components/home/{HomeHero,BalanceCard,RecentActivity}.tsx`, `components/mesh/MeshStatusStrip.tsx`
 
 **Actions:**
-- Layout: header (identity chip left, QR icon right) → MeshStatusStrip → BalanceCard (big SOL + USD numerals, `glass-strong`) → action row (Send / Receive / History buttons) → SegmentedControl (Balance | History) → scrollable list.
+- Create `MeshStatusStrip` in `components/mesh/` (NOT `components/home/`) — D6 locks it as persistent across all tabs, not Home-only.
+- Wire it into `app/(tabs)/_layout.tsx` so it renders above the tab screen content on every tab (below safe-area status bar, above Home/Messages/Settings). Tab screens pad their top to make room.
+- Home layout (top to bottom, inside the mesh strip's padding): header (identity chip left, QR icon right) → BalanceCard (big SOL + USD numerals, `glass-strong`) → action row (Send / Receive / History buttons) → SegmentedControl (Balance | History) → scrollable list.
 - `BalanceCard` reads from `useWallet` (stubbed, returns 0 for now).
-- `MeshStatusStrip` reads from `useMesh` (stubbed, returns 0 nodes).
+- `MeshStatusStrip` reads from `useMesh` (stubbed, returns 0 nodes); glass-soft, ≈32px, tap is a no-op for now (wires up in Step 2.4).
 - `RecentActivity` reads from `useTransaction.recent` (stubbed, empty).
 
-**Success:** Renders with placeholder zeros.
+**Success:** Home renders with placeholder zeros. Mesh strip visible on Home, Messages, and Settings.
 
-**Commit:** `feat(home): hero layout with balance, mesh status, action row`
+**Commit:** `feat(home): hero layout + persistent mesh status strip across tabs (D6)`
 
 ### Step 2.2 — Hooks wiring (stub state)
 
@@ -529,13 +531,13 @@ Biggest phase. Split into sub-phases; commit per surface.
 
 ### Step 2.4 — Mesh status strip (wired)
 
-**Files:** `components/mesh/MeshStatusStrip.tsx` (move from components/home if sharing across tabs)
+**Files:** `components/mesh/MeshStatusStrip.tsx` (already created in Step 2.1 under `components/mesh/`)
 
 **Actions:**
-- Reads from `useMesh`.
-- Shows `<NN> nodes`, iface, signal bars.
+- Reads from `useMesh` (now real via hook wiring from Step 2.2).
+- Shows `<NN> nodes`, iface, signal bars, connection state chip.
 - Tap opens Peers sheet (`router.push('/peers')`).
-- Mesh-terminal styling (mono numerals, green tint only on this surface).
+- Mesh-terminal styling (mono numerals, green tint only on this surface). Tinting should adapt per tab via theme's Backdrop preset token.
 
 **Success:** Tap navigates to Peers sheet (pending step 2.5).
 

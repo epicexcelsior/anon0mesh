@@ -70,11 +70,12 @@ Read `decisions.md` and `architecture.md` first.
 
 ### 6. Mesh status strip (component, not a route)
 
-- **Location:** rendered inside Home header (decision D6; see `decisions.md` open questions — may also live above tab bar on all tabs; resolve during execution, lean Home-only).
-- **Content:** `00 nodes`, `iface LXMF`, signal bars.
-- **Interaction:** tap → Peers sheet.
+- **Location:** persistent slim band at the top of every tab (below safe-area status bar, above tab content). D6 locked 2026-04-18 after Phase 0/1 review. Implementation: render inside `app/(tabs)/_layout.tsx` above the `<Slot />` / `<Stack />`, or as a fixed absolute overlay the tab screens pad around — pick the cleaner option during Phase 2 Step 2.1.
+- **Content:** signal-bar icon + `N nodes` + connection state chip (`Live` / `Silent` / `Offline`). Height ≈32px, glass-soft variant, tinted to match current tab's Backdrop preset.
+- **Interaction:** tap → Peers sheet (bottom sheet via workbench `Sheet`).
 - **Source — design:** wireframe's mesh status bar, ported to workbench glass-soft surface + mono type for metrics.
-- **Backend:** real mesh data via `useMesh`.
+- **Backend:** real mesh data via `useMesh`; fixture fallback.
+- **Item 5 cross-ref:** the bullet under Home structure that says "Mesh status strip (persistent band): node count, iface, signal" remains accurate; Home just renders the same component as every other tab.
 
 ### 7. Peers sheet
 

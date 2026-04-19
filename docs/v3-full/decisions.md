@@ -1,6 +1,6 @@
 # decisions.md — v3-full living decision ledger
 
-**Last updated:** 2026-04-18 (planning session)
+**Last updated:** 2026-04-18 (Phase 0/1 review — D6 locked, tsc baseline flagged)
 **Status:** active
 **Owner:** @intern (team lead reviews)
 
@@ -61,7 +61,13 @@ The team needs one production-grade MVP. This effort merges the three into a sin
 
 **D5. Send CTA location.** Home hero. Not a tab, not a Settings action. Send is a wallet action and Home is wallet-led.
 
-**D6. Peer info surfacing.** Mesh status strip always visible (persistent band above tab bar or in Home header — implementation choice, see screen-inventory.md). Tap opens full-screen Peers sheet with live peer list, signal, iface, beacon stake, per-peer actions (message/send). Satisfies team lead's "surface peer info" ask without adding a tab. Defaults to hidden-depth: casual users see node count, advanced users tap through.
+**D6. Peer info surfacing.** Mesh status strip is a **persistent slim band** at the top of every tab (below safe-area status bar, above content). Not a tab, not buried in Settings. Shows signal-bar icon, peer count, and connection state chip (Live / Silent / Offline). Tap opens the Peers sheet (live peer list, signal, iface, beacon stake, per-peer actions: message/send). Height ≈32px; glass-soft variant; tinted to match each tab's Backdrop preset.
+
+**Why persistent across tabs (not Home-header-only):** mesh state must be ambient for a privacy-first product. Hiding it on Messages/Settings forces users to tab-switch to check "am I connected?", which is exactly the kind of surface friction this app should remove.
+
+**Why not a tab:** the 3-tab IA (D4) is locked. Peers is an on-demand surface, not a destination.
+
+**Iteration clause:** initial placement is persistent-band-across-all-tabs. If screen real estate becomes contested during Phase 2/3 polish, relocation to Home-header-only is an acceptable fallback — update this decision if so.
 
 **D7. Content remap from v3/wireframe 4-tab → 3-tab.**
 
@@ -218,11 +224,17 @@ Grep gates in `quality-gates.md`.
 
 - Exact onboarding wow-animation approach (Lottie, Rive, Skia-based particles, or SVG). Decided in polish pass, not now.
 - Peers sheet open behavior: bottom sheet vs full-screen modal. Lean bottom sheet consistent with workbench `Sheet`, validate with team lead.
-- Mesh status strip placement: persistent band above tab bar vs in Home header only. Lean in-Home-header only, keeps chrome quiet on Messages/Settings.
 - Whether to enable `/dev` catalog route on a production build or gate to dev builds only. Lean dev-only.
-- Exact file location and format for Anonmesh logo variants. Set in screen-inventory.md / plan.
+- Exact file location and format for Anonmesh logo variants (`@2x`, `@3x`, wordmark SVG). Set in screen-inventory.md / plan.
+- Pre-existing tsc errors inherited from upstream (noble/hashes import paths in `src/gossip/`, `src/solana/`; `proxy_transfer_program/` nested web project). The `npx tsc --noEmit` gate in handoff.md is currently not clean. Phase 2+ agents must either (a) exclude `proxy_transfer_program/` from the expo tsconfig and fix noble paths when those files are touched, or (b) accept baseline errors and grep-diff against baseline count. Decide in-Phase-2.
 
 Resolve these in-execution; update this section when decided.
+
+---
+
+## Recently locked (superseded open-questions)
+
+- **2026-04-18 — D6 mesh status placement:** persistent slim band across all tabs. See D6 body for full spec and iteration clause.
 
 ---
 
