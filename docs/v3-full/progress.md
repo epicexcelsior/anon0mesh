@@ -254,3 +254,40 @@ Next session resumes at **Phase 3 — Messages tab** (Step 3.1: Messages list, S
 ### Handoff
 
 Phases 0–4 complete. All screens in scope are implemented and rendering. Next: **Phase 5 — Backend wiring** (real LocalWalletAdapter, MWA adapter, SolanaTransactionService, BLE mesh context, LXMF stub finalize). Then Phase 6 (polish) and Phase 7 (final gates). Quality gates still clean: lint 0 errors, tsc 4 pre-existing, terminology 0 violations.
+
+---
+
+## 2026-04-19 — session 5 (Phase 5 execution)
+
+- **Model:** Sonnet 4.6
+- **Agent / human:** Claude Code (subagent-driven) + @intern
+- **Goal:** Phase 5 — Backend wiring (real adapters for wallet, Solana, BLE, LXMF stub, stealth/beacon stubs)
+
+### Shipped
+
+- Step 5.1: `src/infrastructure/wallet/{LocalWallet,MWAWallet,DeviceDetector,WalletFactory,types}.ts` ported from v3; `LocalWalletAdapter.ts` + `MWAWalletAdapter.ts` implementing `WalletService` (devnet RPC for balances, biometric-gated send). Commits: `73cec9e`, `340f7ed`, `faac3a9`
+- Step 5.2: MWA adapter included above.
+- Step 5.3: `src/infrastructure/solana/{SolanaTransactionService,SolanaAdapter}.ts` — in-memory tx log + devnet RPC helper. Commits: `42339ca`, `6452758`
+- Step 5.4: `src/infrastructure/ble/{BLEMeshAdapter,MeshBLEContext}.tsx` — real BLE scanning via react-native-ble-plx. Commits: `729c23b`, `34ada98`
+- Step 5.5: `src/infrastructure/lxmf/LxmfStubAdapter.ts` — full D25 API stub mirroring real @lxmf/react-native shape (verified from package source). Commit: `d4b1194`
+- Step 5.6: `src/domain/services/StealthService.ts` + `src/infrastructure/stealth/StealthQueueAdapter.ts` + `src/infrastructure/beacon/BeaconAdapter.ts`. Commit: `d4b1194`
+- Step 5.7: `src/infrastructure/adapters.ts` wired with real adapters; `MeshBLEProvider` added to `app/_layout.tsx`. Commit: `1938cf2`
+
+### Deviations from decisions.md
+
+- **Messaging in real path uses `fixtureMessagingAdapter`**: No real messaging backend exists (LXMF is parallel track D24/D25). Using the fixture adapter in the real path is intentional — not a fixture-mode path, just the best available implementation. No decision update needed (D16 explicitly defers LXMF to parallel agent).
+- **`LxmfStubAdapter.ts` uses real @lxmf/react-native API types** (verified from `/home/epic/Downloads/anonmesh/lxmf_react_native_rust/expo-module/src/useLxmf.ts`) rather than the simplified types described in `lxmf-brief.md`. This is the correct behavior per D25. The `src/hooks/useLxmf.ts` hook uses a simplified shape and was not changed — that discrepancy should be resolved when the real LXMF package lands.
+
+### Open issues
+
+- `useConversation(peerId)` calls `getMessages(peerId)` but `MessagingService.getMessages(threadId)` takes a `threadId` — pre-existing Phase 3 issue, not introduced here.
+- Real messaging path uses fixture adapter until LXMF parallel agent publishes `@lxmf/react-native`.
+- MWA adapter set to devnet cluster (changed from v3's mainnet-beta). Flip to mainnet-beta before production launch.
+- `GlassSurface` ENABLE_BLUR still false — needs `npx expo prebuild`.
+- `useLxmf` hook API shape diverges from the real `@lxmf/react-native` package — will be reconciled when LXMF agent completes.
+
+### Handoff
+
+Phase 5 complete. All 7 steps shipped. Real adapters wired: LocalWallet, MWA (Android), Solana tx log, BLE mesh scan, LXMF stub (D25), stealth stub, beacon stub.
+
+Next: **Phase 6 — Polish** (empty/loading/error states, motion timing, sound+haptics, accessibility, copy pass). Then Phase 7 (final gates). Quality gates still clean: lint 0 errors, tsc 4 pre-existing, terminology 0 violations.
