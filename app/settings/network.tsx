@@ -59,7 +59,6 @@ export default function NetworkScreen() {
   function handleLxmfModeSelect(id: string) {
     const mode = Number(id) as LxmfNodeMode;
     setSelectedLxmfMode(mode);
-    console.log("[Network] LXMF mode:", LXMF_MODE_LABEL[mode]);
   }
 
   return (

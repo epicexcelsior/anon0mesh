@@ -5,11 +5,9 @@ import { StyleProp, StyleSheet, View, ViewStyle } from "react-native";
 import { GlassVariant, glassVariants } from "@/src/design-system/glass";
 
 /**
- * Flip to true after `npx expo prebuild && npx expo run:android` so the
- * expo-blur native module is present. Until then the fallback translucent
- * View is used, which approximates the look well enough to ship.
+ * Native module present after expo prebuild — blur is active.
  */
-export const ENABLE_BLUR = false;
+export const ENABLE_BLUR = true;
 
 interface GlassSurfaceProps {
   variant?: GlassVariant;
