@@ -391,3 +391,39 @@ Phase 5.5 hardening pass complete. v3-full is clean at HEAD `f3d8939` (10 fixes 
 Phase 6 complete. All 5 steps shipped across 5 commits on `v3-full`. App is feature-complete for demo: empty/loading/error states wired, BLE error surfacing end-to-end, sheet motion is smooth, all primary interactions have audio+haptic feedback, every interactive element has accessibility role + label, terminology is clean.
 
 **Next: Phase 7 — Final gates + PR.** Read `quality-gates.md` fully before starting. Phase 7 agent should: (1) run the full quality-gate checklist, (2) verify the `__DEV__`-gate on `/dev` route, (3) run a final `grep -r "console.log"` sweep, (4) flip `ENABLE_BLUR` if `expo prebuild` is available, (5) open PR to `main`. Branch is `v3-full` at HEAD `99d408e`.
+
+---
+
+## 2026-04-19 — session 8 (Phase 7 final gates + PR)
+
+- **Model:** Sonnet 4.6
+- **Agent / human:** Claude Code (subagent-driven) + @intern
+- **Goal:** Phase 7 — Final quality gates and PR to main.
+
+### Shipped
+
+- **Step 7.1 — Terminology grep:** 0 violations in v3-full code. Hits in `components/screens/` and `components/networking/` are pre-existing upstream files (not our code). The comment hit in `RecentActivity.tsx` is a doc comment, not user-facing copy.
+- **Step 7.2 — Lint + typecheck:** lint 0 errors / 30 warnings (baseline holds). TSC 4 pre-existing errors (all upstream, unchanged). No new issues.
+- **Step 7.3 — Dev gate + ENABLE_BLUR + console.log sweep:**
+  - `/dev` route confirmed `__DEV__`-gated (`if (!__DEV__) return null;` on line 26).
+  - `ENABLE_BLUR` flipped `false → true` in `GlassSurface.tsx` — android/ and ios/ native dirs confirm `expo prebuild` has run.
+  - Removed stray `console.log("[Network] LXMF mode:", ...)` in `app/settings/network.tsx:62` (missed by step 6.3 sweep — only toggle-handler logs were removed then). All other `console.log` hits are in pre-existing upstream files.
+  - Commit: `ea31ffa`
+- **Step 7.4 — Docs:** progress.md session block filled; mempool update delegated (see open issues).
+- **Step 7.5 — PR:** see handoff.
+
+### Deviations from decisions.md
+
+- None.
+
+### Open issues
+
+- **Visual walkthrough (Step 7.3 acceptance):** full device walkthrough of all 27 screens in `screen-inventory.md` requires physical device or simulator with BLE. Quality gates (lint/tsc/grep) all pass. The acceptance checklist from `quality-gates.md` § "Required visual checks" should be completed on-device before merging.
+- **Mempool docs update (Step 7.4 tail):** `anonmesh_mempool/docs/02-repos/mobile-app.md` and ADR 0004 status should be updated to reflect v3-full branch is at final-gates stage. Not blocking PR.
+- Pre-existing open issues from session 6/7 remain: MWA mainnet flip, real LXMF integration, GlassSurface blur now enabled but needs device validation.
+
+### Handoff
+
+Phase 7 quality gates complete. Branch `v3-full` is at `ea31ffa`. All automated gates pass. One manual gate remains: on-device visual walkthrough of all screens before merge.
+
+**PR:** open from `v3-full` to `main` with summary listing all 7 phases, decision IDs D1–D29, and known deferrals (LXMF parallel agent, MWA mainnet flip, full device visual review). Tag @intern for final merge decision.
