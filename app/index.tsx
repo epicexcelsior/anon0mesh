@@ -31,6 +31,15 @@ export default function LandingScreen() {
           onPress={() => router.push("/onboarding/welcome")}
         />
 
+        {__DEV__ && process.env.EXPO_PUBLIC_ADAPTERS === "fixtures" && (
+          <Text
+            style={styles.devSkip}
+            onPress={() => router.replace("/(tabs)/home" as Parameters<typeof router.replace>[0])}
+          >
+            dev: skip to app →
+          </Text>
+        )}
+
         <Text style={styles.version}>v0.3.0 — alpha</Text>
       </View>
     </View>
@@ -76,5 +85,12 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.mono,
     fontSize: theme.type.caption,
     letterSpacing: 0.5,
+  },
+  devSkip: {
+    color: theme.colors.textMuted,
+    fontFamily: theme.fonts.mono,
+    fontSize: theme.type.caption,
+    letterSpacing: 0.3,
+    paddingVertical: 8,
   },
 });
