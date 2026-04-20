@@ -455,3 +455,49 @@ Phase 7 quality gates complete. Branch `v3-full` is at `ea31ffa`. All automated 
 ### Handoff
 
 Build confirmed green. Branch `v3-full` at HEAD is clean and ready for PR. Run `npx expo run:android` to verify on-device (APK installed during this session). Step 7.5 (open PR to main) is the one remaining task.
+
+---
+
+## 2026-04-20 — session 10 (demo fixtures + workbench clarification)
+
+- **Model:** Opus 4.7
+- **Agent / human:** Claude Code + @intern
+- **Goal:** Get a polished fixtures-mode build running for a demo video recording.
+
+### Context / clarification
+
+`EXPO_PUBLIC_ADAPTERS=fixtures` IS the workbench/demo mode — it was always in the plan (AdapterProvider switches all adapters at bundle time; `/dev` catalog route is the screen navigator). This was not ignored; it was implemented in Phase 2 and has been functional since. The confusion arose because the `epic/ui-workbench-fixtures` branch was the design-system source we ported from, not a separate runtime.
+
+MWA note: MWA does work in Expo dev builds on Saga/Seeker when the debug APK is already registered — this is valid. For the demo video we use fixtures mode regardless so the wallet state is fully pre-populated and consistent.
+
+### Shipped
+
+- **`src/infrastructure/fixtures/FixtureWalletAdapter.ts`** — upgraded fixture wallet: real 44-char Solana base58 address (`7Pu9MG4Vb…`), identity `"anon·9c7b"`, balance `12.45 SOL / $1,992.00 + 850 USDC` (was: fake 37-char address, `"fixture-identity-1"`, 4.20 SOL / 100 USDC). Commit: `ab3f64d`
+- **`components/home/HomeHero.tsx`** — alias derivation fixed: shows identity as-is when ≤14 chars; falls back to `addr4…addr4` format for long addresses. Was: always `identity.slice(0,8)` → showed `"fixture-"`. Commit: `ab3f64d`
+- **`src/fixtures/peers.ts`** — peer `publicKey` fields upgraded from debug-format strings (`"pk_shadow_relay_…"`) to 44-char Solana-format addresses. Commit: `ab3f64d`
+- **`src/fixtures/transactions.ts`** — `recipientId`/`senderId` now use peer public keys so `RecentActivity` shows `"DRpbCBMx…"` instead of `"peer-001…"`; tx signatures upgraded to 88-char base58 format. Commit: `ab3f64d`
+- **`app/index.tsx`** — added `dev: skip to app →` tap target on landing screen, visible only when `__DEV__ && EXPO_PUBLIC_ADAPTERS === "fixtures"`. Replaces to `/(tabs)/home` so demo recordings can skip onboarding. Invisible in prod / real-adapter mode. Commit: `807a3d1`
+
+### Deviations from decisions.md
+
+- None. Fixture data improvements are not behaviour changes; dev skip link is `__DEV__`-gated.
+
+### Open issues
+
+- **Step 7.5 (PR):** still pending — branch is at `807a3d1`, all gates pass.
+- MWA mainnet flip, real LXMF integration, on-device visual walkthrough: unchanged from prior sessions.
+
+### Handoff
+
+**To run demo mode (no native rebuild needed):**
+```
+EXPO_PUBLIC_ADAPTERS=fixtures npx expo start
+```
+Press `r` in Metro terminal to reload. Landing screen shows `dev: skip to app →` — tap to jump straight to the populated home screen.
+
+**To rebuild with fixtures baked in:**
+```
+EXPO_PUBLIC_ADAPTERS=fixtures npx expo run:android
+```
+
+Quality gates at HEAD `807a3d1`: lint 0 errors / 30 warnings, tsc 5 pre-existing upstream errors (all excluded files), terminology 0 violations.
