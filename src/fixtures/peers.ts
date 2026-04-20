@@ -4,7 +4,7 @@ export const fixturePeers: Peer[] = [
   {
     id: 'peer-001',
     alias: 'Shadow Relay',
-    publicKey: 'pk_shadow_relay_aabbccdd1122',
+    publicKey: 'DRpbCBMxVnDK7maPGv83n1ctKKMxzM9qZhTvBnNiYJwU',
     transport: 'ble',
     signalStrength: 4,
     lastSeen: Date.now() - 1000 * 30,
@@ -13,7 +13,7 @@ export const fixturePeers: Peer[] = [
   {
     id: 'peer-002',
     alias: 'Nomad Node',
-    publicKey: 'pk_nomad_node_99887766aabb',
+    publicKey: '5RtPmWqBnKL7vCxGfAz1JdHsNYuThU2EpVaMkXqwRnE4',
     transport: 'lxmf',
     signalStrength: 2,
     lastSeen: Date.now() - 1000 * 60 * 3,
@@ -22,7 +22,7 @@ export const fixturePeers: Peer[] = [
   {
     id: 'peer-003',
     alias: 'Frost Mesh',
-    publicKey: 'pk_frost_mesh_deadbeef1234',
+    publicKey: '9BcDvFhE3gPnMLrS6wQaKiTxY8UjZpV4mNoJRqXswFtC',
     transport: 'wifi-direct',
     signalStrength: 3,
     lastSeen: Date.now() - 1000 * 60 * 1,
@@ -31,7 +31,7 @@ export const fixturePeers: Peer[] = [
   {
     id: 'peer-004',
     alias: 'Ghost Router',
-    publicKey: 'pk_ghost_router_cafebabe5678',
+    publicKey: '6MkLqHdWcJ9NrBpAxGsTvF5YuZiEm3nKoXqWbJPfVRtY',
     transport: 'ble',
     signalStrength: 1,
     lastSeen: Date.now() - 1000 * 60 * 10,
@@ -40,7 +40,7 @@ export const fixturePeers: Peer[] = [
   {
     id: 'peer-005',
     alias: 'Cipher Link',
-    publicKey: 'pk_cipher_link_0f0e0d0c1234',
+    publicKey: '2QsRwYpDmNc4LbHvK7AxGzFjTeS9UhXnMoVqiWBPkdRf',
     transport: 'lxmf',
     signalStrength: 3,
     lastSeen: Date.now() - 1000 * 60 * 2,
@@ -54,7 +54,7 @@ export const manyPeers: Peer[] = [
   {
     id: 'peer-006',
     alias: 'Dark Horizon',
-    publicKey: 'pk_dark_horizon_11223344',
+    publicKey: 'HqNmPvX3wBcKj8TdFnLaE5GsYiR7oZuVtQkSbWe2pMfA',
     transport: 'ble',
     signalStrength: 4,
     lastSeen: Date.now() - 500,
@@ -63,7 +63,7 @@ export const manyPeers: Peer[] = [
   {
     id: 'peer-007',
     alias: 'Void Bridge',
-    publicKey: 'pk_void_bridge_55667788',
+    publicKey: 'J3vTnWqKLcBm7RfXdGaEsHiP4uZyV8oNjSbQkwAeM2pt',
     transport: 'wifi-direct',
     signalStrength: 2,
     lastSeen: Date.now() - 1000 * 60,
@@ -72,7 +72,7 @@ export const manyPeers: Peer[] = [
   {
     id: 'peer-008',
     alias: 'Silent Gate',
-    publicKey: 'pk_silent_gate_aabb1234',
+    publicKey: 'AxBcDeFgHiJkLmNoPqRsTuVwXyZ1234567890abcdefgH',
     transport: 'lxmf',
     signalStrength: 3,
     lastSeen: Date.now() - 1000 * 45,
@@ -81,7 +81,7 @@ export const manyPeers: Peer[] = [
   {
     id: 'peer-009',
     alias: 'Pulse Node',
-    publicKey: 'pk_pulse_node_ccdd5678',
+    publicKey: 'EpKrMnQsVwYaBdFhJlNtXzC2G6H8K3L7P9R4T5U1W0eY',
     transport: 'ble',
     signalStrength: 4,
     lastSeen: Date.now() - 200,
@@ -90,7 +90,7 @@ export const manyPeers: Peer[] = [
   {
     id: 'peer-010',
     alias: 'Anon Relay',
-    publicKey: 'pk_anon_relay_eeff9012',
+    publicKey: 'FgKpNrStWzBeCiLnQuXaYdH3J7M2P6R4T8U1V5W9X0eZ',
     transport: 'ble',
     signalStrength: 2,
     lastSeen: Date.now() - 1000 * 120,

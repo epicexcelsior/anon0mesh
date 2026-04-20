@@ -13,11 +13,10 @@ export function HomeHero() {
   const router = useRouter();
   const { wallet } = useWallet();
 
-  // Derive a short display alias from identity or address
   const alias = wallet?.identity
-    ? wallet.identity.slice(0, 8)
+    ? wallet.identity.length <= 14 ? wallet.identity : wallet.identity.slice(0, 10) + "…"
     : wallet?.address
-    ? wallet.address.slice(0, 8) + "…"
+    ? wallet.address.slice(0, 4) + "…" + wallet.address.slice(-4)
     : "—";
 
   return (

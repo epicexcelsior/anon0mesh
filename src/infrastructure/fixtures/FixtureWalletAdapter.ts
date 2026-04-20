@@ -4,12 +4,12 @@ import type { Transaction } from '@/src/domain/entities/Transaction';
 import { fixtureTransactions } from '@/src/fixtures/transactions';
 
 const FIXTURE_WALLET: Wallet = {
-  address: 'AnoN7xMesh3R4ND0Mk3y1234567890abcdef',
+  address: '7Pu9MG4VbMLnHgxLqS3VsKdQFNm8BhXcRTwE2KyVfDp',
   balances: [
-    { symbol: 'SOL', amount: '4.20', usdValue: '$672.00' },
-    { symbol: 'USDC', amount: '100.00', usdValue: '$100.00' },
+    { symbol: 'SOL', amount: '12.45', usdValue: '$1,992.00' },
+    { symbol: 'USDC', amount: '850.00', usdValue: '$850.00' },
   ],
-  identity: 'fixture-identity-1',
+  identity: 'anon·9c7b',
 };
 
 export class FixtureWalletAdapter implements WalletService {
