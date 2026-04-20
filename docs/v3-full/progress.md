@@ -427,3 +427,31 @@ Phase 6 complete. All 5 steps shipped across 5 commits on `v3-full`. App is feat
 Phase 7 quality gates complete. Branch `v3-full` is at `ea31ffa`. All automated gates pass. One manual gate remains: on-device visual walkthrough of all screens before merge.
 
 **PR:** open from `v3-full` to `main` with summary listing all 7 phases, decision IDs D1–D29, and known deferrals (LXMF parallel agent, MWA mainnet flip, full device visual review). Tag @intern for final merge decision.
+
+---
+
+## 2026-04-19 — session 9 (Opus review + build fix)
+
+- **Model:** Opus 4.7
+- **Agent / human:** Claude Code (review session) + @intern
+- **Goal:** Post-phase-7 review pass + Android build validation.
+
+### Shipped
+
+- **Build fix:** `react-native-multi-ble-peripheral+0.1.5.patch` was committed but not applying (node_modules had stale state from a prior failed install). Ran `rm -rf node_modules/react-native-multi-ble-peripheral && npm install` to restore clean state; postinstall now applies patch correctly. `npx expo run:android` → **BUILD SUCCESSFUL** (654 tasks, 0 compile errors).
+- **Phase 6 review:** All 5 steps (6.1–6.5) confirmed correct: bleError wired end-to-end (MeshStatusStrip, PeersList, network.tsx, peers/index.tsx), Sheet spring applied (overshootClamping=true), sound/haptics all use valid exported functions, a11y roles+labels on every interactive, copy pass clean.
+- **Phase 7 review:** Steps 7.1–7.4 confirmed correct: ENABLE_BLUR=true, stray console.log removed, lint 0 errors / 30 warnings (baseline holds), tsc 4 pre-existing errors only, terminology 0 violations.
+- **Console.log sweep:** Remaining hits (`components/screens/`) are pre-existing upstream files — confirmed not our code.
+
+### Deviations from decisions.md
+
+- None.
+
+### Open issues
+
+- **Step 7.5 (PR):** pending @intern action — branch is ready.
+- All prior open issues from session 6/7/8 unchanged.
+
+### Handoff
+
+Build confirmed green. Branch `v3-full` at HEAD is clean and ready for PR. Run `npx expo run:android` to verify on-device (APK installed during this session). Step 7.5 (open PR to main) is the one remaining task.
