@@ -5,8 +5,8 @@ import { Icon } from "@/components/primitives/Icon";
 import { Pill } from "@/components/primitives/Pill";
 import type { PillTone } from "@/components/primitives/Pill";
 import type { Transaction } from "@/src/domain/entities/Transaction";
-import type { TransferStatus } from "@/src/domain/status/TransferStatus";
 import { appTheme as theme } from "@/src/design-system/theme";
+import type { TransferStatus } from "@/src/domain/status/TransferStatus";
 
 function relativeTime(ms: number): string {
   const diff = Date.now() - ms;
@@ -20,9 +20,9 @@ function statusTone(status: TransferStatus): PillTone {
   switch (status) {
     case "Settled":
       return "green";
-    case "Handed to mesh":
-      return "amber";
     case "Queued on device":
+      return "amber";
+    case "Handed to mesh":
       return "cyan";
     default:
       return "neutral";
@@ -43,12 +43,7 @@ export function TxRow({ tx, onPress }: TxRowProps) {
       : counterparty;
 
   return (
-    <TouchableOpacity
-      activeOpacity={0.7}
-      onPress={onPress}
-      style={styles.row}
-    >
-      {/* Direction badge */}
+    <TouchableOpacity activeOpacity={0.8} onPress={onPress} style={styles.row}>
       <View style={[styles.badge, isSend ? styles.sendBadge : styles.receiveBadge]}>
         <Icon
           name={isSend ? "arrow-up-right" : "arrow-down-left"}
@@ -57,7 +52,6 @@ export function TxRow({ tx, onPress }: TxRowProps) {
         />
       </View>
 
-      {/* Middle: address + timestamp */}
       <View style={styles.meta}>
         <Text style={styles.counterparty} numberOfLines={1}>
           {shortCounterparty}
@@ -65,10 +59,10 @@ export function TxRow({ tx, onPress }: TxRowProps) {
         <Text style={styles.timestamp}>{relativeTime(tx.createdAt)}</Text>
       </View>
 
-      {/* Right: amount + status */}
       <View style={styles.right}>
         <Text style={[styles.amount, isSend ? styles.amountSend : styles.amountReceive]}>
-          {isSend ? "-" : "+"}{tx.amount} {tx.symbol}
+          {isSend ? "-" : "+"}
+          {tx.amount} {tx.symbol}
         </Text>
         <Pill label={tx.status} tone={statusTone(tx.status)} />
       </View>
@@ -81,7 +75,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: theme.colors.surfaceContainerLowest,
     borderColor: theme.colors.line,
-    borderRadius: theme.radius.sm,
+    borderRadius: theme.radius.lg,
     borderWidth: 1,
     flexDirection: "row",
     gap: theme.spacing.md,
@@ -92,9 +86,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: theme.radius.pill,
     borderWidth: 1,
-    height: 32,
+    height: 34,
     justifyContent: "center",
-    width: 32,
+    width: 34,
   },
   sendBadge: {
     backgroundColor: theme.colors.cyanSoft,
@@ -106,25 +100,25 @@ const styles = StyleSheet.create({
   },
   meta: {
     flex: 1,
-    gap: theme.spacing.xxs,
+    gap: 2,
   },
   counterparty: {
-    color: theme.colors.textSecondary,
-    fontFamily: theme.fonts.mono,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.monoJetBrains,
     fontSize: theme.type.caption,
   },
   timestamp: {
-    color: theme.colors.textMuted,
+    color: theme.colors.textSecondary,
     fontFamily: theme.fonts.body,
     fontSize: theme.type.micro,
   },
   right: {
     alignItems: "flex-end",
-    gap: theme.spacing.xxs,
+    gap: 2,
   },
   amount: {
-    fontFamily: theme.fonts.headingBold,
-    fontSize: theme.type.body,
+    fontFamily: theme.fonts.monoJetBrains,
+    fontSize: theme.type.bodyLg,
   },
   amountSend: {
     color: theme.colors.textPrimary,

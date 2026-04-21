@@ -1,13 +1,16 @@
+import { useRouter } from "expo-router";
 import React from "react";
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import { Icon } from "@/components/primitives/Icon";
 import { Pill } from "@/components/primitives/Pill";
 import type { PillTone } from "@/components/primitives/Pill";
-import { useTransaction } from "@/src/hooks/useTransaction";
-import type { TransferStatus } from "@/src/domain/status/TransferStatus";
 import type { Transaction } from "@/src/domain/entities/Transaction";
 import { appTheme as theme } from "@/src/design-system/theme";
+import { useTransaction } from "@/src/hooks/useTransaction";
+import type { TransferStatus } from "@/src/domain/status/TransferStatus";
+
+const LIST_BOTTOM_PADDING = theme.component.nav.barHeight + theme.spacing.xxxl;
 
 function statusTone(status: TransferStatus): PillTone {
   switch (status) {
@@ -22,17 +25,24 @@ function statusTone(status: TransferStatus): PillTone {
   }
 }
 
-function statusLabel(status: TransferStatus): string {
-  // D29: never use Pending/Broadcasting/Confirmed/Incognito — use canonical TransferStatus strings
-  return status;
+function relativeTime(ms: number): string {
+  const diff = Date.now() - ms;
+  if (diff < 60000) return "just now";
+  if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+  return `${Math.floor(diff / 86400000)}d ago`;
 }
 
-function ActivityRow({ tx }: { tx: Transaction }) {
+function ActivityRow({ onPress, tx }: { onPress: () => void; tx: Transaction }) {
   const isSend = tx.direction === "send";
-  const tone = statusTone(tx.status);
+  const counterparty = isSend ? tx.recipientId : tx.senderId;
+  const shortCounterparty =
+    counterparty.length > 14
+      ? `${counterparty.slice(0, 8)}...${counterparty.slice(-4)}`
+      : counterparty;
 
   return (
-    <View style={styles.row}>
+    <TouchableOpacity activeOpacity={0.8} onPress={onPress} style={styles.row}>
       <View style={[styles.directionBadge, isSend ? styles.sendBadge : styles.receiveBadge]}>
         <Icon
           name={isSend ? "arrow-up-right" : "arrow-down-left"}
@@ -43,23 +53,29 @@ function ActivityRow({ tx }: { tx: Transaction }) {
 
       <View style={styles.rowMeta}>
         <Text style={styles.counterparty} numberOfLines={1}>
-          {isSend ? tx.recipientId.slice(0, 10) + "…" : tx.senderId.slice(0, 10) + "…"}
+          {shortCounterparty}
         </Text>
-        <Pill label={statusLabel(tx.status)} tone={tone} />
+        <Text style={styles.timestamp}>{relativeTime(tx.createdAt)}</Text>
       </View>
 
       <View style={styles.amountBlock}>
         <Text style={[styles.amount, isSend ? styles.amountSend : styles.amountReceive]}>
-          {isSend ? "-" : "+"}{tx.amount}
+          {isSend ? "-" : "+"}
+          {tx.amount}
         </Text>
-        <Text style={styles.symbol}>{tx.symbol}</Text>
+        <View style={styles.statusRow}>
+          <Text style={styles.symbol}>{tx.symbol}</Text>
+          <Pill label={tx.status} tone={statusTone(tx.status)} />
+        </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 
 export function RecentActivity() {
+  const router = useRouter();
   const { recent, loading } = useTransaction();
+  const sorted = [...recent].sort((left, right) => right.createdAt - left.createdAt);
 
   if (loading) {
     return (
@@ -70,7 +86,7 @@ export function RecentActivity() {
     );
   }
 
-  if (recent.length === 0) {
+  if (sorted.length === 0) {
     return (
       <View style={styles.emptyState}>
         <Icon name="inbox" size={24} color={theme.colors.textMuted} />
@@ -81,12 +97,16 @@ export function RecentActivity() {
 
   return (
     <ScrollView
-      style={styles.scroll}
       contentContainerStyle={styles.list}
       showsVerticalScrollIndicator={false}
+      style={styles.scroll}
     >
-      {recent.map((tx) => (
-        <ActivityRow key={tx.id} tx={tx} />
+      {sorted.map((tx) => (
+        <ActivityRow
+          key={tx.id}
+          onPress={() => router.push({ pathname: "/history/[txId]", params: { txId: tx.id } })}
+          tx={tx}
+        />
       ))}
     </ScrollView>
   );
@@ -99,13 +119,13 @@ const styles = StyleSheet.create({
   list: {
     gap: theme.spacing.xs,
     paddingHorizontal: theme.spacing.lg,
-    paddingBottom: theme.spacing.lg,
+    paddingBottom: LIST_BOTTOM_PADDING,
   },
   row: {
     alignItems: "center",
     backgroundColor: theme.colors.surfaceContainerLowest,
     borderColor: theme.colors.line,
-    borderRadius: theme.radius.sm,
+    borderRadius: theme.radius.lg,
     borderWidth: 1,
     flexDirection: "row",
     gap: theme.spacing.md,
@@ -116,9 +136,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: theme.radius.pill,
     borderWidth: 1,
-    height: 28,
+    height: 34,
     justifyContent: "center",
-    width: 28,
+    width: 34,
   },
   sendBadge: {
     backgroundColor: theme.colors.cyanSoft,
@@ -130,25 +150,36 @@ const styles = StyleSheet.create({
   },
   rowMeta: {
     flex: 1,
-    gap: theme.spacing.xxs,
+    gap: 2,
   },
   counterparty: {
-    color: theme.colors.textSecondary,
-    fontFamily: theme.fonts.bodyMedium,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.monoJetBrains,
     fontSize: theme.type.caption,
+  },
+  timestamp: {
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.body,
+    fontSize: theme.type.micro,
   },
   amountBlock: {
     alignItems: "flex-end",
+    gap: 2,
   },
   amount: {
-    fontFamily: theme.fonts.headingBold,
-    fontSize: theme.type.body,
+    fontFamily: theme.fonts.monoJetBrains,
+    fontSize: theme.type.bodyLg,
   },
   amountSend: {
     color: theme.colors.textPrimary,
   },
   amountReceive: {
     color: theme.colors.green,
+  },
+  statusRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: theme.spacing.xs,
   },
   symbol: {
     color: theme.colors.textMuted,

@@ -1,9 +1,6 @@
+import { useRouter } from "expo-router";
 import React from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
-import { useRouter } from "expo-router";
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnyHref = any;
 
 import { Icon } from "@/components/primitives/Icon";
 import { TxRow } from "@/components/shared/TxRow";
@@ -13,6 +10,8 @@ import { appTheme as theme } from "@/src/design-system/theme";
 interface HistoryListProps {
   transactions: Transaction[];
 }
+
+const LIST_BOTTOM_PADDING = theme.component.nav.barHeight + theme.spacing.xxxl;
 
 function EmptyState() {
   return (
@@ -30,25 +29,25 @@ function keyExtractor(item: Transaction) {
 export function HistoryList({ transactions }: HistoryListProps) {
   const router = useRouter();
 
-  const sorted = [...transactions].sort((a, b) => b.createdAt - a.createdAt);
+  const sorted = [...transactions].sort((left, right) => right.createdAt - left.createdAt);
 
   return (
     <FlatList
-      data={sorted}
-      keyExtractor={keyExtractor}
-      renderItem={({ item }) => (
-        <TxRow
-          tx={item}
-          onPress={() => router.push(`/history/${item.id}` as AnyHref)}
-        />
-      )}
-      ListEmptyComponent={EmptyState}
       contentContainerStyle={[
         styles.list,
         sorted.length === 0 && styles.emptyContainer,
       ]}
-      style={styles.scroll}
+      data={sorted}
+      keyExtractor={keyExtractor}
+      ListEmptyComponent={EmptyState}
+      renderItem={({ item }) => (
+        <TxRow
+          onPress={() => router.push({ pathname: "/history/[txId]", params: { txId: item.id } })}
+          tx={item}
+        />
+      )}
       showsVerticalScrollIndicator={false}
+      style={styles.scroll}
     />
   );
 }
@@ -60,7 +59,7 @@ const styles = StyleSheet.create({
   list: {
     gap: theme.spacing.xs,
     paddingHorizontal: theme.spacing.lg,
-    paddingBottom: theme.spacing.lg,
+    paddingBottom: LIST_BOTTOM_PADDING,
   },
   emptyContainer: {
     flex: 1,

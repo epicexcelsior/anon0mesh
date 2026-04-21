@@ -3,22 +3,46 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnyHref = any;
-
-import { Backdrop } from "@/components/primitives/Backdrop";
-import { SegmentedControl } from "@/components/primitives/SegmentedControl";
-import { Icon } from "@/components/primitives/Icon";
 import { BalanceCard } from "@/components/home/BalanceCard";
 import { HistoryList } from "@/components/home/HistoryList";
 import { HomeHero } from "@/components/home/HomeHero";
 import { RecentActivity } from "@/components/home/RecentActivity";
-import { useTransaction } from "@/src/hooks";
+import { Backdrop } from "@/components/primitives/Backdrop";
+import { Icon } from "@/components/primitives/Icon";
+import { SegmentedControl } from "@/components/primitives/SegmentedControl";
 import { appTheme as theme } from "@/src/design-system/theme";
+import { useTransaction } from "@/src/hooks";
 
 const SEGMENTS = [
   { id: "balance", label: "Balance" },
   { id: "history", label: "History" },
+];
+
+const ACTIONS = [
+  {
+    id: "send",
+    label: "Send",
+    detail: "Pay peer or address",
+    icon: "send" as const,
+    tone: "accent" as const,
+    route: "/send/recipient" as const,
+  },
+  {
+    id: "receive",
+    label: "Receive",
+    detail: "Show wallet QR",
+    icon: "download" as const,
+    tone: "neutral" as const,
+    route: "/receive" as const,
+  },
+  {
+    id: "history",
+    label: "History",
+    detail: "Open full ledger",
+    icon: "clock" as const,
+    tone: "neutral" as const,
+    route: "/history" as const,
+  },
 ];
 
 export default function HomeScreen() {
@@ -29,74 +53,59 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.root}>
-      <Backdrop preset="home" />
+      <Backdrop preset="home" animated />
 
-      <View style={[styles.content, { paddingTop: insets.top + theme.spacing.sm }]}>
-        {/* Identity chip row + QR icon */}
+      <View style={[styles.content, { paddingTop: insets.top + theme.spacing.md }]}>
         <HomeHero />
-
-        {/* Balance card */}
         <BalanceCard />
 
-        {/* Action row */}
         <View style={styles.actionRow}>
-          <TouchableOpacity
-            accessibilityLabel="Send"
-            accessibilityRole="button"
-            style={styles.actionButton}
-            onPress={() => router.push("/send/recipient" as AnyHref)}
-            activeOpacity={0.75}
-          >
-            <View style={[styles.actionIcon, styles.actionIconCyan]}>
-              <Icon name="send" size={16} color={theme.colors.cyan} />
-            </View>
-            <Text style={styles.actionLabel}>Send</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            accessibilityLabel="Receive"
-            accessibilityRole="button"
-            style={styles.actionButton}
-            onPress={() => router.push("/receive" as AnyHref)}
-            activeOpacity={0.75}
-          >
-            <View style={[styles.actionIcon, styles.actionIconGreen]}>
-              <Icon name="download" size={16} color={theme.colors.green} />
-            </View>
-            <Text style={styles.actionLabel}>Receive</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            accessibilityLabel="History"
-            accessibilityRole="button"
-            style={styles.actionButton}
-            onPress={() => router.push("/history" as AnyHref)}
-            activeOpacity={0.75}
-          >
-            <View style={[styles.actionIcon, styles.actionIconNeutral]}>
-              <Icon name="clock" size={16} color={theme.colors.textSecondary} />
-            </View>
-            <Text style={styles.actionLabel}>History</Text>
-          </TouchableOpacity>
+          {ACTIONS.map((action) => {
+            const accent = action.tone === "accent";
+            return (
+              <TouchableOpacity
+                key={action.id}
+                accessibilityLabel={action.label}
+                accessibilityRole="button"
+                activeOpacity={0.8}
+                onPress={() => router.push(action.route)}
+                style={[styles.actionCard, accent && styles.actionCardAccent]}
+              >
+                <View style={[styles.actionIconWrap, accent && styles.actionIconWrapAccent]}>
+                  <Icon
+                    name={action.icon}
+                    size={18}
+                    color={accent ? theme.colors.textOnAccent : theme.colors.cyan}
+                  />
+                </View>
+                <Text style={[styles.actionLabel, accent && styles.actionLabelAccent]}>
+                  {action.label}
+                </Text>
+                <Text style={[styles.actionDetail, accent && styles.actionDetailAccent]}>
+                  {action.detail}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
 
-        {/* Segment toggle */}
         <View style={styles.segmentRow}>
-          <SegmentedControl
-            segments={SEGMENTS}
-            selected={segment}
-            onSelect={setSegment}
-          />
+          <SegmentedControl segments={SEGMENTS} selected={segment} onSelect={setSegment} />
         </View>
 
-        {/* Content area */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>
+            {segment === "balance" ? "Recent activity" : "Transfer history"}
+          </Text>
+          <Text style={styles.sectionMeta}>
+            {segment === "balance"
+              ? "Queued, mesh handoff, and settled states update live."
+              : "Tap any transfer for its live receipt state."}
+          </Text>
+        </View>
+
         {segment === "balance" ? (
-          <>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Recent Activity</Text>
-            </View>
-            <RecentActivity />
-          </>
+          <RecentActivity />
         ) : (
           <HistoryList transactions={transactions} />
         )}
@@ -116,54 +125,71 @@ const styles = StyleSheet.create({
   actionRow: {
     flexDirection: "row",
     gap: theme.spacing.sm,
-    justifyContent: "center",
     marginHorizontal: theme.spacing.lg,
     marginTop: theme.spacing.md,
-    marginBottom: theme.spacing.sm,
   },
-  actionButton: {
-    alignItems: "center",
-    flex: 1,
-    gap: theme.spacing.xs,
-  },
-  actionIcon: {
-    alignItems: "center",
-    borderRadius: theme.radius.pill,
-    borderWidth: 1,
-    height: 44,
-    justifyContent: "center",
-    width: 44,
-  },
-  actionIconCyan: {
-    backgroundColor: theme.colors.cyanSoft,
-    borderColor: theme.colors.cyanSoft,
-  },
-  actionIconGreen: {
-    backgroundColor: theme.colors.greenSoft,
-    borderColor: theme.colors.greenSoft,
-  },
-  actionIconNeutral: {
-    backgroundColor: theme.colors.surfaceMuted,
+  actionCard: {
+    backgroundColor: theme.colors.surfaceContainerLowest,
     borderColor: theme.colors.line,
+    borderRadius: theme.radius.lg,
+    borderWidth: 1,
+    flex: 1,
+    gap: theme.spacing.sm,
+    minHeight: 112,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.md,
+  },
+  actionCardAccent: {
+    backgroundColor: theme.colors.cyan,
+    borderColor: theme.colors.cyan,
+  },
+  actionIconWrap: {
+    alignItems: "center",
+    backgroundColor: theme.colors.cyanSoft,
+    borderRadius: theme.radius.pill,
+    height: 36,
+    justifyContent: "center",
+    width: 36,
+  },
+  actionIconWrapAccent: {
+    backgroundColor: "rgba(5, 10, 10, 0.12)",
   },
   actionLabel: {
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.heading,
+    fontSize: theme.type.body,
+  },
+  actionLabelAccent: {
+    color: theme.colors.textOnAccent,
+  },
+  actionDetail: {
     color: theme.colors.textSecondary,
-    fontFamily: theme.fonts.bodyMedium,
+    fontFamily: theme.fonts.body,
     fontSize: theme.type.caption,
+    lineHeight: theme.type.caption * 1.45,
+  },
+  actionDetailAccent: {
+    color: "rgba(5, 10, 10, 0.72)",
   },
   segmentRow: {
     marginHorizontal: theme.spacing.lg,
-    marginVertical: theme.spacing.md,
+    marginTop: theme.spacing.lg,
   },
   sectionHeader: {
+    gap: theme.spacing.xs,
     paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.sm,
+    paddingTop: theme.spacing.lg,
+    paddingBottom: theme.spacing.sm,
   },
   sectionTitle: {
-    color: theme.colors.textMuted,
-    fontFamily: theme.fonts.bodyMedium,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.heading,
+    fontSize: theme.type.section,
+  },
+  sectionMeta: {
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.body,
     fontSize: theme.type.caption,
-    letterSpacing: 0.4,
-    textTransform: "uppercase",
+    lineHeight: theme.type.caption * 1.5,
   },
 });

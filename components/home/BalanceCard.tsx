@@ -2,14 +2,20 @@ import React from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
 import { GlassSurface } from "@/components/primitives/GlassSurface";
-import { useWallet } from "@/src/hooks/useWallet";
+import { Pill } from "@/components/primitives/Pill";
 import { appTheme as theme } from "@/src/design-system/theme";
+import { useWallet } from "@/src/hooks/useWallet";
+
+function shortAddress(address?: string) {
+  if (!address) return "—";
+  return `${address.slice(0, 6)}...${address.slice(-4)}`;
+}
 
 export function BalanceCard() {
   const { wallet, loading } = useWallet();
 
-  const solBalance = wallet?.balances.find((b) => b.symbol === "SOL");
-  const usdcBalance = wallet?.balances.find((b) => b.symbol === "USDC");
+  const solBalance = wallet?.balances.find((balance) => balance.symbol === "SOL");
+  const usdcBalance = wallet?.balances.find((balance) => balance.symbol === "USDC");
 
   return (
     <GlassSurface variant="strong" style={styles.card}>
@@ -20,33 +26,29 @@ export function BalanceCard() {
         </View>
       ) : (
         <View style={styles.content}>
-          {/* SOL hero balance */}
-          <View style={styles.heroRow}>
-            <Text style={styles.heroAmount}>
-              {solBalance ? solBalance.amount : "—"}
-            </Text>
-            <Text style={styles.heroSymbol}> SOL</Text>
+          <View style={styles.headerRow}>
+            <View style={styles.headerCopy}>
+              <Text style={styles.kicker}>Total balance</Text>
+              <View style={styles.heroRow}>
+                <Text style={styles.heroAmount}>{solBalance ? solBalance.amount : "—"}</Text>
+                <Text style={styles.heroSymbol}>SOL</Text>
+              </View>
+            </View>
+            <Pill label={wallet ? "Wallet live" : "Loading"} tone={wallet ? "cyan" : "neutral"} />
           </View>
 
-          {/* USD value */}
-          <Text style={styles.usdValue}>
-            {solBalance ? solBalance.usdValue : "$0.00"}
-          </Text>
+          <Text style={styles.usdValue}>{solBalance ? solBalance.usdValue : "$0.00"}</Text>
 
-          {/* Secondary: USDC balance */}
-          {usdcBalance && (
-            <View style={styles.secondaryRow}>
-              <Text style={styles.secondaryLabel}>USDC</Text>
-              <Text style={styles.secondaryAmount}>{usdcBalance.amount}</Text>
+          <View style={styles.metricsRow}>
+            <View style={styles.metricCard}>
+              <Text style={styles.metricLabel}>Address</Text>
+              <Text style={styles.metricValue}>{shortAddress(wallet?.address)}</Text>
             </View>
-          )}
-
-          {/* Truncated address */}
-          {wallet?.address && (
-            <Text style={styles.address} numberOfLines={1}>
-              {wallet.address}
-            </Text>
-          )}
+            <View style={styles.metricCard}>
+              <Text style={styles.metricLabel}>USDC</Text>
+              <Text style={styles.metricValue}>{usdcBalance?.amount ?? "0.00"}</Text>
+            </View>
+          </View>
         </View>
       )}
     </GlassSurface>
@@ -55,12 +57,12 @@ export function BalanceCard() {
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: theme.radius.lg,
+    borderRadius: theme.component.recipes.heroCardRadius,
     marginHorizontal: theme.spacing.lg,
     marginVertical: theme.spacing.sm,
     overflow: "hidden",
-    paddingHorizontal: theme.spacing.xl,
-    paddingVertical: theme.spacing.xl,
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.lg,
   },
   loadingState: {
     alignItems: "center",
@@ -75,52 +77,70 @@ const styles = StyleSheet.create({
     fontSize: theme.type.caption,
   },
   content: {
+    gap: theme.spacing.sm,
+  },
+  headerRow: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  headerCopy: {
     gap: theme.spacing.xs,
+  },
+  kicker: {
+    color: theme.colors.textMuted,
+    fontFamily: theme.fonts.bodyMedium,
+    fontSize: theme.type.micro,
+    letterSpacing: 0.7,
+    textTransform: "uppercase",
   },
   heroRow: {
     alignItems: "baseline",
     flexDirection: "row",
+    gap: theme.spacing.xs,
   },
   heroAmount: {
     color: theme.colors.textPrimary,
-    fontFamily: theme.fonts.headingBold,
+    fontFamily: theme.fonts.monoJetBrains,
     fontSize: theme.type.hero,
-    letterSpacing: -1,
+    letterSpacing: -1.1,
   },
   heroSymbol: {
-    color: theme.colors.textTertiary,
+    color: theme.colors.textSecondary,
     fontFamily: theme.fonts.heading,
-    fontSize: theme.type.title,
+    fontSize: theme.type.bodyLg,
     letterSpacing: -0.5,
   },
   usdValue: {
     color: theme.colors.textSecondary,
     fontFamily: theme.fonts.body,
     fontSize: theme.type.body,
-    marginTop: theme.spacing.xxs,
   },
-  secondaryRow: {
-    alignItems: "center",
+  metricsRow: {
     flexDirection: "row",
     gap: theme.spacing.sm,
     marginTop: theme.spacing.md,
   },
-  secondaryLabel: {
+  metricCard: {
+    backgroundColor: theme.colors.surfaceContainerLowest,
+    borderColor: theme.colors.line,
+    borderRadius: theme.radius.lg,
+    borderWidth: 1,
+    flex: 1,
+    gap: theme.spacing.xs,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.md,
+  },
+  metricLabel: {
     color: theme.colors.textMuted,
     fontFamily: theme.fonts.bodyMedium,
-    fontSize: theme.type.caption,
-  },
-  secondaryAmount: {
-    color: theme.colors.textSecondary,
-    fontFamily: theme.fonts.bodyMedium,
-    fontSize: theme.type.caption,
-  },
-  address: {
-    color: theme.colors.textMuted,
-    fontFamily: theme.fonts.monoJetBrains,
     fontSize: theme.type.micro,
-    letterSpacing: 0.3,
-    marginTop: theme.spacing.md,
-    opacity: 0.7,
+    letterSpacing: 0.6,
+    textTransform: "uppercase",
+  },
+  metricValue: {
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.monoJetBrains,
+    fontSize: theme.type.caption,
   },
 });
