@@ -99,7 +99,7 @@ export default function HomeScreen() {
           </Text>
           <Text style={styles.sectionMeta}>
             {segment === "balance"
-              ? "Queued, mesh handoff, and settled states update live."
+              ? "Queued and settled states update live."
               : "Tap any transfer for its live receipt state."}
           </Text>
         </View>
