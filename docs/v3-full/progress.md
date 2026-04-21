@@ -699,3 +699,45 @@ Fresh-agent handoff is now good enough to use directly from disk. The new agent 
 ### Handoff
 
 Phase 2 token/primitives work is done and Home is now the first rebuilt truthful screen. The next session should continue **Phase 3** in recovery order, starting with **Send**. Read `recovery-plan.md`, this progress block, `screen-inventory.md` items 9–14, and the refreshed `handoff.md` first. Preserve the improved baseline: lint now sits at **0 errors / 11 warnings**, and tsc still has only the same 5 inherited errors.
+
+## 2026-04-21 — session 16 (Phase 3 Send rebuild)
+
+- **Model:** GPT-5.4
+- **Agent / human:** Codex
+- **Goal:** Rebuild the Send flow against the reconciled redesign lane, wire recipient QR scan, and make send truth explicit before moving to Messages.
+
+### Shipped
+
+- Rebuilt the full Send flow around a shared redesign-canon shell:
+  - `components/send/SendScaffold.tsx`
+  - `components/send/{RecipientPicker,AmountKeypad,ReviewCard,SuccessCard}.tsx`
+- Wired a small real QR recipient scan path:
+  - `components/ui/QrScannerModal.tsx` now uses the current camera seam with themed chrome
+  - recipient step accepts plain wallet-address QR payloads plus `solana:` links
+- Tightened send-flow truth:
+  - review now frames the current path as **on-chain only**
+  - nearby peers remain recipient shortcuts, not route switches
+  - success copy now reflects live transfer state instead of claiming unconditional settlement
+  - new direct sends no longer auto-transition into fake `Handed to mesh` status in the wallet adapters / fixture lifecycle
+- Updated canonical docs for the rebuilt send phase:
+  - `README.md`
+  - `screen-inventory.md`
+  - `recovery-plan.md`
+  - `handoff.md`
+- Re-verified baseline after the rebuild:
+  - `npm run lint` → 0 errors / 11 inherited warnings
+  - `npx tsc --noEmit` → same 5 inherited baseline errors (`components/screens/SolanaTransactionScreen.tsx`, `components/ui/Header.tsx`, `src/gossip/{GCSFilter,PacketIdUtil}.ts`, `src/solana/SolanaTransactionManager.ts`)
+
+### Deviations from decisions.md
+
+- None. This session kept the existing recovery contract and made stale screen-contract wording truthful.
+
+### Open issues
+
+- Historical fixture/history data still contains `Handed to mesh` rows from older demo states; the new send flow is honest, but the broader transfer-status story still needs a dedicated truth pass when history/detail are revisited.
+- The amount screen's USD conversion is intentionally a local estimate until a real quote source is wired.
+- Messages, Peers, and Settings still need the same redesign-canon rebuild treatment on top of the reconciled token/primitives lane.
+
+### Handoff
+
+Phase 3 Send is rebuilt and docs now treat it as on-chain-only for this branch. The next session should continue **Phase 3 with Messages + conversation first**, then move to Peers and Settings. Read `recovery-plan.md`, this progress block, `screen-inventory.md` items 15–17, and the refreshed `handoff.md` first.

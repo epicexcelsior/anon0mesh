@@ -39,6 +39,8 @@ If a doc in this folder still uses workbench-first wording, treat that as histor
 
 These are the main areas where current functionality is intentionally being built around rather than claimed as complete:
 
+- **Send delivery path:** the redesigned send flow and recipient QR scan are live, but transfer delivery is still **on-chain only** in this branch. Mesh relay integration lands later.
+- **Amount quote:** the send amount screen's USD equivalent is a local estimate, not a live market quote yet.
 - **LXMF runtime:** interface shape is preserved, but the native runtime is still a stub in this branch.
 - **Stealth transfer path:** preferences and review-screen affordances exist, but full end-to-end stealth settlement is not live yet. UI and copy should frame this as staged work, not a completed privacy guarantee.
 - **Beacon staking:** settings surface exists, backend remains placeholder / coming soon.

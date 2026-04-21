@@ -36,11 +36,8 @@ export class FixtureTransactionAdapter implements TransactionService {
 
   private scheduleLifecycle(id: string): void {
     setTimeout(() => {
-      void this.updateStatus(id, 'Handed to mesh');
-    }, 1200);
-    setTimeout(() => {
       void this.updateStatus(id, 'Settled');
-    }, 3600);
+    }, 2800);
   }
 }
 

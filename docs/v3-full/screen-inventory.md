@@ -107,7 +107,7 @@ Read `decisions.md` and `architecture.md` first.
 - **Purpose:** Step 1 of send flow. Input recipient (address paste, QR scan, mesh peer selection).
 - **Source — design:** redesign canon send flow shell.
 - **Source — content:** Stitch Send Payment + current route requirements.
-- **Backend:** real via `useTransaction.startSend`.
+- **Backend:** real via the current wallet send seam. Recipient selection feeds the on-chain send path, and QR scan accepts plain wallet addresses plus `solana:` links.
 
 ### 10. Send — Amount
 
@@ -115,21 +115,22 @@ Read `decisions.md` and `architecture.md` first.
 - **Purpose:** Step 2. Amount keypad, SOL display + USD equivalent, balance check.
 - **Source — design:** redesign canon.
 - **Backend:** uses current balance from `useWallet`.
+- **Truth note:** the USD equivalent is a local estimate for now, not a live quote feed.
 
 ### 11. Send — Review
 
 - **Route:** `app/send/review.tsx`
-- **Purpose:** Step 3. Recipient, amount, fee estimate, route (on-chain vs mesh-relayed), privacy mode toggle (stealth). **SlideToConfirm** widget at bottom.
+- **Purpose:** Step 3. Recipient, amount, fee estimate, current route, privacy mode toggle (stealth). **SlideToConfirm** widget at bottom.
 - **Source — design:** redesign canon with `SlideToConfirm` retained if it still fits. Do not add Skia; keep the no-Skia path.
 - **Source — content:** Stitch send + current transaction/status contract.
-- **Backend:** current screen calls wallet send directly. Route selection is real (`mesh peer` vs direct recipient), but the stealth toggle is **preview-only** for now and must be labeled honestly until the full privacy path lands.
+- **Backend:** current screen calls wallet send directly. The rebuilt branch keeps this flow **on-chain only** for now; nearby peers can be selected as recipients, but they do not switch delivery into mesh relay yet. The stealth toggle remains **preview-only** until the full privacy path lands.
 
 ### 12. Send — Success
 
 - **Route:** `app/send/success.tsx`
-- **Purpose:** Checkmark, amount sent, tx signature (short + copy), "View on Explorer" + "Share Receipt" actions.
+- **Purpose:** Receipt surface for the submitted transfer. Shows amount, live status, reference copy, "View on Explorer" + "Share Receipt" actions.
 - **Source — design:** redesign canon success/receipt surface.
-- **Backend:** displays result from submit; tx signature may be stub for mesh-relayed path until settlement.
+- **Backend:** displays the result from submit. Explorer only opens once a network signature exists; otherwise the screen stays truthful with a local transfer reference while settlement catches up.
 
 ### 13. Receive
 

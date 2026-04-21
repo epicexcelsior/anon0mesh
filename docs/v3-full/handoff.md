@@ -4,14 +4,14 @@ Use this when starting a fresh chat / session for the next recovery phase.
 
 ## Status
 
-As of 2026-04-20:
+As of 2026-04-21:
 
 - recovery Phase 0 reset is done
 - first Phase 1 functional repairs are done
 - Phase 2 token / primitive reconciliation is done
-- Home is rebuilt as the first truthful Phase 3 screen
+- Home and Send are rebuilt as the first truthful Phase 3 screens
 - current build-around limits are documented in `README.md`, `screen-inventory.md`, and `progress.md`
-- next major move is **continue Phase 3 in recovery order: Send first, then Messages, Peers, and Settings**
+- next major move is **continue Phase 3 in recovery order: Messages first, then Peers and Settings**
 
 Do **not** treat older "final gates complete" or workbench-first wording as active contract.
 
@@ -47,6 +47,7 @@ Source precedence is:
 Current truth to preserve:
 - BLE peer discovery is live
 - wallet/send/history seams are live
+- redesigned send flow is live, but delivery is still on-chain only
 - messaging is still fixture-backed
 - LXMF runtime is still stubbed
 - stealth transfer path is still staged, not complete
@@ -64,8 +65,8 @@ Current baseline to preserve:
 Your job for the next phase:
 1. keep docs truthful
 2. commit in small scoped chunks
-3. continue Phase 3 with the Send flow rebuild first
-4. continue Messages, Peers, and Settings in recovery order after Send
+3. continue Phase 3 with the Messages + conversation rebuild first
+4. continue Peers and Settings in recovery order after Messages
 5. do not overclaim unfinished LXMF / stealth / beacon functionality in UI copy
 
 Execution rules:
@@ -75,7 +76,7 @@ Execution rules:
 - If a supporting doc conflicts with recovery-plan.md or progress.md, treat the recovery docs as authoritative and either fix the stale doc or record it in progress.md
 - Do not start from implementation-plan.md; it is historical reference only where it does not conflict with recovery docs
 
-First action after reading: summarize the current phase, list the active constraints, and propose the smallest safe Send-first commit.
+First action after reading: summarize the current phase, list the active constraints, and propose the smallest safe Messages-first commit.
 ```
 
 ## What To Read vs Ignore
@@ -102,10 +103,9 @@ The next phase is **not** "finish everything."
 
 The next phase is:
 
-1. Send
-2. Messages
-3. Peers
-4. Settings
+1. Messages
+2. Peers
+3. Settings
 
 ## Commands
 
