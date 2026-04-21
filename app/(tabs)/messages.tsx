@@ -14,7 +14,7 @@ import { NewConversationSheet } from "@/components/messages/NewConversationSheet
 export default function MessagesScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { threads } = useMessages();
+  const { threads, loading } = useMessages();
   const { peers } = usePeers();
   const sheetRef = useRef<BottomSheet>(null);
 
@@ -59,6 +59,7 @@ export default function MessagesScreen() {
       <View style={styles.listWrap}>
         <ConversationList
           threads={threads}
+          loading={loading}
           aliases={aliases}
           onSelect={(peerId) =>
             router.push((`/messages/${peerId}`) as Parameters<typeof router.push>[0])

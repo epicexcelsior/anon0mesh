@@ -4,6 +4,7 @@ import type { BeaconService } from "@/src/domain/services/BeaconService";
 import type { LxmfService } from "@/src/domain/services/LxmfService";
 import type { MeshService } from "@/src/domain/services/MeshService";
 import type { MessagingService } from "@/src/domain/services/MessagingService";
+import type { PreferencesService } from "@/src/domain/services/PreferencesService";
 import type { TransactionService } from "@/src/domain/services/TransactionService";
 import type { WalletService } from "@/src/domain/services/WalletService";
 
@@ -14,6 +15,7 @@ export interface Adapters {
   messaging: MessagingService;
   beacon: BeaconService;
   lxmf: LxmfService;
+  preferences: PreferencesService;
 }
 
 const AdapterContext = createContext<Adapters | null>(null);

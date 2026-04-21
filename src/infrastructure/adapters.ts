@@ -3,6 +3,7 @@ import { solanaTransactionService } from '@/src/infrastructure/solana';
 import { bleMeshAdapter } from '@/src/infrastructure/ble';
 import { beaconAdapter } from '@/src/infrastructure/beacon';
 import { lxmfStub } from '@/src/infrastructure/lxmf';
+import { asyncPreferencesAdapter } from '@/src/infrastructure/preferences';
 
 // Messaging: use FixtureMessagingAdapter until LXMF parallel agent ships @lxmf/react-native (D16/D24/D25).
 import { fixtureMessagingAdapter } from '@/src/infrastructure/fixtures';
@@ -21,4 +22,5 @@ export const realAdapters: Adapters = {
   messaging: fixtureMessagingAdapter,
   beacon: beaconAdapter,
   lxmf: lxmfStub,
+  preferences: asyncPreferencesAdapter,
 };

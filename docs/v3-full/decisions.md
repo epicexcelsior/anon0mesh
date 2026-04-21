@@ -1,6 +1,6 @@
 # decisions.md — v3-full living decision ledger
 
-**Last updated:** 2026-04-18 (Phase 0/1 review — D6 locked, tsc baseline flagged)
+**Last updated:** 2026-04-20 (recovery reset — redesign-first precedence restored)
 **Status:** active
 **Owner:** @intern (team lead reviews)
 
@@ -14,11 +14,11 @@ Decisions are prefixed `D#`. Cross-reference by ID in commits and `progress.md`.
 
 Three parallel UI tracks exist:
 
-- **Workbench** (`epic/ui-workbench-fixtures`) — polished design system, 5 preview screens, fixtures, motion/sound/haptics. Anchored to ADR 0003 (3-tab IA, workbench-first review, locked terminology).
-- **v3 branch** (`upstream/v3`) — real engineering: components extracted by domain, BeaconRegistry, PeersDrawer new-conversation flow, wallet infra. `mobile_app/` subfolder restructure. 4-tab IA.
-- **Claude Design wireframe** (`anonmesh_ui_ux/` static HTML+JSX) — rich information architecture, copy, mesh-terminal aesthetic, 4-screen sketch.
+- **Redesign canon** (`worktrees/anon0mesh-fork-ui`, Void Protocol lane) — approved visual direction, shell feel, component taste, and revised screen hierarchy.
+- **Current `v3-full`** — integration lane with working Expo Router structure, providers/adapters, and much of the backend seam work already landed.
+- **Wireframe / Stitch-derived docs** — information architecture, route purposes, copy shape, mesh-status framing.
 
-The team needs one production-grade MVP. This effort merges the three into a single coherent branch anchored to the workbench design language, filled in with v3-branch content and real engineering, with wireframe as copy/pattern reference.
+The team needs one production-grade MVP. Recovery work keeps `v3-full` as the implementation lane, but resets visual precedence so design comes from the redesign canon, product contract comes from the docs in this folder, and architecture/backends come from current `v3-full`.
 
 ---
 
@@ -46,6 +46,17 @@ The team needs one production-grade MVP. This effort merges the three into a sin
 ---
 
 ## Decisions
+
+### Recovery reset
+
+**2026-04-20 recovery reset.** The earlier workbench-first visual precedence is stale. Effective immediately:
+
+1. **Visual system / taste / tokens / component feel:** `worktrees/anon0mesh-fork-ui` (Void Protocol lane)
+2. **Information architecture / screen contract:** `screen-inventory.md` plus the referenced wireframe/Stitch sources
+3. **Architecture / adapters / backend seams:** current `v3-full`
+4. **Workbench:** reference only when it still aligns with 1–3
+
+Any older wording in this file that sounds like "port workbench verbatim" should be read through that override.
 
 ### Branch & structure
 
@@ -87,46 +98,25 @@ The team needs one production-grade MVP. This effort merges the three into a sin
 
 ### Design system
 
-**D8. Token storage.** Port the existing workbench tree at `src/design-system/tokens/` verbatim, preserving file names. Files: `foundation.ts` (palette, spacing, radius, type scale, fonts), `semantic.ts` (semantic color tokens, shadow), `component.ts`, `state.ts` (depth, feedback), `motion.ts`, `registry.ts`, `index.ts` barrel. Keep the path `src/design-system/` for zero-rename port. **No CSS** — React Native cannot load CSS at runtime; the wireframe's `styles.css` is a source reference only, ported to TS where tokens are missing (glass variants). Rationale: industry standard for Expo/RN apps; type safety; reuses the extensive token registry already built in the workbench.
+**D8. Token storage.** `src/design-system/` remains the one active token/primitives lane. Do **not** introduce a second token system. During recovery, keep the current file structure (`foundation.ts`, `semantic.ts`, `component.ts`, `state.ts`, `motion.ts`, `registry.ts`, `index.ts`) but reconcile values and semantics to the redesign canon. **No CSS** — React Native cannot load CSS at runtime; wireframe CSS remains reference-only.
 
 **D9. Token source merge rules.**
 
 | Token family | Primary source | Fill gaps from |
 |---|---|---|
-| Colors / semantic palette | Workbench (cyan active, amber queued, green settled, purple stealth, red destructive) | v3 `theme/colors.ts` for surfaces/borders, wireframe green only for mesh surfaces |
-| Typography | Workbench (Space Grotesk + Manrope) + wireframe (JetBrains Mono for hashes/IDs/signals) — 3 fonts total | — |
-| Spacing | Workbench `theme.spacing` | v3 `theme/spacing.ts` |
-| Motion | Workbench `motion.ts` (overdamped, no bounce) | — |
-| Depth | Workbench `theme.depth` + `DepthButton` morphic press | — |
-| Sound | Workbench `soundCatalog.ts` + 6 WAVs | — |
-| Glass surfaces | **Wireframe 4 variants** (`glass`, `glass-soft`, `glass-accent`, `glass-strong`) ported to TS factory/hook | Workbench `useGlass` replaced by richer 4-variant API |
-| Radius | Workbench `theme.radius` | — |
-| Haptics | Workbench | — |
+| Colors / shell surfaces / contrast | Redesign canon (Void Protocol lane) | current `src/design-system/` structure, wireframe references |
+| Typography / display vs technical mono | Redesign canon | current font loading setup if it still matches |
+| Spacing / radius contracts | current `src/design-system/` | redesign canon for feel changes |
+| Motion / haptics / sound | current `v3-full` contracts where they still fit | redesign canon when specific interaction feel differs |
+| Glass / elevated surfaces | Redesign canon first | wireframe density cues, current glass variants |
 
-**D10. Mesh-terminal aesthetic weight.** Restrained. Scanlines, blink caret, heavy mono = confined to mesh/diagnostic surfaces (mesh status strip, peer list technical rows, beacon signatures). Wallet, Send, Messages = workbench trust-forward calm. Rationale: wireframe leans hard cyberpunk; user prefers wallet/payment critical moments feel quiet and solid.
+**D10. Mesh-terminal aesthetic weight.** Restrained and intentional. Mesh/diagnostic surfaces can carry more terminal/editorial character, but wallet-critical screens must stay calm, legible, and trust-forward. The redesign canon wins this balance, not the older workbench lane.
 
-**D11. Tab bar style.** Flush glass-strong at bottom, safe-area-padded. Keep workbench's larger active-tab highlight and sliding animation behavior. Not floating. Rationale: floating tab bars read as imitation of other apps; flush + glass looks intentional on top of our content.
+**D11. Tab bar style.** Flush bottom bar, safe-area-padded, not floating. Active-indicator behavior can evolve during recovery, but final feel should match the redesign canon while preserving the locked 3-tab IA.
 
-**D12. Palette.** Workbench semantic wins. Actual values (verified against workbench `src/design-system/tokens/foundation.ts` + `semantic.ts`):
+**D12. Palette.** Redesign canon owns palette direction. The current `src/design-system/` values are implementation state, not a locked contract. Recovery Phase 2 reconciles them into one real source; do not treat old workbench hex values as canonical just because they exist in code.
 
-```
-background       palette.obsidian950 (#0A0B0D)
-backgroundSoft   palette.obsidian900 (#0d0e10)
-backgroundRaised palette.obsidian850 (#131416)
-surface          palette.obsidian800 (#161718)
-surfaceMuted     palette.obsidian775 (#1b1c1e)
-surfaceElevated  palette.obsidian750 (#1f2022)
-textPrimary      palette.frost50 (#f3f7fa)
-cyan             palette.cyan500 (#00daf3)   — active, selection, links
-amber            palette.amber500 (#ffbf00)  — queued / handoff
-green            palette.green500 (#3ce36a)  — settled / mesh-connected
-purple           palette.purple500 (#8b5fbf) — stealth
-red              palette.red500 (#cc6666)    — destructive
-```
-
-Plus per-semantic soft/glow variants already defined in workbench `semantic.ts`. Port verbatim.
-
-**D13. Workbench polish preservation.** `motion.ts`, `soundCatalog.ts` + WAVs, haptics, `DepthButton`, `SlideToConfirm` (with shadow-twin trick for no-Skia), `WorkbenchSheet` (renamed `Sheet`), the terminology lock. Port incrementally alongside each screen to avoid a "we'll add polish later" trap that loses polish. See `quality-gates.md` § "polish discipline".
+**D13. Primitive preservation rule.** Keep useful primitives and interaction contracts already in `v3-full` (`DepthButton`, `SlideToConfirm`, `Sheet`, motion, haptics, sound, terminology lock) only when they still serve the redesign canon. Reuse structure; do not preserve visual drift for its own sake.
 
 **D14. Icons.** Feather (from `@expo/vector-icons`) as the default set. Custom SVGs lifted from `anonmesh_ui_ux/icons.jsx` for the mesh-specific glyphs Feather lacks (signal bars, mesh-nodes shape, beacon, identity chip). Anonmesh logo + wordmark available under `assets/brand/`. Port the logo from `mobile_app/assets/images/logos/anonmesh_logo.png`.
 
@@ -204,11 +194,12 @@ See `architecture.md` for the full rules.
 
 ### Quality
 
-**D28. Quality bar.** "No shortcuts. Polish after full screen coverage is fine, but it should be clearly based on workbench existing work." Concretely:
+**D28. Quality bar.** No shortcuts. Recovery can stage work, but the branch should converge toward one authored product, not a hybrid accident. Concretely:
 
-- Pass 1: port every surface with design language + content mapped correctly, motion + haptics + sound placeholders wired.
+- Pass 1: make docs truthful, fix broken flows, and re-establish one clear design canon.
+- Pass 2: rebuild surfaces with correct hierarchy/content, motion + haptics + sound still wired.
 - Pass 2: polish alignment, spacing, consistency, edge states.
-- No redesign loops. If something feels wrong, check the workbench + decisions.md first before altering.
+- No redesign loops. If something feels wrong, check the redesign canon + `recovery-plan.md` first before altering.
 
 **D29. Terminology lock.** Carry over from ADR 0003:
 
@@ -240,10 +231,11 @@ Resolve these in-execution; update this section when decided.
 
 ## Supersedes
 
-- ADR 0003 § "workbench-first → teammate review → live-app port" is partially superseded: the workbench becomes the live app on this branch, skipping the separate port step. The 3-tab IA, terminology lock, and visual/motion guardrails from ADR 0003 remain in force.
+- ADR 0003's workbench-first lane is superseded for this branch. The parts that remain in force are the 3-tab IA, terminology lock, and the requirement that the product feel intentional rather than improvised.
 
 ## Related
 
+- [recovery-plan.md](./recovery-plan.md)
 - [architecture.md](./architecture.md)
 - [screen-inventory.md](./screen-inventory.md)
 - [implementation-plan.md](./implementation-plan.md)

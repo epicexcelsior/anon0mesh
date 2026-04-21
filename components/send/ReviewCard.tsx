@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -14,6 +14,7 @@ import { Icon } from "@/components/primitives/Icon";
 import { Pill } from "@/components/primitives/Pill";
 import SlideToConfirm from "@/components/primitives/SlideToConfirm";
 import { usePeers } from "@/src/hooks/usePeers";
+import { usePreferences } from "@/src/hooks/usePreferences";
 import { useAdapters } from "@/src/providers/AdapterProvider";
 import { appTheme as theme } from "@/src/design-system/theme";
 
@@ -32,6 +33,7 @@ export function ReviewCard({ to, amount, symbol }: ReviewCardProps) {
   const router = useRouter();
   const adapters = useAdapters();
   const { peers } = usePeers();
+  const { privacy } = usePreferences();
 
   const [stealthEnabled, setStealthEnabled] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,6 +42,10 @@ export function ReviewCard({ to, amount, symbol }: ReviewCardProps) {
   const matchedPeer = peers.find((p) => p.publicKey === to);
   const isMeshPeer = Boolean(matchedPeer);
   const route = isMeshPeer ? "Mesh-relayed" : "On-chain";
+
+  useEffect(() => {
+    setStealthEnabled(privacy.stealthByDefault);
+  }, [privacy.stealthByDefault]);
 
   async function handleConfirm() {
     if (isConfirming) return;

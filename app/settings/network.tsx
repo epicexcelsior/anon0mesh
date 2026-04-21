@@ -1,5 +1,13 @@
-import React, { useState } from "react";
-import { ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from "react-native";
+import React from "react";
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -11,8 +19,9 @@ import { Pill } from "@/components/primitives/Pill";
 import { Icon } from "@/components/primitives/Icon";
 import { SectionLabel } from "@/components/primitives/SectionLabel";
 import { SegmentedControl } from "@/components/primitives/SegmentedControl";
-import { useMesh } from "@/src/hooks/useMesh";
 import { useLxmf, LxmfNodeMode } from "@/src/hooks/useLxmf";
+import { useMesh } from "@/src/hooks/useMesh";
+import { usePreferences } from "@/src/hooks/usePreferences";
 import { appTheme as theme } from "@/src/design-system/theme";
 
 const LXMF_SEGMENTS = [
@@ -36,36 +45,41 @@ function connectionPillTone(state: string): "green" | "amber" | "neutral" {
 export default function NetworkScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { connectionState, nodeCount, bleError } = useMesh();
-  const { status: lxmfStatus } = useLxmf();
-  const currentLxmfMode: LxmfNodeMode = (lxmfStatus?.mode as LxmfNodeMode | undefined) ?? LxmfNodeMode.BleOnly;
+  const { connectionState, nodeCount, bleError, enabled, scanning, setEnabled } = useMesh();
+  const { isNativeAvailable } = useLxmf();
+  const { network, loading, updateNetwork } = usePreferences();
 
-  const [bleEnabled, setBleEnabled] = useState(true);
-  const [autoConnect, setAutoConnect] = useState(true);
-  const [selectedLxmfMode, setSelectedLxmfMode] = useState<LxmfNodeMode>(currentLxmfMode);
+  const bleEnabled = loading ? enabled : network.bleEnabled;
+  const statusSublabel = !enabled
+    ? "Mesh scanning paused on this device"
+    : scanning
+      ? `${nodeCount} peer${nodeCount !== 1 ? "s" : ""} visible`
+      : "Waiting for BLE scan";
 
   function handleBleToggle(value: boolean) {
-    setBleEnabled(value);
+    setEnabled(value);
+    void updateNetwork({ bleEnabled: value });
     haptics.select();
     if (value) sound.toggleOn(); else sound.toggleOff();
   }
 
   function handleAutoConnectToggle(value: boolean) {
-    setAutoConnect(value);
+    void updateNetwork({ autoConnect: value });
     haptics.select();
     if (value) sound.toggleOn(); else sound.toggleOff();
   }
 
   function handleLxmfModeSelect(id: string) {
     const mode = Number(id) as LxmfNodeMode;
-    setSelectedLxmfMode(mode);
+    void updateNetwork({ lxmfMode: mode });
+    haptics.tap();
+    sound.buttonTap();
   }
 
   return (
     <View style={styles.root}>
       <Backdrop preset="settings" />
 
-      {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + theme.spacing.sm }]}>
         <TouchableOpacity accessibilityLabel="Back" accessibilityRole="button" onPress={() => router.back()} hitSlop={8} style={styles.backBtn}>
           <Icon name="arrow-left" size={22} color={theme.colors.textPrimary} />
@@ -79,19 +93,19 @@ export default function NetworkScreen() {
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + theme.spacing.xxxl }]}
         showsVerticalScrollIndicator={false}
       >
-        {/* BLE section */}
         <View style={styles.section}>
           <SectionLabel label="Bluetooth" />
           <GlassSurface variant="regular" style={styles.card}>
-            {/* BLE toggle */}
             <View style={[styles.row, styles.rowBordered]}>
               <View style={styles.iconWrap}>
                 <Icon name="bluetooth" size={18} color={theme.colors.textSecondary} />
               </View>
               <View style={styles.rowMid}>
                 <Text style={styles.rowLabel}>Bluetooth Mesh</Text>
+                <Text style={styles.rowSublabel}>Directly controls scan state on this device</Text>
               </View>
               <Switch
+                disabled={loading}
                 value={bleEnabled}
                 onValueChange={handleBleToggle}
                 trackColor={{ false: theme.colors.surfaceMuted, true: theme.colors.cyanSoft }}
@@ -99,19 +113,22 @@ export default function NetworkScreen() {
               />
             </View>
 
-            {/* Status row */}
             <View style={styles.row}>
               <View style={styles.iconWrap}>
                 <Icon name="activity" size={18} color={theme.colors.textSecondary} />
               </View>
               <View style={styles.rowMid}>
                 <Text style={styles.rowLabel}>Status</Text>
-                <Text style={styles.rowSublabel}>{nodeCount} peer{nodeCount !== 1 ? "s" : ""} visible</Text>
+                <Text style={styles.rowSublabel}>{statusSublabel}</Text>
               </View>
-              <Pill
-                label={bleError ? "Error" : connectionState}
-                tone={bleError ? "red" : connectionPillTone(connectionState)}
-              />
+              {loading ? (
+                <ActivityIndicator size="small" color={theme.colors.cyan} />
+              ) : (
+                <Pill
+                  label={bleError ? "Error" : connectionState}
+                  tone={bleError ? "red" : connectionPillTone(connectionState)}
+                />
+              )}
             </View>
 
             {bleError ? (
@@ -123,7 +140,6 @@ export default function NetworkScreen() {
           </GlassSurface>
         </View>
 
-        {/* LXMF section */}
         <View style={styles.section}>
           <SectionLabel label="LXMF" />
           <GlassSurface variant="regular" style={styles.card}>
@@ -133,31 +149,29 @@ export default function NetworkScreen() {
               </View>
               <View style={styles.rowMid}>
                 <Text style={styles.rowLabel}>LXMF Mode</Text>
-                <Text style={styles.rowSublabel}>Current: {LXMF_MODE_LABEL[currentLxmfMode]}</Text>
+                <Text style={styles.rowSublabel}>Current: {LXMF_MODE_LABEL[network.lxmfMode]}</Text>
               </View>
             </View>
 
             <View style={styles.segmentRow}>
               <SegmentedControl
                 segments={LXMF_SEGMENTS}
-                selected={String(selectedLxmfMode)}
+                selected={String(network.lxmfMode)}
                 onSelect={handleLxmfModeSelect}
               />
             </View>
 
             <View style={styles.noteRow}>
               <Text style={styles.noteText}>
-                Full mode selection available when LXMF package is ready.
+                Saved on this device now. Native LXMF runtime is {isNativeAvailable ? "available" : "still stubbed"}.
               </Text>
             </View>
           </GlassSurface>
         </View>
 
-        {/* Connectivity section */}
         <View style={styles.section}>
           <SectionLabel label="Connectivity" />
           <GlassSurface variant="regular" style={styles.card}>
-            {/* Auto-connect toggle */}
             <View style={[styles.row, styles.rowBordered]}>
               <View style={styles.iconWrap}>
                 <Icon name="zap" size={18} color={theme.colors.textSecondary} />
@@ -167,14 +181,14 @@ export default function NetworkScreen() {
                 <Text style={styles.rowSublabel}>Automatically connect to nearby peers</Text>
               </View>
               <Switch
-                value={autoConnect}
+                disabled={loading}
+                value={network.autoConnect}
                 onValueChange={handleAutoConnectToggle}
                 trackColor={{ false: theme.colors.surfaceMuted, true: theme.colors.cyanSoft }}
-                thumbColor={autoConnect ? theme.colors.cyan : theme.colors.textMuted}
+                thumbColor={network.autoConnect ? theme.colors.cyan : theme.colors.textMuted}
               />
             </View>
 
-            {/* LoRa disabled row */}
             <View style={[styles.row, styles.disabledRow]}>
               <View style={styles.iconWrap}>
                 <Icon name="radio" size={18} color={theme.colors.textMuted} />
@@ -275,10 +289,10 @@ const styles = StyleSheet.create({
     fontSize: theme.type.caption,
   },
   segmentRow: {
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
     borderBottomColor: theme.colors.line,
     borderBottomWidth: StyleSheet.hairlineWidth,
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.md,
   },
   noteRow: {
     paddingHorizontal: theme.spacing.lg,

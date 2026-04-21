@@ -1,5 +1,12 @@
 import React from "react";
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 
@@ -12,9 +19,7 @@ import { appTheme as theme } from "@/src/design-system/theme";
 export default function TxDetailScreen() {
   const router = useRouter();
   const { txId } = useLocalSearchParams<{ txId: string }>();
-  const { transactions } = useTransaction();
-
-  const tx = transactions.find((t) => t.id === txId);
+  const { selected: tx, loading } = useTransaction(txId);
 
   const preset = tx?.status === "Settled" ? "success" : "send";
   const directionTitle = tx?.direction === "send" ? "Sent" : "Received";
@@ -47,7 +52,12 @@ export default function TxDetailScreen() {
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
         >
-          {tx ? (
+          {loading ? (
+            <View style={styles.notFound}>
+              <ActivityIndicator size="small" color={theme.colors.cyan} />
+              <Text style={styles.notFoundText}>Loading transaction…</Text>
+            </View>
+          ) : tx ? (
             <TxDetail tx={tx} />
           ) : (
             <View style={styles.notFound}>

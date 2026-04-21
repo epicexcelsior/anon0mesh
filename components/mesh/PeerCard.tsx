@@ -108,7 +108,7 @@ export function PeerCard({ peer, onPress }: PeerCardProps) {
           accessibilityRole="button"
           activeOpacity={0.7}
           hitSlop={8}
-          onPress={() => router.push(("/send/recipient?to=" + peer.id) as AnyHref)}
+          onPress={() => router.push((`/send/recipient?to=${encodeURIComponent(peer.publicKey)}`) as AnyHref)}
           style={styles.actionBtn}
         >
           <Icon name="send" size={18} color={theme.colors.textMuted} />

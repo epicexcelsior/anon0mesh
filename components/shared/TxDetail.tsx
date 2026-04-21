@@ -1,5 +1,5 @@
 import React from "react";
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Linking, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import * as Clipboard from "expo-clipboard";
 
 import { GlassSurface } from "@/components/primitives/GlassSurface";
@@ -8,6 +8,7 @@ import { Pill } from "@/components/primitives/Pill";
 import type { PillTone } from "@/components/primitives/Pill";
 import type { Transaction } from "@/src/domain/entities/Transaction";
 import type { TransferStatus } from "@/src/domain/status/TransferStatus";
+import { getExplorerTransactionUrl } from "@/src/utils/solanaExplorer";
 import { appTheme as theme } from "@/src/design-system/theme";
 
 function statusTone(status: TransferStatus): PillTone {
@@ -54,8 +55,16 @@ export function TxDetail({ tx }: TxDetailProps) {
     }
   }
 
-  function handleExplorer() {
-    Alert.alert("Coming soon", "Explorer integration is coming in a future update.");
+  async function handleExplorer() {
+    if (process.env.EXPO_PUBLIC_ADAPTERS === "fixtures") {
+      Alert.alert("Fixture transfer", "This demo transfer is local fixture data, so there is no live explorer record.");
+      return;
+    }
+    if (!tx.signature) {
+      Alert.alert("Explorer not ready", "Explorer link appears once a network signature is available.");
+      return;
+    }
+    await Linking.openURL(getExplorerTransactionUrl(tx.signature));
   }
 
   return (

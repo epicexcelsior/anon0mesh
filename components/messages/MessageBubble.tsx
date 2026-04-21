@@ -29,7 +29,7 @@ interface MessageBubbleProps {
 }
 
 export function MessageBubble({ message }: MessageBubbleProps) {
-  const isSent = message.senderId === "user-me";
+  const isSent = message.senderId === "self" || message.senderId === "user-me";
   const timestamp = relativeTime(message.sentAt);
   const dotColor = statusDotColor(message.status);
 

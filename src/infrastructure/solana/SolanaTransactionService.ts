@@ -5,6 +5,7 @@
 import type { Transaction } from '@/src/domain/entities/Transaction';
 import type { TransactionService } from '@/src/domain/services/TransactionService';
 import type { TransferStatus } from '@/src/domain/status/TransferStatus';
+import { checkConfirmation } from '@/src/infrastructure/solana/SolanaAdapter';
 
 export class SolanaTransactionService implements TransactionService {
   private readonly store = new Map<string, Transaction>();
@@ -36,6 +37,21 @@ export class SolanaTransactionService implements TransactionService {
     if (status === 'Settled') {
       tx.settledAt = Date.now();
     }
+  }
+
+  async refreshPendingStatuses(): Promise<void> {
+    const pending = Array.from(this.store.values()).filter(
+      (transaction) => transaction.signature && transaction.status !== 'Settled',
+    );
+
+    await Promise.all(
+      pending.map(async (transaction) => {
+        const nextStatus = await checkConfirmation(transaction.signature as string);
+        if (nextStatus && nextStatus !== transaction.status) {
+          await this.updateStatus(transaction.id, nextStatus);
+        }
+      }),
+    );
   }
 }
 

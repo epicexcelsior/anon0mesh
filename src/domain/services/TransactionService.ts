@@ -5,4 +5,5 @@ export interface TransactionService {
   getById(id: string): Promise<Transaction | null>;
   list(limit?: number): Promise<Transaction[]>;
   updateStatus(id: string, status: TransferStatus): Promise<void>;
+  refreshPendingStatuses?(): Promise<void>;
 }

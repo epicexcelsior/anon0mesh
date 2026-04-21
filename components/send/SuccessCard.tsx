@@ -1,6 +1,8 @@
 import React, { useEffect } from "react";
 import {
   Alert,
+  Linking,
+  Share,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -16,6 +18,8 @@ import * as haptics from "@/src/design-system/haptics";
 import * as sound from "@/src/design-system/sound";
 import { Icon } from "@/components/primitives/Icon";
 import { Pill } from "@/components/primitives/Pill";
+import { useTransaction } from "@/src/hooks";
+import { getExplorerTransactionUrl } from "@/src/utils/solanaExplorer";
 import { appTheme as theme } from "@/src/design-system/theme";
 
 function shortSig(id: string): string {
@@ -31,6 +35,9 @@ interface SuccessCardProps {
 
 export function SuccessCard({ txId, amount, symbol }: SuccessCardProps) {
   const router = useRouter();
+  const { selected: transaction } = useTransaction(txId);
+  const displayReference = transaction?.signature ?? txId;
+  const statusLabel = transaction?.status ?? "Queued on device";
 
   useEffect(() => {
     sound.successResolve();
@@ -38,7 +45,7 @@ export function SuccessCard({ txId, amount, symbol }: SuccessCardProps) {
   }, []);
 
   async function handleCopyTxId() {
-    await Clipboard.setStringAsync(txId);
+    await Clipboard.setStringAsync(displayReference);
     Alert.alert("Copied", "Transaction ID copied to clipboard.");
   }
 
@@ -46,12 +53,31 @@ export function SuccessCard({ txId, amount, symbol }: SuccessCardProps) {
     router.replace("/(tabs)/home" as Parameters<typeof router.replace>[0]);
   }
 
-  function handleViewExplorer() {
-    Alert.alert("Coming soon", "Transaction explorer integration is coming in a future update.");
+  async function handleViewExplorer() {
+    if (process.env.EXPO_PUBLIC_ADAPTERS === "fixtures") {
+      Alert.alert("Fixture transfer", "This demo transfer is local fixture data, so there is no live explorer record.");
+      return;
+    }
+    if (!transaction?.signature) {
+      Alert.alert("Explorer not ready", "Explorer link appears once a network signature is available.");
+      return;
+    }
+    await Linking.openURL(getExplorerTransactionUrl(transaction.signature));
   }
 
-  function handleShareReceipt() {
-    Alert.alert("Coming soon", "Receipt sharing is coming in a future update.");
+  async function handleShareReceipt() {
+    const lines = [
+      "AnonMesh transfer",
+      `Amount: ${amount} ${symbol}`,
+      `Status: ${statusLabel}`,
+      `Reference: ${displayReference}`,
+    ];
+
+    if (transaction?.signature) {
+      lines.push(`Explorer: ${getExplorerTransactionUrl(transaction.signature)}`);
+    }
+
+    await Share.share({ message: lines.join("\n") });
   }
 
   return (
@@ -74,10 +100,14 @@ export function SuccessCard({ txId, amount, symbol }: SuccessCardProps) {
           <Text style={styles.subtitle}>Sent successfully</Text>
 
           {/* Status pill */}
-          <Pill label="Queued on device" tone="cyan" style={styles.pill} />
+          <Pill
+            label={statusLabel}
+            tone={statusLabel === "Settled" ? "green" : statusLabel === "Handed to mesh" ? "amber" : "cyan"}
+            style={styles.pill}
+          />
 
           {/* Tx signature */}
-          {txId ? (
+          {displayReference ? (
             <TouchableOpacity
               accessibilityLabel="Copy transaction ID"
               accessibilityRole="button"
@@ -85,9 +115,13 @@ export function SuccessCard({ txId, amount, symbol }: SuccessCardProps) {
               onPress={handleCopyTxId}
               style={styles.sigRow}
             >
-              <Text style={styles.sigText}>{shortSig(txId)}</Text>
+              <Text style={styles.sigText}>{shortSig(displayReference)}</Text>
               <Icon name="copy" size={14} color={theme.colors.textMuted} />
             </TouchableOpacity>
+          ) : null}
+
+          {transaction?.signature && statusLabel !== "Settled" ? (
+            <Text style={styles.helpText}>Explorer may lag until network settlement completes.</Text>
           ) : null}
         </View>
 
@@ -188,6 +222,12 @@ const styles = StyleSheet.create({
     gap: theme.spacing.lg,
     paddingBottom: theme.spacing.xxl,
     paddingHorizontal: theme.spacing.lg,
+  },
+  helpText: {
+    color: theme.colors.textMuted,
+    fontFamily: theme.fonts.body,
+    fontSize: theme.type.caption,
+    textAlign: "center",
   },
   secondaryActions: {
     alignItems: "center",

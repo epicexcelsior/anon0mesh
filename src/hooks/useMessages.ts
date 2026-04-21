@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from "react";
+
 import type { Message } from '@/src/domain/entities/Message';
 import { useAdapters } from '@/src/providers/AdapterProvider';
 
@@ -11,19 +12,33 @@ export interface Thread {
 
 export function useMessages() {
   const [threads, setThreads] = useState<Thread[]>([]);
+  const [loading, setLoading] = useState(true);
   const adapters = useAdapters();
 
-  useEffect(() => {
-    adapters.messaging
-      .getThreads()
-      .then(raw => {
-        const withUnread: Thread[] = raw.map(t => ({ ...t, unreadCount: 0 }));
-        setThreads(withUnread);
-      })
-      .catch(() => {});
+  const loadThreads = useCallback(async () => {
+    try {
+      const raw = await adapters.messaging.getThreads();
+      const withUnread: Thread[] = raw.map((thread) => ({
+        ...thread,
+        unreadCount: 0,
+      }));
+      setThreads(withUnread);
+    } finally {
+      setLoading(false);
+    }
   }, [adapters]);
 
-  return { threads };
+  useEffect(() => {
+    void loadThreads();
+    const intervalId = setInterval(() => {
+      void loadThreads();
+    }, 1500);
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [loadThreads]);
+
+  return { threads, loading };
 }
 
 export function useConversation(peerId: string) {
@@ -31,17 +46,59 @@ export function useConversation(peerId: string) {
   const [sending, setSending] = useState(false);
   const adapters = useAdapters();
 
-  useEffect(() => {
-    // MVP: 1:1 conversations only. threadId === peerId per MessagingService contract.
-    // When group threads land, resolve peerId → threadId via getThreads() first.
-    adapters.messaging.getMessages(peerId).then(setMessages).catch(() => {});
+  const loadMessages = useCallback(async () => {
+    try {
+      const nextMessages = await adapters.messaging.getMessages(peerId);
+      setMessages(nextMessages);
+    } catch {
+      setMessages([]);
+    }
   }, [adapters, peerId]);
+
+  useEffect(() => {
+    void loadMessages();
+    const intervalId = setInterval(() => {
+      void loadMessages();
+    }, 1500);
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [loadMessages]);
 
   const send = useCallback(
     async (text: string) => {
       setSending(true);
+      const optimisticId = `msg-local-${Date.now()}`;
+      const optimisticMessage: Message = {
+        id: optimisticId,
+        threadId: peerId,
+        senderId: "self",
+        recipientId: peerId,
+        content: { type: "text", text },
+        status: "sending",
+        sentAt: Date.now(),
+        deliveredAt: null,
+      };
+
+      setMessages((current) => [...current, optimisticMessage]);
+
       try {
-        await adapters.messaging.send(peerId, text);
+        const sent = await adapters.messaging.send(peerId, text);
+        setMessages((current) => {
+          const withoutOptimistic = current.filter((message) => message.id !== optimisticId);
+          if (withoutOptimistic.some((message) => message.id === sent.id)) {
+            return withoutOptimistic;
+          }
+          return [...withoutOptimistic, sent];
+        });
+      } catch {
+        setMessages((current) =>
+          current.map((message) =>
+            message.id === optimisticId
+              ? { ...message, status: "failed" }
+              : message,
+          ),
+        );
       } finally {
         setSending(false);
       }

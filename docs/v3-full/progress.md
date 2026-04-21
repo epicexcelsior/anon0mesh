@@ -501,3 +501,90 @@ EXPO_PUBLIC_ADAPTERS=fixtures npx expo run:android
 ```
 
 Quality gates at HEAD `807a3d1`: lint 0 errors / 30 warnings, tsc 5 pre-existing upstream errors (all excluded files), terminology 0 violations.
+
+---
+
+## 2026-04-20 — session 11 (audit + recovery reset planning)
+
+- **Model:** GPT-5.4
+- **Agent / human:** Codex
+- **Goal:** Audit `v3-full` against actual implementation, identify source-of-truth drift, and write a recovery plan before more UI work lands.
+
+### Shipped
+
+- Audited `v3-full` docs, recent commits, token wiring, workbench references, and the detached `feature/ui-redesign` worktree.
+- Verified that `v3-full` does have a real token system in `src/design-system/`, but the branch still follows the workbench branch as the primary visual source and contains several functional gaps:
+  - peer send action uses `peer.id` where a wallet address / public key is required
+  - mesh hooks are fetch-once rather than reactive
+  - message send path does not update visible thread state
+  - transaction success/detail surfaces overstate lifecycle completeness
+  - privacy/network/beacon settings are mostly local-state or stub behavior
+- Wrote `docs/v3-full/recovery-plan.md` to define the reset path.
+
+### Deviations from decisions.md
+
+- None committed yet. The audit concluded the current visual-source decisions are stale, but the reset must be codified in `README.md` / `decisions.md` / `screen-inventory.md` before implementation continues.
+
+### Open issues
+
+- Current docs still say workbench is the primary design language. That is now the main doc drift to correct before more code changes.
+- `npm run lint` still reports 30 warnings; `npx tsc --noEmit` still reports pre-existing upstream failures.
+
+### Handoff
+
+Next session should start with Phase 0 of `recovery-plan.md`: update the v3-full docs so the redesign branch becomes the explicit visual canon and the implementation plan is no longer based on the wrong precedence. After that, land Phase 1 functional repairs before rebuilding screens.
+
+## 2026-04-20 — session 12 (Phase 0 reset + Phase 1 repairs)
+
+- **Model:** GPT-5.4
+- **Agent / human:** Codex
+- **Goal:** Codify redesign-first precedence in docs, then land hard functional repairs so recovery work can continue on truthful ground.
+
+### Shipped
+
+- Updated `README.md`, `decisions.md`, and `screen-inventory.md` so `worktrees/anon0mesh-fork-ui` / Void Protocol is the explicit visual canon and workbench is reference-only.
+- Marked `recovery-plan.md` as the active execution contract and downgraded `implementation-plan.md` / `handoff.md` to historical references when they conflict on source precedence.
+- Added a real preferences seam for network/privacy state:
+  - `src/domain/services/PreferencesService.ts`
+  - `src/infrastructure/preferences/{defaults,AsyncPreferencesAdapter,index}.ts`
+  - `src/hooks/usePreferences.ts`
+  - adapter graph wired through `src/providers/AdapterProvider.tsx`, `src/infrastructure/adapters.ts`, and `src/fixtures/adapters.ts`
+- Landed Phase 1 reactive-state repairs:
+  - `useMesh`, `usePeers`, `useMessages`, `useWallet`, and `useTransaction` no longer fetch once and stop; they refresh on an interval
+  - `useTransaction` now exposes `selected`, `loading`, and refreshes pending statuses through `TransactionService.refreshPendingStatuses`
+  - `MeshBLEContext` hydrates persisted BLE-enabled state and drives live scan on/off from stored preferences
+- Landed Phase 1 messaging + send-flow truth repairs:
+  - peer send CTAs in `components/mesh/{PeerCard,PeerDetail}.tsx` now use `peer.publicKey`
+  - `useConversation.send()` does optimistic local insertion and marks failures instead of silently waiting
+  - fixture messaging/transaction/wallet adapters now mutate live in-memory state so threads, balances, and tx statuses actually move
+  - real wallet adapters register submitted transactions into `solanaTransactionService` so success/detail screens can track the same tx record
+- Landed transaction-status / receipt truth repairs:
+  - `components/send/SuccessCard.tsx` and `components/shared/TxDetail.tsx` now read live tx status from hooks instead of implying settlement unconditionally
+  - explorer/share actions use real signatures when available and show truthful fixture-mode / not-ready messaging otherwise
+  - `app/history/[txId].tsx` now loads by tx id through `useTransaction(txId)` with loading treatment
+- Landed settings truth repairs:
+  - `app/settings/network.tsx` now reads/writes persisted BLE, auto-connect, and LXMF-mode preferences and reflects live BLE scan/error state
+  - `app/settings/privacy.tsx` now reads/writes persisted stealth/privacy defaults
+  - `components/send/ReviewCard.tsx` seeds the stealth control from persisted privacy defaults
+- Verified recovery baseline after the repairs:
+  - `npm run lint` → 0 errors / 30 inherited warnings
+  - `npx tsc --noEmit` → 5 inherited baseline errors (`components/screens/SolanaTransactionScreen.tsx`, `components/ui/Header.tsx`, `src/gossip/{GCSFilter,PacketIdUtil}.ts`, `src/solana/SolanaTransactionManager.ts`)
+
+### Deviations from decisions.md
+
+- None. Docs were reset to match the recovery plan rather than introduce a new direction.
+
+### Open issues
+
+- `architecture.md`, `implementation-plan.md`, `quality-gates.md`, and `handoff.md` still contain older workbench-first wording in places. Treat `recovery-plan.md`, `README.md`, `decisions.md`, and `screen-inventory.md` as authoritative until those supporting docs are reconciled.
+- The review-screen stealth control is only seeded from saved preferences today; it still needs either honest stub framing or real behavior before Phase 4 can call the flow fully truthful.
+- Phase 2 token/primitives reconciliation and the screen-by-screen visual rebuild have not started yet.
+- Mempool canon must be kept in sync with the recovery state; do not revive the older "final gates complete" framing.
+
+### Handoff
+
+Phase 0 reset and the first hard Phase 1 repairs are landed. Next work should stay deliberate and narrow:
+
+1. reconcile mempool canon with the recovery state so shared memory stops saying `v3-full` is final-gates complete
+2. remove the remaining send-flow lies, starting with the review-screen stealth control
+3. begin Phase 2 by mapping the redesign canon cleanly into the single active token/primitives lane before rebuilding Home

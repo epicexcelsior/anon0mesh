@@ -1,13 +1,13 @@
 import React from "react";
 import {
   Alert,
-  Clipboard,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import { useRouter } from "expo-router";
+import * as Clipboard from "expo-clipboard";
 
 import { DepthButton } from "@/components/primitives/DepthButton";
 import { GlassSurface } from "@/components/primitives/GlassSurface";
@@ -97,8 +97,8 @@ export function PeerDetail({ peer }: PeerDetailProps) {
   const router = useRouter();
   const initial = peer.alias.charAt(0).toUpperCase();
 
-  function handleCopyKey() {
-    Clipboard.setString(peer.publicKey);
+  async function handleCopyKey() {
+    await Clipboard.setStringAsync(peer.publicKey);
     Alert.alert("Copied", "Public key copied to clipboard.");
   }
 
@@ -176,7 +176,7 @@ export function PeerDetail({ peer }: PeerDetailProps) {
           size="md"
           icon={<Icon name="send" size={18} color={theme.colors.textOnAccent} />}
           label="Send Payment"
-          onPress={() => router.push(("/send/recipient?to=" + peer.id) as AnyHref)}
+          onPress={() => router.push((`/send/recipient?to=${encodeURIComponent(peer.publicKey)}`) as AnyHref)}
           style={styles.actionBtn}
         />
       </View>

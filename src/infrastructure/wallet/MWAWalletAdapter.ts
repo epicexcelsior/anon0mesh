@@ -138,6 +138,9 @@ export class MWAWalletAdapter implements WalletService {
     };
 
     solanaTransactionService.add(domainTx);
+    setTimeout(() => {
+      void solanaTransactionService.updateStatus(domainTx.id, 'Handed to mesh');
+    }, 800);
 
     return domainTx;
   }
