@@ -192,10 +192,10 @@ The recovery is done when all are true:
 
 ## Immediate next actions
 
-1. codify the source-of-truth reset in `README.md`, `decisions.md`, and `screen-inventory.md`
-2. land Phase 1 functional repairs
-3. start Phase 2 token/primitives reconciliation
-4. rebuild Home as the first visual truth screen
+1. continue Phase 3 after Home with the Send flow rebuild
+2. then rebuild Messages + conversation against the reconciled token/primitives lane
+3. then rebuild Peers surfaces and Settings in recovery order
+4. keep the canonical docs and build-around language aligned as each screen wave lands
 
 ## Notes on ambition
 

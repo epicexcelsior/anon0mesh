@@ -65,7 +65,7 @@ Read `decisions.md` and `architecture.md` first.
   - Primary actions row: **Send** / Receive / History
   - Segmented control: Balance ↔ History
   - Recent activity list (or history list if segment toggled)
-- **Source — design:** redesign canon for shell, hierarchy, and emphasis; current `v3-full` cards/primitives are implementation base until rebuilt.
+- **Source — design:** redesign canon for shell, hierarchy, and emphasis, implemented through the reconciled `src/design-system/` lane on current `v3-full`.
 - **Source — content:** `screen-inventory.md` contract + valid wallet/transaction seams from current `v3-full`.
 - **Backend:**
   - Balance: real via `useWallet` → `SolanaTransactionService.getBalance`.

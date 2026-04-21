@@ -8,8 +8,10 @@ As of 2026-04-20:
 
 - recovery Phase 0 reset is done
 - first Phase 1 functional repairs are done
+- Phase 2 token / primitive reconciliation is done
+- Home is rebuilt as the first truthful Phase 3 screen
 - current build-around limits are documented in `README.md`, `screen-inventory.md`, and `progress.md`
-- next major move is **Phase 2: token / primitive reconciliation to the redesign canon, then Home rebuild**
+- next major move is **continue Phase 3 in recovery order: Send first, then Messages, Peers, and Settings**
 
 Do **not** treat older "final gates complete" or workbench-first wording as active contract.
 
@@ -51,7 +53,7 @@ Current truth to preserve:
 - beacon staking is still placeholder
 
 Current baseline to preserve:
-- npm run lint => 0 errors / 30 inherited warnings
+- npm run lint => 0 errors / 11 inherited warnings
 - npx tsc --noEmit => 5 inherited baseline errors:
   - components/screens/SolanaTransactionScreen.tsx(151,22)
   - components/ui/Header.tsx(61,45)
@@ -62,8 +64,8 @@ Current baseline to preserve:
 Your job for the next phase:
 1. keep docs truthful
 2. commit in small scoped chunks
-3. start Phase 2 by reconciling the active token / primitive lane to the redesign canon
-4. rebuild Home first after the token/primitives pass
+3. continue Phase 3 with the Send flow rebuild first
+4. continue Messages, Peers, and Settings in recovery order after Send
 5. do not overclaim unfinished LXMF / stealth / beacon functionality in UI copy
 
 Execution rules:
@@ -73,7 +75,7 @@ Execution rules:
 - If a supporting doc conflicts with recovery-plan.md or progress.md, treat the recovery docs as authoritative and either fix the stale doc or record it in progress.md
 - Do not start from implementation-plan.md; it is historical reference only where it does not conflict with recovery docs
 
-First action after reading: summarize the current phase, list the active constraints, and propose the smallest safe Phase 2 first commit.
+First action after reading: summarize the current phase, list the active constraints, and propose the smallest safe Send-first commit.
 ```
 
 ## What To Read vs Ignore
@@ -99,12 +101,6 @@ Those supporting docs still contain some older workbench-first / pre-recovery wo
 The next phase is **not** "finish everything."
 
 The next phase is:
-
-1. reconcile the single active token/primitives lane with the redesign canon
-2. remove obvious hybrid visual seams
-3. rebuild **Home** as the first fully truthful visual screen
-
-After Home, continue in recovery order:
 
 1. Send
 2. Messages
@@ -133,7 +129,7 @@ grep -rnE '\b(Pending|Broadcasting|Confirmed|Incognito)\b' app/ components/ src/
 
 - [ ] `progress.md` updated with Shipped / Deviations / Open issues / Handoff
 - [ ] any changed behavior reflected in canonical docs
-- [ ] `npm run lint` still at 0 errors / 30 inherited warnings
+- [ ] `npm run lint` still at 0 errors / 11 inherited warnings
 - [ ] `npx tsc --noEmit` still only shows the 5 inherited baseline errors, or any change is documented
 - [ ] commits are small and scoped
 

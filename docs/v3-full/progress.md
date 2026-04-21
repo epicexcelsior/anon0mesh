@@ -662,3 +662,40 @@ Next major move remains Phase 2: reconcile tokens/primitives to the redesign can
 ### Handoff
 
 Fresh-agent handoff is now good enough to use directly from disk. The new agent should start with `docs/v3-full/handoff.md`, then follow the required read order inside it.
+
+## 2026-04-20 — session 15 (Phase 2 token lane + Home rebuild)
+
+- **Model:** GPT-5.4
+- **Agent / human:** Codex
+- **Goal:** Finish the Phase 2 token/primitives reconciliation, then rebuild Home as the first truthful Phase 3 screen.
+
+### Shipped
+
+- Reconciled the single active token/primitives lane to the redesign canon:
+  - `src/design-system/tokens/{foundation,semantic,component,state}.ts`
+  - `src/design-system/glass.ts`
+  - shared shell primitives `Backdrop`, `BottomNav`, `DepthButton`, `GlassSurface`, `Pill`, and `SegmentedControl`
+- Rebuilt Home against the reconciled lane:
+  - `app/(tabs)/home.tsx`
+  - `components/home/{HomeHero,BalanceCard,RecentActivity,HistoryList}.tsx`
+  - `components/shared/TxRow.tsx`
+- Landed scoped commits:
+  - `e550a6a` — `refactor(design-system): align token lane to redesign canon`
+  - `310322c` — `feat(home): rebuild home against redesign canon`
+- Re-verified the current baseline after both commits:
+  - `npm run lint` → 0 errors / 11 inherited warnings
+  - `npx tsc --noEmit` → same 5 inherited baseline errors (`components/screens/SolanaTransactionScreen.tsx`, `components/ui/Header.tsx`, `src/gossip/{GCSFilter,PacketIdUtil}.ts`, `src/solana/SolanaTransactionManager.ts`)
+
+### Deviations from decisions.md
+
+- None. This session executed the existing recovery contract: one active token lane, then Home first.
+
+### Open issues
+
+- Send, Messages, Peers, and Settings still need the same redesign-canon rebuild treatment on top of the reconciled token/primitives lane.
+- `components/mesh/MeshStatusStrip.tsx` still carries an old unused eslint-disable and has not had a deeper shell polish pass yet. Functional behavior is unchanged.
+- LXMF runtime, stealth settlement, and beacon staking remain staged/stubbed as documented; Home rebuild did not change those truth boundaries.
+
+### Handoff
+
+Phase 2 token/primitives work is done and Home is now the first rebuilt truthful screen. The next session should continue **Phase 3** in recovery order, starting with **Send**. Read `recovery-plan.md`, this progress block, `screen-inventory.md` items 9–14, and the refreshed `handoff.md` first. Preserve the improved baseline: lint now sits at **0 errors / 11 warnings**, and tsc still has only the same 5 inherited errors.
