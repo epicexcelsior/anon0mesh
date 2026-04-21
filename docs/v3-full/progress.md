@@ -741,3 +741,45 @@ Phase 2 token/primitives work is done and Home is now the first rebuilt truthful
 ### Handoff
 
 Phase 3 Send is rebuilt and docs now treat it as on-chain-only for this branch. The next session should continue **Phase 3 with Messages + conversation first**, then move to Peers and Settings. Read `recovery-plan.md`, this progress block, `screen-inventory.md` items 15–17, and the refreshed `handoff.md` first.
+
+## 2026-04-21 — session 17 (Send truth cleanup + Messages rebuild)
+
+- **Model:** GPT-5.4
+- **Agent / human:** Codex
+- **Goal:** Close the remaining stale send/home demo-state drift, then rebuild the Messages surfaces against the redesign canon without overstating the runtime.
+
+### Shipped
+
+- Closed the prior send/history truth drift:
+  - removed the last stale `Handed to mesh` demo states from `src/fixtures/transactions.ts`
+  - updated Home copy in `app/(tabs)/home.tsx` so the activity language now matches the on-chain-only send contract
+  - scoped commit: `d1676c7` — `fix(home): remove stale mesh handoff demo state`
+- Rebuilt the Messages phase around the reconciled token / primitive lane:
+  - `app/(tabs)/messages.tsx`
+  - `app/messages/[peerId].tsx`
+  - `components/messages/{ConversationList,ConversationRow,NewConversationSheet,MessagePeerRow,ThreadHeaderCard,MessageBubble,ComposerBar}.tsx`
+- Tightened runtime behavior around the rebuilt screens:
+  - `useMessages` now sorts threads by most recent message
+  - the New Conversation sheet now ranks peers by trust / signal / recency and searches alias, peer id, and public-key fragments
+  - conversation/thread copy explicitly frames delivery as fixture-backed while preserving the live peer-graph seam
+- Updated canonical docs for the new recovery state:
+  - `README.md`
+  - `screen-inventory.md`
+  - `recovery-plan.md`
+  - `handoff.md`
+- Re-verified baseline after the rebuild:
+  - `npm run lint` → 0 errors / 11 inherited warnings
+  - `npx tsc --noEmit` → same 5 inherited baseline errors (`components/screens/SolanaTransactionScreen.tsx`, `components/ui/Header.tsx`, `src/gossip/{GCSFilter,PacketIdUtil}.ts`, `src/solana/SolanaTransactionManager.ts`)
+
+### Deviations from decisions.md
+
+- None. This session continued the existing recovery contract: keep the one token lane, rebuild screens in order, and keep unfinished runtime paths explicit.
+
+### Open issues
+
+- Messaging remains fixture-backed in this branch; unread/read persistence is still lightweight placeholder state until the real runtime lands.
+- Peers and Settings still need the same redesign-canon rebuild treatment now that Home, Send, and Messages are aligned.
+
+### Handoff
+
+Messages is now rebuilt and the earlier stale send/home mesh-handoff drift is closed. The next session should continue **Phase 3 with Peers first**, then move to **Settings**. Read `recovery-plan.md`, this progress block, `screen-inventory.md` items 7–8 and 18–24, plus the refreshed `handoff.md` before starting.

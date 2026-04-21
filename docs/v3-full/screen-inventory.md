@@ -154,7 +154,8 @@ Read `decisions.md` and `architecture.md` first.
 - **Purpose:** Conversation list: recent conversations, peer avatars, last message preview, unread indicators, encryption lock icons. "New" action in header.
 - **Source — design:** redesign canon messages list.
 - **Source — content:** v3 `components/messages/`.
-- **Backend:** `useMessages.list`; fixture fallback.
+- **Backend:** `useMessages.list`; current thread ordering / previews come through the fixture messaging adapter.
+- **Truth note:** peer discovery feeding the picker is live, but the conversation list itself is still rendering fixture-backed thread state in this branch.
 
 ### 16. Conversation detail
 
@@ -162,7 +163,8 @@ Read `decisions.md` and `architecture.md` first.
 - **Purpose:** 1-on-1 thread. Peer info header, message bubbles, timestamps with lock icons, composer bar.
 - **Source — design:** redesign canon conversation detail and bubble rhythm.
 - **Source — content:** v3 `components/messages/` bubble shapes.
-- **Backend:** `useMessages(peerId)`; sends via MessagingService (stub when LXMF not ready — queue locally, display as `Queued on device`).
+- **Backend:** `useMessages(peerId)`; sends via MessagingService (stub when LXMF not ready — queue locally, display as `Queued on device`, then settle through the fixture adapter).
+- **Truth note:** the thread shell is rebuilt, but copy and status treatment must continue to frame delivery as fixture-backed until LXMF lands.
 
 ### 17. New conversation (PeersDrawer pattern)
 
@@ -171,6 +173,7 @@ Read `decisions.md` and `architecture.md` first.
 - **Source — design:** redesign canon sheet with v3 peer-picker behavior.
 - **Source — content:** v3 `components/messages/PeersDrawer` pattern.
 - **Backend:** `usePeers`.
+- **Truth note:** picker rows come from the live peer graph, but opening a thread still drops into the current fixture-backed conversation surface.
 
 ## Settings tab
 

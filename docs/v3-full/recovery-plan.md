@@ -192,9 +192,9 @@ The recovery is done when all are true:
 
 ## Immediate next actions
 
-1. continue Phase 3 after Home + Send with the Messages + conversation rebuild
-2. then rebuild Peers surfaces against the reconciled token/primitives lane
-3. then rebuild Settings in recovery order
+1. continue Phase 3 after Home + Send + Messages with the Peers surfaces rebuild
+2. then rebuild Settings in recovery order
+3. keep the messaging runtime notes truthful while Peers/Settings land around it
 4. keep the canonical docs and build-around language aligned as each screen wave lands
 
 ## Notes on ambition

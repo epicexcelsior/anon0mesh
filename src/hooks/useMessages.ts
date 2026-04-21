@@ -18,10 +18,15 @@ export function useMessages() {
   const loadThreads = useCallback(async () => {
     try {
       const raw = await adapters.messaging.getThreads();
-      const withUnread: Thread[] = raw.map((thread) => ({
-        ...thread,
-        unreadCount: 0,
-      }));
+      const withUnread: Thread[] = raw
+        .map((thread) => ({
+          ...thread,
+          unreadCount: 0,
+        }))
+        .sort(
+          (left, right) =>
+            (right.lastMessage?.sentAt ?? 0) - (left.lastMessage?.sentAt ?? 0),
+        );
       setThreads(withUnread);
     } finally {
       setLoading(false);

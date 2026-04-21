@@ -11,8 +11,11 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
+import { ThreadHeaderCard } from "@/components/messages/ThreadHeaderCard";
 import { Backdrop } from "@/components/primitives/Backdrop";
+import { GlassSurface } from "@/components/primitives/GlassSurface";
 import { Icon } from "@/components/primitives/Icon";
+import { Pill } from "@/components/primitives/Pill";
 import { appTheme as theme } from "@/src/design-system/theme";
 import { useConversation, usePeers } from "@/src/hooks";
 import type { Message } from "@/src/domain/entities/Message";
@@ -34,65 +37,72 @@ export default function ConversationScreen() {
 
   return (
     <View style={styles.root}>
-      <Backdrop preset="messages" />
+      <Backdrop animated preset="messages" />
 
-      {/* Header */}
-      <View style={[styles.header, { paddingTop: insets.top + theme.spacing.sm }]}>
-        <TouchableOpacity
-          accessibilityLabel="Back"
-          accessibilityRole="button"
-          activeOpacity={0.7}
-          hitSlop={8}
-          onPress={() => router.back()}
-          style={styles.backBtn}
-        >
-          <Icon name="arrow-left" size={20} color={theme.colors.textPrimary} />
-        </TouchableOpacity>
+      <View style={[styles.content, { paddingTop: insets.top + theme.spacing.sm }]}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            accessibilityLabel="Back"
+            accessibilityRole="button"
+            activeOpacity={0.7}
+            hitSlop={8}
+            onPress={() => router.back()}
+            style={styles.backBtn}
+          >
+            <Icon name="arrow-left" size={20} color={theme.colors.textPrimary} />
+          </TouchableOpacity>
 
-        <View style={styles.headerCenter}>
-          <Text style={styles.headerAlias} numberOfLines={1}>
-            {displayName}
-          </Text>
-          <Icon name="lock" size={12} color={theme.colors.textMuted} />
+          <Pill label="Thread" tone="neutral" />
         </View>
 
-        {/* Spacer to balance header */}
-        <View style={styles.headerSpacer} />
+        <View style={styles.intro}>
+          <Text style={styles.eyebrow}>Secure thread</Text>
+          <Text numberOfLines={1} style={styles.title}>
+            {displayName}
+          </Text>
+          <Text style={styles.subtitle}>
+            Conversation chrome is rebuilt, but message delivery in this branch is still
+            fixture-backed while the LXMF runtime lands.
+          </Text>
+        </View>
+
+        <ThreadHeaderCard peer={peer} title={displayName} />
+
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Recent messages</Text>
+          <Text style={styles.sectionMeta}>
+            New sends queue locally first, then settle through the current fixture adapter.
+          </Text>
+        </View>
+
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={styles.body}
+          keyboardVerticalOffset={Platform.OS === "ios" ? theme.spacing.lg : 0}
+        >
+          <FlatList
+            data={reversed}
+            inverted
+            keyExtractor={(item: Message) => item.id}
+            renderItem={({ item }: { item: Message }) => <MessageBubble message={item} />}
+            contentContainerStyle={styles.messagesList}
+            showsVerticalScrollIndicator={false}
+            ListEmptyComponent={
+              <GlassSurface style={styles.emptyMessages} variant="strong">
+                <Icon name="lock-mesh" size={28} color={theme.colors.textMuted} />
+                <Text style={styles.emptyTitle}>No messages yet</Text>
+                <Text style={styles.emptyText}>
+                  Start the thread here. The message shell is real; runtime delivery is still
+                  fixture-backed in this recovery build.
+                </Text>
+              </GlassSurface>
+            }
+          />
+
+          <ComposerBar onSend={send} sending={sending} />
+          <View style={{ height: insets.bottom }} />
+        </KeyboardAvoidingView>
       </View>
-
-      <View style={styles.separator} />
-
-      {/* Messages + composer */}
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.body}
-        keyboardVerticalOffset={0}
-      >
-        <FlatList
-          data={reversed}
-          inverted
-          keyExtractor={(item: Message) => item.id}
-          renderItem={({ item }: { item: Message }) => (
-            <MessageBubble message={item} />
-          )}
-          contentContainerStyle={[
-            styles.messagesList,
-            { paddingBottom: theme.spacing.md },
-          ]}
-          showsVerticalScrollIndicator={false}
-          ListEmptyComponent={
-            <View style={styles.emptyMessages}>
-              <Icon name="lock-mesh" size={28} color={theme.colors.textMuted} />
-              <Text style={styles.emptyText}>
-                Messages are end-to-end encrypted
-              </Text>
-            </View>
-          }
-        />
-
-        <ComposerBar onSend={send} sending={sending} />
-        <View style={{ height: insets.bottom }} />
-      </KeyboardAvoidingView>
     </View>
   );
 }
@@ -102,62 +112,95 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background,
     flex: 1,
   },
+  content: {
+    flex: 1,
+  },
   header: {
     alignItems: "center",
     flexDirection: "row",
-    paddingBottom: theme.spacing.md,
+    justifyContent: "space-between",
     paddingHorizontal: theme.spacing.lg,
   },
   backBtn: {
     alignItems: "center",
-    backgroundColor: theme.colors.surfaceContainerHigh,
+    backgroundColor: theme.colors.surfaceContainerLowest,
     borderColor: theme.colors.line,
     borderRadius: theme.radius.pill,
-    borderWidth: StyleSheet.hairlineWidth,
-    height: 36,
+    borderWidth: 1,
+    height: 40,
     justifyContent: "center",
-    width: 36,
+    width: 40,
   },
-  headerCenter: {
-    alignItems: "center",
-    flex: 1,
-    flexDirection: "row",
+  intro: {
     gap: theme.spacing.xs,
-    justifyContent: "center",
+    paddingHorizontal: theme.spacing.lg,
+    paddingTop: theme.spacing.lg,
   },
-  headerAlias: {
+  eyebrow: {
+    color: theme.colors.textMuted,
+    fontFamily: theme.fonts.bodyMedium,
+    fontSize: theme.type.micro,
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
+  },
+  title: {
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.display,
+    fontSize: theme.type.title,
+    letterSpacing: -0.8,
+  },
+  subtitle: {
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.body,
+    fontSize: theme.type.body,
+    lineHeight: theme.type.body * 1.55,
+  },
+  sectionHeader: {
+    gap: theme.spacing.xs,
+    paddingBottom: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.lg,
+    paddingTop: theme.spacing.lg,
+  },
+  sectionTitle: {
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.heading,
-    fontSize: theme.type.body,
-    maxWidth: "80%",
+    fontSize: theme.type.section,
   },
-  headerSpacer: {
-    width: 36,
-  },
-  separator: {
-    backgroundColor: theme.colors.line,
-    height: StyleSheet.hairlineWidth,
+  sectionMeta: {
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.body,
+    fontSize: theme.type.caption,
+    lineHeight: theme.type.caption * 1.55,
   },
   body: {
     flex: 1,
   },
   messagesList: {
     flexGrow: 1,
-    paddingTop: theme.spacing.md,
+    paddingBottom: theme.spacing.lg,
+    paddingTop: theme.spacing.sm,
   },
   emptyMessages: {
     alignItems: "center",
     flex: 1,
     gap: theme.spacing.md,
     justifyContent: "center",
+    marginHorizontal: theme.spacing.lg,
     paddingHorizontal: theme.spacing.xxxl,
     paddingVertical: theme.spacing.huge,
     transform: [{ scaleY: -1 }],
   },
+  emptyTitle: {
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.heading,
+    fontSize: theme.type.bodyLg,
+    textAlign: "center",
+  },
   emptyText: {
-    color: theme.colors.textMuted,
+    color: theme.colors.textSecondary,
     fontFamily: theme.fonts.body,
     fontSize: theme.type.caption,
+    lineHeight: theme.type.caption * 1.6,
     textAlign: "center",
   },
 });

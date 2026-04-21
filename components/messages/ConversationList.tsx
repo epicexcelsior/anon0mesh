@@ -9,6 +9,7 @@ import {
 
 import { Icon } from "@/components/primitives/Icon";
 import { appTheme as theme } from "@/src/design-system/theme";
+import type { Peer } from "@/src/domain/entities/Peer";
 import type { Thread } from "@/src/hooks/useMessages";
 import { ConversationRow } from "./ConversationRow";
 
@@ -16,8 +17,7 @@ interface ConversationListProps {
   threads: Thread[];
   loading?: boolean;
   onSelect: (peerId: string) => void;
-  /** Optional map from peerId → display alias */
-  aliases?: Record<string, string>;
+  peers?: Record<string, Peer | undefined>;
 }
 
 function LoadingState() {
@@ -32,10 +32,10 @@ function LoadingState() {
 function EmptyState() {
   return (
     <View style={styles.empty}>
-      <Icon name="message-circle" size={32} color={theme.colors.textMuted} />
+      <Icon name="lock-mesh" size={32} color={theme.colors.textMuted} />
       <Text style={styles.emptyTitle}>No conversations yet</Text>
       <Text style={styles.emptySubtitle}>
-        Tap + to start a new conversation
+        Start a thread from the peer picker. Delivery stays fixture-backed until LXMF lands.
       </Text>
     </View>
   );
@@ -45,7 +45,7 @@ export function ConversationList({
   threads,
   loading = false,
   onSelect,
-  aliases = {},
+  peers = {},
 }: ConversationListProps) {
   if (loading) return <LoadingState />;
   if (threads.length === 0) return <EmptyState />;
@@ -56,8 +56,8 @@ export function ConversationList({
       keyExtractor={(item) => item.threadId}
       renderItem={({ item }) => (
         <ConversationRow
+          peer={peers[item.peerId]}
           thread={item}
-          alias={aliases[item.peerId]}
           onPress={() => onSelect(item.peerId)}
         />
       )}
@@ -70,6 +70,10 @@ export function ConversationList({
 const styles = StyleSheet.create({
   listContent: {
     flexGrow: 1,
+    gap: theme.spacing.sm,
+    paddingBottom: theme.component.nav.barHeight + theme.spacing.xxxl,
+    paddingHorizontal: theme.spacing.lg,
+    paddingTop: theme.spacing.xs,
   },
   empty: {
     alignItems: "center",

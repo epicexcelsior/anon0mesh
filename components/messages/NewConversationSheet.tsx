@@ -9,42 +9,13 @@ import {
 
 import { AppTextInput } from "@/components/primitives/AppTextInput";
 import { Icon } from "@/components/primitives/Icon";
+import { MessagePeerRow } from "@/components/messages/MessagePeerRow";
 import { Sheet } from "@/components/primitives/Sheet";
 import { appTheme as theme } from "@/src/design-system/theme";
 import { usePeers } from "@/src/hooks";
-import type { Peer } from "@/src/domain/entities/Peer";
 
 interface NewConversationSheetProps {
   onSelectPeer: (peerId: string) => void;
-}
-
-function getInitial(alias: string): string {
-  return alias.trim().charAt(0).toUpperCase() || "?";
-}
-
-function PeerRow({
-  peer,
-  onPress,
-}: {
-  peer: Peer;
-  onPress: () => void;
-}) {
-  return (
-    <TouchableOpacity
-      accessibilityLabel={`Message ${peer.alias}`}
-      accessibilityRole="button"
-      activeOpacity={0.75}
-      onPress={onPress}
-      style={styles.peerRow}
-    >
-      <View style={styles.peerAvatar}>
-        <Text style={styles.peerInitial}>{getInitial(peer.alias)}</Text>
-      </View>
-      <Text style={styles.peerAlias} numberOfLines={1}>
-        {peer.alias}
-      </Text>
-    </TouchableOpacity>
-  );
 }
 
 function NoPeersEmpty({ hasSearch }: { hasSearch: boolean }) {
@@ -53,6 +24,11 @@ function NoPeersEmpty({ hasSearch }: { hasSearch: boolean }) {
       <Icon name="users" size={28} color={theme.colors.textMuted} />
       <Text style={styles.emptyText}>
         {hasSearch ? "No peers found" : "No peers in range"}
+      </Text>
+      <Text style={styles.emptySubtext}>
+        {hasSearch
+          ? "Try a different alias or public key fragment."
+          : "The live peer graph appears here even while message delivery stays fixture-backed."}
       </Text>
     </View>
   );
@@ -66,10 +42,22 @@ export const NewConversationSheet = forwardRef<
   const [search, setSearch] = useState("");
 
   const filtered = useMemo(() => {
+    const rankedPeers = [...peers].sort((left, right) => {
+      if (left.isTrusted !== right.isTrusted) {
+        return Number(right.isTrusted) - Number(left.isTrusted);
+      }
+      if (left.signalStrength !== right.signalStrength) {
+        return right.signalStrength - left.signalStrength;
+      }
+      return right.lastSeen - left.lastSeen;
+    });
+
     const q = search.trim().toLowerCase();
-    if (!q) return peers;
-    return peers.filter((p) =>
-      p.alias.toLowerCase().includes(q) || p.id.toLowerCase().includes(q),
+    if (!q) return rankedPeers;
+    return rankedPeers.filter((p) =>
+      p.alias.toLowerCase().includes(q) ||
+      p.id.toLowerCase().includes(q) ||
+      p.publicKey.toLowerCase().includes(q),
     );
   }, [peers, search]);
 
@@ -81,9 +69,11 @@ export const NewConversationSheet = forwardRef<
   }
 
   return (
-    <Sheet ref={ref} snapPoints={[480]} title="New conversation">
-      {/* Close button row */}
+    <Sheet ref={ref} snapPoints={[560]} title="New conversation">
       <View style={styles.sheetHeader}>
+        <Text style={styles.sheetBody}>
+          Choose from the current peer graph. Threads still use fixture-backed message delivery until LXMF runtime lands.
+        </Text>
         <TouchableOpacity
           accessibilityLabel="Close"
           accessibilityRole="button"
@@ -96,16 +86,14 @@ export const NewConversationSheet = forwardRef<
         </TouchableOpacity>
       </View>
 
-      {/* Search */}
       <AppTextInput
-        placeholder="Search peers…"
+        placeholder="Search peers or IDs…"
         value={search}
         onChangeText={setSearch}
         autoCapitalize="none"
         returnKeyType="search"
       />
 
-      {/* Peer list */}
       {filtered.length === 0 ? (
         <NoPeersEmpty hasSearch={search.trim().length > 0} />
       ) : (
@@ -113,7 +101,7 @@ export const NewConversationSheet = forwardRef<
           data={filtered}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <PeerRow
+            <MessagePeerRow
               peer={item}
               onPress={() => {
                 setSearch("");
@@ -132,7 +120,17 @@ export const NewConversationSheet = forwardRef<
 const styles = StyleSheet.create({
   sheetHeader: {
     alignItems: "flex-end",
+    flexDirection: "row",
+    gap: theme.spacing.md,
+    justifyContent: "space-between",
     marginTop: -theme.spacing.md,
+  },
+  sheetBody: {
+    color: theme.colors.textSecondary,
+    flex: 1,
+    fontFamily: theme.fonts.body,
+    fontSize: theme.type.caption,
+    lineHeight: theme.type.caption * 1.6,
   },
   closeBtn: {
     alignItems: "center",
@@ -145,34 +143,7 @@ const styles = StyleSheet.create({
     width: 32,
   },
   peerList: {
-    maxHeight: 300,
-  },
-  peerRow: {
-    alignItems: "center",
-    borderBottomColor: theme.colors.line,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    flexDirection: "row",
-    gap: theme.spacing.md,
-    paddingVertical: theme.spacing.md,
-  },
-  peerAvatar: {
-    alignItems: "center",
-    backgroundColor: theme.colors.cyanSoft,
-    borderRadius: theme.radius.pill,
-    height: 36,
-    justifyContent: "center",
-    width: 36,
-  },
-  peerInitial: {
-    color: theme.colors.cyan,
-    fontFamily: theme.fonts.bodyMedium,
-    fontSize: theme.type.caption,
-  },
-  peerAlias: {
-    color: theme.colors.textPrimary,
-    flex: 1,
-    fontFamily: theme.fonts.bodyMedium,
-    fontSize: theme.type.body,
+    maxHeight: 320,
   },
   empty: {
     alignItems: "center",
@@ -183,6 +154,14 @@ const styles = StyleSheet.create({
     color: theme.colors.textMuted,
     fontFamily: theme.fonts.body,
     fontSize: theme.type.body,
+    textAlign: "center",
+  },
+  emptySubtext: {
+    color: theme.colors.textMuted,
+    fontFamily: theme.fonts.body,
+    fontSize: theme.type.caption,
+    lineHeight: theme.type.caption * 1.6,
+    maxWidth: 280,
     textAlign: "center",
   },
 });
