@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { LayoutChangeEvent, StyleSheet, Text, View } from "react-native";
 import { Pressable } from "react-native-gesture-handler";
 import Animated, {
@@ -41,9 +41,16 @@ export function SegmentedControl({ segments, selected, onSelect }: SegmentedCont
     onSelect(id);
   }
 
+  useEffect(() => {
+    translateX.value = withTiming(selectedIndex * segmentWidth, {
+      duration: appMotion.duration.standard,
+      easing: appMotion.easing.standard,
+    });
+  }, [segmentWidth, selectedIndex, translateX]);
+
   const thumbStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: selectedIndex * segmentWidth }],
-    width: segmentWidth,
+    transform: [{ translateX: translateX.value + theme.spacing.xs }],
+    width: Math.max(segmentWidth - theme.spacing.sm, 0),
   }));
 
   return (
@@ -67,23 +74,25 @@ export function SegmentedControl({ segments, selected, onSelect }: SegmentedCont
 
 const styles = StyleSheet.create({
   track: {
-    backgroundColor: theme.colors.surfaceMuted,
+    backgroundColor: theme.colors.surface,
     borderColor: theme.colors.line,
-    borderRadius: theme.radius.sm,
+    borderRadius: theme.radius.md,
     borderWidth: 1,
     flexDirection: "row",
-    height: 36,
+    height: 40,
     overflow: "hidden",
+    padding: theme.spacing.xs,
     position: "relative",
   },
   thumb: {
-    ...StyleSheet.absoluteFillObject,
     backgroundColor: theme.colors.surfaceElevated,
-    borderColor: theme.colors.lineStrong,
+    borderColor: theme.colors.line,
     borderRadius: theme.radius.sm,
     borderWidth: 1,
-    height: "100%",
+    bottom: theme.spacing.xs,
+    left: 0,
     position: "absolute",
+    top: theme.spacing.xs,
   },
   segment: {
     alignItems: "center",
@@ -92,11 +101,12 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   label: {
-    color: theme.colors.textMuted,
+    color: theme.colors.textSecondary,
     fontFamily: theme.fonts.bodyMedium,
     fontSize: theme.type.caption,
+    letterSpacing: 0.4,
   },
   labelActive: {
-    color: theme.colors.textPrimary,
+    color: theme.colors.cyan,
   },
 });

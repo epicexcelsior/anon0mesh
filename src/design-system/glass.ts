@@ -5,27 +5,27 @@ export const glassVariants: Record<
   { overlay: string; blurIntensity: number; border: string; fallbackBg: string }
 > = {
   regular: {
-    overlay: "rgba(255,255,255,0.045)",
-    blurIntensity: 40,
-    border: "rgba(255,255,255,0.1)",
-    fallbackBg: "rgba(22,23,24,0.88)",
+    overlay: "rgba(10, 18, 20, 0.56)",
+    blurIntensity: 36,
+    border: "rgba(255, 255, 255, 0.05)",
+    fallbackBg: "rgba(10, 18, 20, 0.88)",
   },
   soft: {
-    overlay: "rgba(255,255,255,0.03)",
-    blurIntensity: 30,
-    border: "rgba(255,255,255,0.08)",
-    fallbackBg: "rgba(13,14,16,0.90)",
+    overlay: "rgba(5, 10, 10, 0.68)",
+    blurIntensity: 24,
+    border: "rgba(255, 255, 255, 0.05)",
+    fallbackBg: "rgba(5, 10, 10, 0.92)",
   },
   accent: {
-    overlay: "rgba(60,227,106,0.08)",
+    overlay: "rgba(34, 211, 238, 0.10)",
     blurIntensity: 40,
-    border: "rgba(60,227,106,0.22)",
-    fallbackBg: "rgba(17,24,20,0.90)",
+    border: "rgba(34, 211, 238, 0.18)",
+    fallbackBg: "rgba(8, 19, 23, 0.92)",
   },
   strong: {
-    overlay: "rgba(255,255,255,0.07)",
-    blurIntensity: 60,
-    border: "rgba(255,255,255,0.14)",
-    fallbackBg: "rgba(26,28,31,0.92)",
+    overlay: "rgba(15, 26, 30, 0.72)",
+    blurIntensity: 54,
+    border: "rgba(255, 255, 255, 0.06)",
+    fallbackBg: "rgba(15, 26, 30, 0.94)",
   },
 };

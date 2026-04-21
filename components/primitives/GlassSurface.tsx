@@ -21,17 +21,27 @@ export function GlassSurface({
   children,
 }: GlassSurfaceProps) {
   const config = glassVariants[variant];
+  const flattenedStyle = StyleSheet.flatten(style);
+  const radiusStyle = {
+    borderBottomLeftRadius: flattenedStyle?.borderBottomLeftRadius,
+    borderBottomRightRadius: flattenedStyle?.borderBottomRightRadius,
+    borderRadius: flattenedStyle?.borderRadius,
+    borderTopLeftRadius: flattenedStyle?.borderTopLeftRadius,
+    borderTopRightRadius: flattenedStyle?.borderTopRightRadius,
+  };
 
   if (ENABLE_BLUR) {
     return (
-      <BlurView intensity={config.blurIntensity} tint="dark" style={style}>
+      <BlurView intensity={config.blurIntensity} tint="dark" style={[style, styles.clip]}>
         <View
           style={[
             StyleSheet.absoluteFill,
+            styles.clip,
+            radiusStyle,
             { backgroundColor: config.overlay },
           ]}
         />
-        <View style={[styles.border, { borderColor: config.border }]} />
+        <View style={[styles.border, radiusStyle, { borderColor: config.border }]} />
         {children}
       </BlurView>
     );
@@ -42,6 +52,8 @@ export function GlassSurface({
       style={[
         { backgroundColor: config.fallbackBg, borderColor: config.border },
         styles.border,
+        styles.clip,
+        radiusStyle,
         style,
       ]}
     >
@@ -53,6 +65,6 @@ export function GlassSurface({
 const styles = StyleSheet.create({
   border: {
     borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: 1,
   },
+  clip: { overflow: "hidden" },
 });

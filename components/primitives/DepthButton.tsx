@@ -39,16 +39,16 @@ export interface DepthButtonProps {
 
 const PRIMARY_GRADIENTS: Record<DepthButtonTone, [string, string]> = {
   cyan: [theme.colors.cyanLight, theme.colors.cyanDim],
-  green: [theme.colors.greenLight, "#2ac257"],
-  purple: ["#a879d9", theme.colors.purple],
-  amber: ["#ffd24d", theme.colors.amber],
-  red: ["#db8585", theme.colors.red],
+  green: [theme.colors.greenLight, theme.colors.green],
+  purple: ["#A78BFA", theme.colors.purple],
+  amber: ["#FBBF24", theme.colors.amber],
+  red: ["#F87171", theme.colors.red],
 };
 
-const SECONDARY_GRADIENT: [string, string] = ["#24272c", "#15171a"];
+const SECONDARY_GRADIENT: [string, string] = ["rgba(255,255,255,0.04)", "rgba(255,255,255,0.02)"];
 const DANGER_GRADIENT: [string, string] = [
-  "rgba(204, 102, 102, 0.22)",
-  "rgba(204, 102, 102, 0.10)",
+  "rgba(239, 68, 68, 0.18)",
+  "rgba(239, 68, 68, 0.08)",
 ];
 const SUCCESS_GRADIENT: [string, string] = [theme.colors.greenLight, theme.colors.green];
 const GHOST_GRADIENT: [string, string] = ["transparent", "transparent"];
@@ -79,9 +79,9 @@ function getTextColor(variant: DepthButtonVariant, tone: DepthButtonTone): strin
 
 function getBorderColor(variant: DepthButtonVariant, tone: DepthButtonTone): string {
   switch (variant) {
-    case "primary": return "rgba(255, 255, 255, 0.10)";
+    case "primary": return `${toneColor(tone)}33`;
     case "secondary": return theme.colors.lineStrong;
-    case "success": return "rgba(60, 227, 106, 0.20)";
+    case "success": return "rgba(52, 211, 153, 0.22)";
     case "danger": return theme.colors.errorOutline;
     case "ghost": return theme.colors.lineStrong;
   }
@@ -272,16 +272,16 @@ export function DepthButton({
 const styles = StyleSheet.create({
   shadow: {
     shadowColor: theme.colors.shadow,
-    shadowOffset: { width: 0, height: 10 },
-    shadowRadius: 18,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 8 },
+    shadowRadius: 14,
+    elevation: 4,
   },
   disabled: {
     opacity: theme.feedback.disabledOpacity,
   },
   fill: {
     alignItems: "center",
-    borderRadius: theme.radius.md,
+    borderRadius: theme.radius.lg,
     borderWidth: 1,
     flexDirection: "row",
     gap: theme.spacing.sm,
@@ -307,9 +307,9 @@ const styles = StyleSheet.create({
   highlight: {
     backgroundColor: theme.depth.restHighlight,
     height: 1,
-    left: theme.spacing.lg,
+    left: theme.component.button.highlightInset,
     position: "absolute",
-    right: theme.spacing.lg,
+    right: theme.component.button.highlightInset,
     top: 0,
   },
   bottomInset: {

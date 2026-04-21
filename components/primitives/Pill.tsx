@@ -17,16 +17,16 @@ const TONE_BG: Record<PillTone, string> = {
   amber: theme.colors.amberSoft,
   red: theme.colors.redSoft,
   purple: theme.colors.purpleSoft,
-  neutral: "rgba(255,255,255,0.06)",
+  neutral: theme.colors.surfaceContainerLowest,
 };
 
 const TONE_BORDER: Record<PillTone, string> = {
-  cyan: "rgba(0, 218, 243, 0.18)",
-  green: "rgba(60, 227, 106, 0.20)",
-  amber: "rgba(255, 191, 0, 0.20)",
-  red: "rgba(204, 102, 102, 0.22)",
-  purple: "rgba(139, 95, 191, 0.24)",
-  neutral: "rgba(255,255,255,0.08)",
+  cyan: "rgba(34, 211, 238, 0.18)",
+  green: "rgba(52, 211, 153, 0.18)",
+  amber: "rgba(245, 158, 11, 0.2)",
+  red: "rgba(239, 68, 68, 0.2)",
+  purple: "rgba(139, 92, 246, 0.22)",
+  neutral: theme.colors.line,
 };
 
 const TONE_FG: Record<PillTone, string> = {
@@ -58,12 +58,14 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.pill,
     borderWidth: 1,
     justifyContent: "center",
+    minHeight: theme.component.rows.statePill.minHeight,
     paddingHorizontal: theme.spacing.sm,
     paddingVertical: theme.spacing.xxs,
   },
   label: {
     fontFamily: theme.fonts.bodyMedium,
     fontSize: theme.type.micro,
-    letterSpacing: 0.2,
+    letterSpacing: 0.6,
+    textTransform: "uppercase",
   },
 });

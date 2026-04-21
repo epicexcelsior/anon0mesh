@@ -40,45 +40,45 @@ interface BackdropConfig {
 const CONFIGS: Record<BackdropPreset, BackdropConfig> = {
   home: {
     blobs: [
-      { color: theme.colors.cyan, cx: 1.02, cy: 0.08, r: 0.78, opacity: 0.18 },
-      { color: theme.colors.amber, cx: -0.08, cy: 0.58, r: 0.62, opacity: 0.07 },
-      { color: theme.colors.cyan, cx: 0.5, cy: 1.12, r: 0.68, opacity: 0.05 },
+      { color: theme.colors.cyan, cx: 1.02, cy: 0.08, r: 0.72, opacity: 0.14 },
+      { color: theme.colors.cyan, cx: -0.08, cy: 0.74, r: 0.56, opacity: 0.05 },
+      { color: theme.colors.surfaceElevated, cx: 0.46, cy: 1.08, r: 0.64, opacity: 0.1 },
     ],
     vignette: true,
   },
   "home-stealth": {
     blobs: [
-      { color: theme.colors.purple, cx: 1.02, cy: 0.08, r: 0.82, opacity: 0.22 },
-      { color: theme.colors.purple, cx: -0.08, cy: 0.6, r: 0.62, opacity: 0.08 },
-      { color: "#1a1130", cx: 0.5, cy: 1.08, r: 0.68, opacity: 0.12 },
+      { color: theme.colors.purple, cx: 1.02, cy: 0.08, r: 0.78, opacity: 0.18 },
+      { color: theme.colors.purple, cx: -0.08, cy: 0.6, r: 0.58, opacity: 0.07 },
+      { color: "#120C1D", cx: 0.5, cy: 1.08, r: 0.68, opacity: 0.12 },
     ],
     vignette: true,
   },
   messages: {
     blobs: [
-      { color: theme.colors.cyan, cx: 1.05, cy: 0.14, r: 0.58, opacity: 0.09 },
+      { color: theme.colors.cyan, cx: 1.05, cy: 0.14, r: 0.58, opacity: 0.08 },
       { color: theme.colors.cyan, cx: -0.05, cy: 0.9, r: 0.46, opacity: 0.04 },
     ],
     vignette: true,
   },
   send: {
     blobs: [
-      { color: theme.colors.cyan, cx: 1.05, cy: 0.1, r: 0.72, opacity: 0.14 },
-      { color: theme.colors.purple, cx: -0.08, cy: 0.72, r: 0.58, opacity: 0.08 },
+      { color: theme.colors.cyan, cx: 1.05, cy: 0.1, r: 0.68, opacity: 0.12 },
+      { color: theme.colors.purple, cx: -0.08, cy: 0.72, r: 0.52, opacity: 0.06 },
     ],
     vignette: true,
   },
   success: {
     blobs: [
-      { color: theme.colors.green, cx: 1.08, cy: 0.14, r: 0.88, opacity: 0.24 },
-      { color: theme.colors.cyan, cx: -0.08, cy: 0.74, r: 0.58, opacity: 0.1 },
-      { color: theme.colors.green, cx: 0.5, cy: 0.45, r: 0.5, opacity: 0.06 },
+      { color: theme.colors.green, cx: 1.08, cy: 0.14, r: 0.82, opacity: 0.18 },
+      { color: theme.colors.cyan, cx: -0.08, cy: 0.74, r: 0.52, opacity: 0.07 },
+      { color: theme.colors.green, cx: 0.5, cy: 0.45, r: 0.46, opacity: 0.05 },
     ],
     vignette: false,
   },
   settings: {
     blobs: [
-      { color: theme.colors.purple, cx: 1.05, cy: 0.12, r: 0.7, opacity: 0.14 },
+      { color: theme.colors.purple, cx: 1.05, cy: 0.12, r: 0.7, opacity: 0.12 },
       { color: theme.colors.purple, cx: -0.05, cy: 0.9, r: 0.48, opacity: 0.05 },
     ],
     vignette: true,

@@ -64,21 +64,24 @@ export default function BottomNav({ active, onSelect }: BottomNavProps) {
     <View
       style={[
         styles.wrapper,
-        { bottom: Math.max(insets.bottom, theme.component.nav.minimumBottomOffset) },
+        { bottom: theme.component.nav.minimumBottomOffset },
       ]}
     >
       <View style={styles.barShell}>
-        <GlassSurface variant="strong" style={StyleSheet.absoluteFillObject} />
+        <GlassSurface variant="soft" style={StyleSheet.absoluteFillObject} />
         <LinearGradient
-          colors={["rgba(39, 45, 53, 0.78)", "rgba(18, 21, 26, 0.88)"]}
+          colors={["rgba(15, 26, 30, 0.96)", "rgba(5, 10, 10, 0.98)"]}
           end={{ x: 0.9, y: 1 }}
           start={{ x: 0.1, y: 0 }}
-          style={styles.bar}
+          style={[
+            styles.bar,
+            { paddingBottom: Math.max(insets.bottom, theme.spacing.sm) },
+          ]}
         >
           <View style={styles.innerHighlight} />
           <Animated.View style={[styles.indicator, indicatorStyle]}>
             <LinearGradient
-              colors={["rgba(84, 240, 255, 0.22)", "rgba(0, 218, 243, 0.14)"]}
+              colors={["rgba(34, 211, 238, 0.18)", "rgba(34, 211, 238, 0.08)"]}
               end={{ x: 1, y: 1 }}
               start={{ x: 0, y: 0 }}
               style={styles.indicatorFill}
@@ -123,33 +126,34 @@ const styles = StyleSheet.create({
     left: theme.component.nav.wrapperInset,
     position: "absolute",
     right: theme.component.nav.wrapperInset,
+    zIndex: 20,
   },
   barShell: {
-    borderRadius: theme.radius.lg,
-    overflow: "hidden",
-    position: "relative",
-    ...theme.shadow.nav,
-  },
-  bar: {
-    borderColor: "rgba(255, 255, 255, 0.12)",
-    borderRadius: theme.radius.lg,
+    borderColor: theme.colors.line,
+    borderTopLeftRadius: theme.radius.xl,
+    borderTopRightRadius: theme.radius.xl,
     borderWidth: 1,
     overflow: "hidden",
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
+    position: "relative",
+  },
+  bar: {
+    minHeight: theme.component.nav.barHeight,
+    overflow: "hidden",
+    paddingHorizontal: theme.component.nav.paddingX,
+    paddingTop: theme.component.nav.paddingY,
     position: "relative",
   },
   innerHighlight: {
     backgroundColor: theme.depth.restHighlight,
     height: 1,
-    left: 14,
+    left: 0,
     position: "absolute",
-    right: 14,
+    right: 0,
     top: 0,
   },
   indicator: {
-    borderColor: "rgba(0, 218, 243, 0.18)",
-    borderRadius: theme.radius.md,
+    borderColor: "rgba(34, 211, 238, 0.16)",
+    borderRadius: theme.radius.lg,
     borderWidth: 1,
     bottom: theme.component.nav.indicatorInsetY,
     left: theme.component.nav.indicatorInsetX,
@@ -169,19 +173,20 @@ const styles = StyleSheet.create({
   tabRow: { flexDirection: "row" },
   tab: {
     alignItems: "center",
-    borderRadius: theme.radius.md,
+    borderRadius: theme.radius.lg,
     flex: 1,
     gap: theme.spacing.xs,
     justifyContent: "center",
     minHeight: theme.component.nav.tabMinHeight,
-    paddingVertical: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
   },
-  tabActive: { transform: [{ translateY: -1 }] },
+  tabActive: {},
   label: {
     color: theme.colors.textMuted,
     fontFamily: theme.fonts.bodyMedium,
-    fontSize: theme.type.caption,
-    letterSpacing: 0.2,
+    fontSize: theme.type.micro,
+    letterSpacing: 0.6,
+    textTransform: "uppercase",
   },
-  labelActive: { color: theme.colors.textPrimary },
+  labelActive: { color: theme.colors.cyan },
 });

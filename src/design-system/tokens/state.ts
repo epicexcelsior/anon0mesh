@@ -1,18 +1,18 @@
 export const stateTokens = {
   depth: {
-    pressInset: "rgba(0, 0, 0, 0.62)",
-    pressInsetSub: "rgba(0, 0, 0, 0.42)",
-    pressHighlight: "rgba(255, 255, 255, 0.05)",
-    restHighlight: "rgba(255, 255, 255, 0.16)",
-    bottomInset: "rgba(0, 0, 0, 0.38)",
-    restShadow: "rgba(0, 0, 0, 0.45)",
-    restShadowSub: "rgba(0, 0, 0, 0.25)",
-    pressFill: "rgba(0, 0, 0, 0.14)",
+    pressInset: "rgba(0, 0, 0, 0.38)",
+    pressInsetSub: "rgba(0, 0, 0, 0.24)",
+    pressHighlight: "rgba(255, 255, 255, 0.03)",
+    restHighlight: "rgba(34, 211, 238, 0.08)",
+    bottomInset: "rgba(0, 0, 0, 0.18)",
+    restShadow: "rgba(0, 0, 0, 0.32)",
+    restShadowSub: "rgba(0, 0, 0, 0.18)",
+    pressFill: "rgba(5, 10, 10, 0.18)",
   },
   feedback: {
-    disabledOpacity: 0.45,
-    buttonPressedOpacity: 0.92,
-    listPressedWash: "rgba(255, 255, 255, 0.03)",
+    disabledOpacity: 0.42,
+    buttonPressedOpacity: 0.94,
+    listPressedWash: "rgba(255, 255, 255, 0.02)",
   },
 } as const;
 
