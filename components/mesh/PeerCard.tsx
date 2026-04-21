@@ -2,6 +2,7 @@ import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useRouter } from "expo-router";
 
+import { GlassSurface } from "@/components/primitives/GlassSurface";
 import { Icon } from "@/components/primitives/Icon";
 import { Pill } from "@/components/primitives/Pill";
 import { SignalBars } from "@/components/primitives/SignalBars";
@@ -33,7 +34,7 @@ function transportLabel(transport: Peer["transport"]): string {
     case "lxmf":
       return "LXMF";
     case "wifi-direct":
-      return "WiFi Direct";
+      return "Wi-Fi Direct";
   }
 }
 
@@ -52,140 +53,180 @@ function strengthLabel(strength: Peer["signalStrength"]): string {
   }
 }
 
+function shortAddress(address: string): string {
+  if (address.length <= 16) return address;
+  return `${address.slice(0, 8)}...${address.slice(-4)}`;
+}
+
 export function PeerCard({ peer, onPress }: PeerCardProps) {
   const router = useRouter();
-  const initial = peer.alias.charAt(0).toUpperCase();
 
   return (
     <TouchableOpacity
       accessibilityLabel={`View ${peer.alias} peer details`}
       accessibilityRole="button"
-      activeOpacity={0.75}
+      activeOpacity={0.78}
       onPress={onPress}
-      style={styles.card}
+      style={styles.touchable}
     >
-      {/* Identity circle */}
-      <View style={styles.avatar}>
-        <Text style={styles.avatarInitial}>{initial}</Text>
-      </View>
+      <GlassSurface style={styles.card} variant="strong">
+        <View style={styles.topRow}>
+          <View style={styles.identityBlock}>
+            <View style={styles.avatar}>
+              <Icon
+                color={peer.isTrusted ? theme.colors.green : theme.colors.cyan}
+                name="mesh-nodes"
+                size={18}
+              />
+            </View>
 
-      {/* Main info */}
-      <View style={styles.info}>
-        <View style={styles.infoRow}>
-          <Text style={styles.alias} numberOfLines={1}>
-            {peer.alias}
-          </Text>
-          {peer.isTrusted && (
-            <Pill label="Trusted" tone="green" style={styles.trustedPill} />
-          )}
+            <View style={styles.info}>
+              <View style={styles.infoRow}>
+                <Text style={styles.alias} numberOfLines={1}>
+                  {peer.alias}
+                </Text>
+                <Pill
+                  label={peer.isTrusted ? "Trusted" : "Unverified"}
+                  tone={peer.isTrusted ? "green" : "amber"}
+                  style={styles.statusPill}
+                />
+              </View>
+              <Text numberOfLines={1} style={styles.address}>
+                {shortAddress(peer.publicKey)}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.rightBlock}>
+            <SignalBars strength={peer.signalStrength} size={14} />
+            <Text style={styles.lastSeen}>{relativeTime(peer.lastSeen)}</Text>
+          </View>
         </View>
-        <Text style={styles.transport}>{transportLabel(peer.transport)}</Text>
-      </View>
 
-      {/* Right side: signal + last seen */}
-      <View style={styles.rightBlock}>
-        <View style={styles.signalRow}>
-          <SignalBars strength={peer.signalStrength} size={14} />
-          <Text style={styles.strengthLabel}>{strengthLabel(peer.signalStrength)}</Text>
+        <View style={styles.bottomRow}>
+          <View style={styles.metaRow}>
+            <Pill label={transportLabel(peer.transport)} tone="neutral" />
+            <Text style={styles.strengthLabel}>
+              {strengthLabel(peer.signalStrength)} signal
+            </Text>
+          </View>
+
+          <View style={styles.actions}>
+            <TouchableOpacity
+              accessibilityLabel={`Message ${peer.alias}`}
+              accessibilityRole="button"
+              activeOpacity={0.7}
+              hitSlop={8}
+              onPress={() => router.push(("/messages/" + peer.id) as AnyHref)}
+              style={styles.actionBtn}
+            >
+              <Icon name="message-circle" size={18} color={theme.colors.textPrimary} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              accessibilityLabel={`Send to ${peer.alias}`}
+              accessibilityRole="button"
+              activeOpacity={0.7}
+              hitSlop={8}
+              onPress={() =>
+                router.push(
+                  (`/send/recipient?to=${encodeURIComponent(peer.publicKey)}`) as AnyHref,
+                )
+              }
+              style={styles.actionBtn}
+            >
+              <Icon name="send" size={18} color={theme.colors.cyan} />
+            </TouchableOpacity>
+            <View style={styles.chevron}>
+              <Icon name="chevron-right" size={16} color={theme.colors.textMuted} />
+            </View>
+          </View>
         </View>
-        <Text style={styles.lastSeen}>{relativeTime(peer.lastSeen)}</Text>
-      </View>
-
-      {/* Action buttons */}
-      <View style={styles.actions}>
-        <TouchableOpacity
-          accessibilityLabel={`Message ${peer.alias}`}
-          accessibilityRole="button"
-          activeOpacity={0.7}
-          hitSlop={8}
-          onPress={() => router.push(("/messages/" + peer.id) as AnyHref)}
-          style={styles.actionBtn}
-        >
-          <Icon name="message-circle" size={18} color={theme.colors.textMuted} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          accessibilityLabel={`Send to ${peer.alias}`}
-          accessibilityRole="button"
-          activeOpacity={0.7}
-          hitSlop={8}
-          onPress={() => router.push((`/send/recipient?to=${encodeURIComponent(peer.publicKey)}`) as AnyHref)}
-          style={styles.actionBtn}
-        >
-          <Icon name="send" size={18} color={theme.colors.textMuted} />
-        </TouchableOpacity>
-      </View>
+      </GlassSurface>
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
+  touchable: {
+    width: "100%",
+  },
   card: {
+    borderRadius: theme.radius.xl,
+    gap: theme.spacing.md,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.md,
+  },
+  topRow: {
     alignItems: "center",
-    backgroundColor: theme.colors.surfaceContainerLowest,
-    borderBottomColor: theme.colors.line,
-    borderBottomWidth: StyleSheet.hairlineWidth,
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  identityBlock: {
+    alignItems: "center",
+    flex: 1,
     flexDirection: "row",
     gap: theme.spacing.md,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
+    minWidth: 0,
   },
   avatar: {
     alignItems: "center",
-    backgroundColor: theme.colors.surfaceContainerHigh,
-    borderColor: theme.colors.lineStrong,
+    backgroundColor: theme.colors.cyanSoft,
     borderRadius: theme.radius.pill,
-    borderWidth: StyleSheet.hairlineWidth,
-    height: 40,
+    height: 44,
     justifyContent: "center",
-    width: 40,
-  },
-  avatarInitial: {
-    color: theme.colors.cyan,
-    fontFamily: theme.fonts.heading,
-    fontSize: theme.type.bodyLg,
+    width: 44,
   },
   info: {
     flex: 1,
-    gap: theme.spacing.xxs,
+    gap: 2,
+    minWidth: 0,
   },
   infoRow: {
     alignItems: "center",
     flexDirection: "row",
-    gap: theme.spacing.xs,
+    gap: theme.spacing.sm,
   },
   alias: {
     color: theme.colors.textPrimary,
-    fontFamily: theme.fonts.bodyMedium,
-    fontSize: theme.type.body,
     flexShrink: 1,
+    fontFamily: theme.fonts.heading,
+    fontSize: theme.type.bodyLg,
   },
-  trustedPill: {
+  statusPill: {
     flexShrink: 0,
   },
-  transport: {
-    color: theme.colors.textMuted,
-    fontFamily: theme.fonts.mono,
+  address: {
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.monoJetBrains,
     fontSize: theme.type.caption,
-    letterSpacing: 0.3,
   },
   rightBlock: {
     alignItems: "flex-end",
-    gap: theme.spacing.xxs,
-  },
-  signalRow: {
-    alignItems: "center",
-    flexDirection: "row",
     gap: theme.spacing.xs,
-  },
-  strengthLabel: {
-    color: theme.colors.textMuted,
-    fontFamily: theme.fonts.body,
-    fontSize: theme.type.caption,
+    marginLeft: theme.spacing.md,
   },
   lastSeen: {
     color: theme.colors.textMuted,
     fontFamily: theme.fonts.body,
     fontSize: theme.type.micro,
+  },
+  bottomRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: theme.spacing.md,
+    justifyContent: "space-between",
+  },
+  metaRow: {
+    alignItems: "center",
+    flex: 1,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: theme.spacing.sm,
+  },
+  strengthLabel: {
+    color: theme.colors.textMuted,
+    fontFamily: theme.fonts.body,
+    fontSize: theme.type.caption,
   },
   actions: {
     alignItems: "center",
@@ -194,7 +235,18 @@ const styles = StyleSheet.create({
   },
   actionBtn: {
     alignItems: "center",
+    backgroundColor: theme.colors.surfaceContainerLowest,
+    borderColor: theme.colors.line,
+    borderRadius: theme.radius.pill,
+    borderWidth: 1,
+    height: 36,
     justifyContent: "center",
-    padding: theme.spacing.xs,
+    width: 36,
+  },
+  chevron: {
+    alignItems: "center",
+    height: 36,
+    justifyContent: "center",
+    width: 20,
   },
 });

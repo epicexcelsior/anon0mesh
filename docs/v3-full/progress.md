@@ -783,3 +783,44 @@ Phase 3 Send is rebuilt and docs now treat it as on-chain-only for this branch. 
 ### Handoff
 
 Messages is now rebuilt and the earlier stale send/home mesh-handoff drift is closed. The next session should continue **Phase 3 with Peers first**, then move to **Settings**. Read `recovery-plan.md`, this progress block, `screen-inventory.md` items 7–8 and 18–24, plus the refreshed `handoff.md` before starting.
+
+## 2026-04-21 — session 18 (Phase 3 Peers rebuild)
+
+- **Model:** GPT-5.4
+- **Agent / human:** Codex
+- **Goal:** Rebuild the Peers sheet/detail surfaces against the redesign canon while keeping the live mesh seam and staged runtime gaps explicit.
+
+### Shipped
+
+- Rebuilt the peer graph list surface:
+  - `app/peers/index.tsx`
+  - `components/mesh/{PeersList,PeerCard}.tsx`
+  - added a dedicated `peers` backdrop preset in `components/primitives/Backdrop.tsx`
+- Rebuilt peer detail around truthful runtime notes:
+  - `app/peers/[peerId].tsx`
+  - `components/mesh/PeerDetail.tsx`
+- Tightened useful peer interactions:
+  - list rows now surface trust, signal, direct actions, and richer identity copy
+  - sheet empty/error states now include actionable CTAs (refresh / enable BLE / open settings)
+  - detail view now wires real `trust(peerId)` and `block(peerId)` actions from `usePeers`
+- Updated canonical docs for the new recovery state:
+  - `README.md`
+  - `screen-inventory.md`
+  - `recovery-plan.md`
+  - `handoff.md`
+- Re-verified baseline after the rebuild:
+  - `npm run lint` → 0 errors / 11 inherited warnings
+  - `npx tsc --noEmit` → same 5 inherited baseline errors (`components/screens/SolanaTransactionScreen.tsx`, `components/ui/Header.tsx`, `src/gossip/{GCSFilter,PacketIdUtil}.ts`, `src/solana/SolanaTransactionManager.ts`)
+
+### Deviations from decisions.md
+
+- None. This session continued the screen-by-screen recovery order and kept staged runtime areas explicit instead of inventing backend depth.
+
+### Open issues
+
+- Settings still needs the same redesign-canon rebuild treatment to finish Phase 3.
+- Peer detail currently frames relay / beacon depth as staged runtime notes because those metrics are not yet exposed through the live mesh seam.
+
+### Handoff
+
+Peers is now rebuilt and Phase 3 has only **Settings** left before the backend-truth pass. The next session should read `recovery-plan.md`, this progress block, `screen-inventory.md` items 18–24, and the refreshed `handoff.md`, then rebuild Settings without overclaiming unfinished stealth / beacon / LXMF behavior.

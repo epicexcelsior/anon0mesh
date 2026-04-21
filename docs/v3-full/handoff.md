@@ -9,9 +9,9 @@ As of 2026-04-21:
 - recovery Phase 0 reset is done
 - first Phase 1 functional repairs are done
 - Phase 2 token / primitive reconciliation is done
-- Home, Send, and Messages are rebuilt as the first truthful Phase 3 screens
+- Home, Send, Messages, and Peers are rebuilt as the first truthful Phase 3 screens
 - current build-around limits are documented in `README.md`, `screen-inventory.md`, and `progress.md`
-- next major move is **continue Phase 3 in recovery order: Peers first, then Settings**
+- next major move is **continue Phase 3 in recovery order: Settings**
 
 Do **not** treat older "final gates complete" or workbench-first wording as active contract.
 
@@ -49,6 +49,7 @@ Current truth to preserve:
 - wallet/send/history seams are live
 - redesigned send flow is live, but delivery is still on-chain only
 - redesigned messaging UI is live, but message history / delivery are still fixture-backed
+- redesigned peer surfaces are live around the BLE discovery seam, but deeper relay / beacon metrics are still staged
 - LXMF runtime is still stubbed
 - stealth transfer path is still staged, not complete
 - beacon staking is still placeholder
@@ -65,8 +66,8 @@ Current baseline to preserve:
 Your job for the next phase:
 1. keep docs truthful
 2. commit in small scoped chunks
-3. continue Phase 3 with the Peers rebuild first
-4. continue Settings in recovery order after Peers
+3. continue Phase 3 with the Settings rebuild
+4. preserve the truthful staged-runtime framing around messaging / peers / beacon as Settings lands
 5. do not overclaim unfinished LXMF / stealth / beacon functionality in UI copy
 
 Execution rules:
@@ -103,8 +104,7 @@ The next phase is **not** "finish everything."
 
 The next phase is:
 
-1. Peers
-2. Settings
+1. Settings
 
 ## Commands
 

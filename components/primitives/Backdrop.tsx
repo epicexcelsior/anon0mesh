@@ -20,6 +20,7 @@ export type BackdropPreset =
   | "home"
   | "home-stealth"
   | "messages"
+  | "peers"
   | "send"
   | "success"
   | "settings";
@@ -58,6 +59,14 @@ const CONFIGS: Record<BackdropPreset, BackdropConfig> = {
     blobs: [
       { color: theme.colors.cyan, cx: 1.05, cy: 0.14, r: 0.58, opacity: 0.08 },
       { color: theme.colors.cyan, cx: -0.05, cy: 0.9, r: 0.46, opacity: 0.04 },
+    ],
+    vignette: true,
+  },
+  peers: {
+    blobs: [
+      { color: theme.colors.cyan, cx: 1.02, cy: 0.12, r: 0.7, opacity: 0.12 },
+      { color: theme.colors.green, cx: -0.08, cy: 0.78, r: 0.52, opacity: 0.07 },
+      { color: theme.colors.surfaceElevated, cx: 0.46, cy: 1.08, r: 0.62, opacity: 0.08 },
     ],
     vignette: true,
   },

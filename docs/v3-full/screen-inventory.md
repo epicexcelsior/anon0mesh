@@ -92,6 +92,7 @@ Read `decisions.md` and `architecture.md` first.
 - **Source — design:** redesign canon sheet/list treatment + wireframe peer-row information density.
 - **Source — content:** v3 `components/nodes/` + wireframe nodes screen.
 - **Backend:** real via `usePeers`; fixture fallback.
+- **Truth note:** discovery, trust, and signal come from the live mesh seam; list copy must not imply relay routing or beacon intelligence is fully exposed yet.
 
 ### 8. Peer detail
 
@@ -100,6 +101,7 @@ Read `decisions.md` and `architecture.md` first.
 - **Source — design:** redesign canon + wireframe peer-detail.
 - **Source — content:** v3 `components/nodes/`.
 - **Backend:** real via `usePeers(peerId)`.
+- **Truth note:** transport / signal / trust are live; deeper routing, latency-distance, and beacon-stake sections stay explicitly labeled as staged runtime notes in this branch.
 
 ### 9. Send — Recipient
 

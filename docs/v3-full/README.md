@@ -42,6 +42,7 @@ These are the main areas where current functionality is intentionally being buil
 - **Send delivery path:** the redesigned send flow and recipient QR scan are live, but transfer delivery is still **on-chain only** in this branch. Mesh relay integration lands later.
 - **Amount quote:** the send amount screen's USD equivalent is a local estimate, not a live market quote yet.
 - **Messaging runtime:** the rebuilt messages list/thread UI is live, but thread history and delivery are still fixture-backed while LXMF runtime work continues.
+- **Peer graph depth:** rebuilt peer list/detail surfaces now reflect the live discovery seam, but deeper relay, latency/distance, and beacon-specific metrics are still staged.
 - **LXMF runtime:** interface shape is preserved, but the native runtime is still a stub in this branch.
 - **Stealth transfer path:** preferences and review-screen affordances exist, but full end-to-end stealth settlement is not live yet. UI and copy should frame this as staged work, not a completed privacy guarantee.
 - **Beacon staking:** settings surface exists, backend remains placeholder / coming soon.
