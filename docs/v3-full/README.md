@@ -35,6 +35,17 @@ Recovery work now follows the precedence from `recovery-plan.md`:
 
 If a doc in this folder still uses workbench-first wording, treat that as historical unless it has been updated after the recovery reset.
 
+## Current Build-Around Constraints
+
+These are the main areas where current functionality is intentionally being built around rather than claimed as complete:
+
+- **LXMF runtime:** interface shape is preserved, but the native runtime is still a stub in this branch.
+- **Stealth transfer path:** preferences and review-screen affordances exist, but full end-to-end stealth settlement is not live yet. UI and copy should frame this as staged work, not a completed privacy guarantee.
+- **Beacon staking:** settings surface exists, backend remains placeholder / coming soon.
+- **BLE reliability:** peer discovery is live, but deeper relay reliability work is still deferred.
+
+When in doubt, keep the product feeling strong without overstating what is live.
+
 ## Out of scope for this effort
 
 - Full LXMF runtime integration → separate parallel agent; see `lxmf-brief.md`.

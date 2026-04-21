@@ -588,3 +588,48 @@ Phase 0 reset and the first hard Phase 1 repairs are landed. Next work should st
 1. reconcile mempool canon with the recovery state so shared memory stops saying `v3-full` is final-gates complete
 2. remove the remaining send-flow lies, starting with the review-screen stealth control
 3. begin Phase 2 by mapping the redesign canon cleanly into the single active token/primitives lane before rebuilding Home
+
+---
+
+## 2026-04-20 — session 13 (truthful copy + build-around docs)
+
+- **Model:** GPT-5.4
+- **Agent / human:** Codex
+- **Goal:** Make current partial functionality explicit in both UI copy and canonical docs so the branch can build around real constraints instead of pretending they are done.
+
+### Shipped
+
+- Tightened the send-flow truth surface:
+  - `components/send/ReviewCard.tsx` now labels the stealth control as preview-only when enabled instead of implying the full privacy path is live
+- Tightened user-facing copy around current backend reality:
+  - `app/settings/privacy.tsx` now describes stealth as a saved send-flow default rather than claiming stealth-address settlement is already active
+  - `app/onboarding/welcome.tsx` now sells the direction without claiming full LXMF / stealth runtime completion
+  - `components/onboarding/TechDrawerContent.tsx` now distinguishes intended architecture from what is still staged in this branch
+  - `app/settings/about.tsx` now states BLE discovery is live while LXMF / stealth-oriented paths are still being completed
+- Added canonical build-around guidance:
+  - `docs/v3-full/README.md` now has a `Current Build-Around Constraints` section
+  - `docs/v3-full/screen-inventory.md` now carries explicit truth notes for Welcome, Tech drawer, Send Review, Privacy, and About
+- Re-verified baseline after the honesty pass:
+  - `npm run lint` → 0 errors / 30 inherited warnings
+  - `npx tsc --noEmit` → same 5 inherited baseline errors (`components/screens/SolanaTransactionScreen.tsx`, `components/ui/Header.tsx`, `src/gossip/{GCSFilter,PacketIdUtil}.ts`, `src/solana/SolanaTransactionManager.ts`)
+
+### Deviations from decisions.md
+
+- None. This pass tightened copy and docs to match the existing recovery contract; it did not change product direction.
+
+### Open issues
+
+- Full LXMF runtime is still stubbed in this branch.
+- Full stealth settlement path is still staged; only preferences + labeled UI affordances exist today.
+- Supporting docs outside the canonical recovery entry points still need the older workbench-first wording cleaned up.
+- Phase 2 token/primitives reconciliation has not started yet.
+
+### Handoff
+
+Current branch truth is now documented in both UI copy and canonical docs. Build around what is actually live today:
+
+1. BLE peer discovery, wallet/send/history seams, persisted privacy/network defaults
+2. fixture-backed messaging and tx progression for demos and UI development
+3. staged-but-not-finished LXMF / stealth / beacon deeper behavior
+
+Next major move remains Phase 2: reconcile tokens/primitives to the redesign canon before rebuilding Home.

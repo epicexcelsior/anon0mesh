@@ -6,7 +6,7 @@ import { appTheme as theme } from "@/src/design-system/theme";
 const SECTIONS = [
   {
     title: "LXMF",
-    body: "Lightweight Extensible Message Format is an application protocol layered on top of Reticulum. It provides a store-and-forward message routing scheme with delivery guarantees across intermittent links. AnonMesh uses LXMF bundles to carry transaction announcements peer-to-peer.",
+    body: "Lightweight Extensible Message Format rides on top of Reticulum and is built for store-and-forward delivery across intermittent links. AnonMesh keeps the LXMF interface ready here while the native runtime finishes landing.",
   },
   {
     title: "Reticulum",
@@ -14,11 +14,11 @@ const SECTIONS = [
   },
   {
     title: "BLE Mesh",
-    body: "Bluetooth Low Energy advertisement beacons allow nodes to discover each other without pairing. AnonMesh uses BLE to discover peers within radio range and to relay LXMF bundles hop-by-hop when nodes are out of each other's direct range.",
+    body: "Bluetooth Low Energy advertisement beacons allow nodes to discover each other without pairing. In this recovery build, BLE drives local peer discovery today while broader relay behavior keeps maturing.",
   },
   {
     title: "Solana Stealth",
-    body: "Transactions are constructed using Solana stealth address primitives. The sender derives a one-time address from the recipient's public scan key, breaking the on-chain link between identities. Settlement only touches the chain once a path to a cluster RPC is available.",
+    body: "The intended privacy path derives one-time settlement addresses from recipient keys before final settlement. The seam and UI are present in this build, but the full stealth transfer route is not live end to end yet.",
   },
 ] as const;
 

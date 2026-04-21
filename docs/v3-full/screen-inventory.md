@@ -31,6 +31,7 @@ Read `decisions.md` and `architecture.md` first.
 - **Source — design:** redesign canon, implemented through current `v3-full` primitives until Phase 2 token reconciliation lands.
 - **Source — content:** Stitch Welcome (design/SCREEN_MAP.md item 2).
 - **Backend:** none.
+- **Truth note:** copy should sell the direction without implying the full LXMF + stealth runtime is already complete on this branch.
 - **Tech drawer entry point:** small "Under the hood" link opens tech deep-dive drawer.
 
 ### 3. Onboarding — Setup
@@ -49,6 +50,7 @@ Read `decisions.md` and `architecture.md` first.
 - **Source — design:** redesign canon sheet/drawer treatment, implemented with current `Sheet` primitive.
 - **Source — content:** written during execution; short paragraphs per topic, link out to sources.
 - **Backend:** none.
+- **Truth note:** describe target architecture accurately, but clearly mark the live branch gaps where LXMF runtime or stealth settlement is still staged.
 
 ## Home tab
 
@@ -120,7 +122,7 @@ Read `decisions.md` and `architecture.md` first.
 - **Purpose:** Step 3. Recipient, amount, fee estimate, route (on-chain vs mesh-relayed), privacy mode toggle (stealth). **SlideToConfirm** widget at bottom.
 - **Source — design:** redesign canon with `SlideToConfirm` retained if it still fits. Do not add Skia; keep the no-Skia path.
 - **Source — content:** Stitch send + current transaction/status contract.
-- **Backend:** calls `useTransaction.submit`; returns status `Queued on device` → transitions through `Handed to mesh` → `Settled` when real BLE/relay paths activate.
+- **Backend:** current screen calls wallet send directly. Route selection is real (`mesh peer` vs direct recipient), but the stealth toggle is **preview-only** for now and must be labeled honestly until the full privacy path lands.
 
 ### 12. Send — Success
 
@@ -206,7 +208,7 @@ Read `decisions.md` and `architecture.md` first.
 - **Purpose:** Stealth default on/off, tx privacy mode, key rotation cadence.
 - **Source — design:** redesign canon.
 - **Source — content:** Stitch Settings.
-- **Backend:** writes to user preferences service; stealth toggle wires to `useTransaction` default.
+- **Backend:** writes to user preferences service. These defaults seed the send flow, but they do **not** mean full end-to-end stealth cryptography is live yet.
 
 ### 23. Beacon registry
 
@@ -222,6 +224,7 @@ Read `decisions.md` and `architecture.md` first.
 - **Purpose:** Version, licenses, links, "how this works" content (same as onboarding tech drawer, reachable from Settings too).
 - **Source — design:** redesign canon minimal/info style.
 - **Backend:** none.
+- **Truth note:** technology summary must distinguish what is already live (BLE peer discovery, wallet/send/history seams) from what is still being completed (LXMF runtime, stealth settlement path).
 
 ## Global
 

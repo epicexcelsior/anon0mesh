@@ -172,6 +172,12 @@ export function ReviewCard({ to, amount, symbol }: ReviewCardProps) {
                 />
               </TouchableOpacity>
             </View>
+
+            {stealthEnabled ? (
+              <Text style={styles.helperText}>
+                Preview only in this build. This transfer still uses the standard send path today.
+              </Text>
+            ) : null}
           </GlassSurface>
 
           {/* Error message */}
@@ -299,6 +305,13 @@ const styles = StyleSheet.create({
     color: theme.colors.red,
     fontFamily: theme.fonts.body,
     fontSize: theme.type.caption,
+  },
+  helperText: {
+    color: theme.colors.textMuted,
+    fontFamily: theme.fonts.body,
+    fontSize: theme.type.caption,
+    lineHeight: theme.type.caption * 1.5,
+    paddingHorizontal: theme.spacing.xs,
   },
   footer: {
     paddingBottom: theme.spacing.md,

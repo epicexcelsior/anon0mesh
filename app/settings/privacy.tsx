@@ -83,7 +83,7 @@ export default function PrivacyScreen() {
                   {privacy.stealthByDefault ? <Pill label="Stealth" tone="purple" /> : null}
                 </View>
                 <Text style={styles.rowSublabel}>
-                  Transactions use stealth addresses by default
+                  Seeds the send flow when deeper stealth routing is available
                 </Text>
               </View>
               {loading ? (
@@ -151,7 +151,7 @@ export default function PrivacyScreen() {
         </View>
 
         <Text style={styles.footerNote}>
-          Privacy defaults save on this device now and seed the send flow automatically.
+          Privacy defaults save on this device now and seed the send flow while the full stealth path is still landing.
         </Text>
       </ScrollView>
     </View>

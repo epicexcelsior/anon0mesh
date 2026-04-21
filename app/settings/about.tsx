@@ -56,8 +56,9 @@ export default function AboutScreen() {
           <SectionLabel label="Technology" />
           <GlassSurface variant="regular" style={styles.techCard}>
             <Text style={styles.techText}>
-              AnonMesh uses LXMF/Reticulum for mesh messaging, Bluetooth LE for local peer
-              discovery, and Solana for on-chain settlement with stealth addresses.
+              AnonMesh uses Bluetooth LE for local peer discovery today, with LXMF/Reticulum
+              messaging and stealth-oriented settlement paths still being completed in the
+              recovery branch.
             </Text>
           </GlassSurface>
         </View>

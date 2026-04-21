@@ -11,12 +11,12 @@ const FEATURES = [
   {
     iconName: "mesh-nodes",
     title: "Mesh-routed payments",
-    body: "Transactions hop peer-to-peer over BLE and LXMF. No internet required.",
+    body: "Transfers queue on-device first, with mesh relay and settlement paths being tightened in the recovery build.",
   },
   {
     iconName: "lock-mesh",
     title: "Private by default",
-    body: "Stealth addresses and onion-routed hops mean senders and receivers stay invisible.",
+    body: "Identity stays local to the device, with deeper stealth and relay privacy still being wired end to end.",
   },
   {
     iconName: "identity-chip",
@@ -26,7 +26,7 @@ const FEATURES = [
   {
     iconName: "signal",
     title: "Offline-first",
-    body: "Queued transactions propagate when a path to the Solana cluster appears.",
+    body: "Queued transfers can settle once a path back to the Solana cluster appears.",
   },
 ] as const;
 
