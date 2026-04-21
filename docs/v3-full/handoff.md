@@ -10,8 +10,9 @@ As of 2026-04-21:
 - first Phase 1 functional repairs are done
 - Phase 2 token / primitive reconciliation is done
 - Home, Send, Messages, Peers, and Settings are rebuilt as truthful Phase 3 screens
+- first Phase 4 runtime-truth slice is done (wallet history/detail, onboarding wallet entry, local identity/default persistence)
 - current build-around limits are documented in `README.md`, `screen-inventory.md`, and `progress.md`
-- next major move is **start Phase 4 backend truth pass**
+- next major move is **continue Phase 4 backend truth pass**
 
 Do **not** treat older "final gates complete" or workbench-first wording as active contract.
 
@@ -68,7 +69,7 @@ Current baseline to preserve:
 Your job for the next phase:
 1. keep docs truthful
 2. commit in small scoped chunks
-3. start Phase 4 backend truth pass
+3. continue Phase 4 backend truth pass
 4. tighten the runtime-truth seams across wallet history / send status / messaging / peers / settings without opening a second design lane
 5. do not overclaim unfinished LXMF / stealth / beacon functionality in UI copy
 6. keep onboarding Setup truthful about which wallet path is live on the current device, and do not claim eager permission prompts that still happen contextually later
@@ -107,7 +108,7 @@ The next phase is **not** "finish everything."
 
 The next phase is:
 
-1. Phase 4 backend truth pass
+1. Phase 4 backend truth pass (continue)
 
 ## Commands
 

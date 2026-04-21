@@ -910,3 +910,26 @@ Phase 3 is now complete: Home, Send, Messages, Peers, and Settings all match the
 ### Handoff
 
 Phase 4 has started and the biggest wallet/onboarding truth gaps are now tighter: Home/history/detail no longer depend on in-memory sends alone, Setup no longer uses fake wallet buttons, and local identity/preferences propagate more honestly. Next session should continue Phase 4 on the remaining seams: messaging delivery truth, peer/beacon staged-runtime fencing, and the onboarding permission-prompt caveat. Read `recovery-plan.md`, this block, `README.md`, `screen-inventory.md`, and `handoff.md` first.
+
+## 2026-04-21 — session 21 (Phase 4 docs sync)
+
+- **Model:** GPT-5.4
+- **Agent / human:** Codex
+- **Goal:** Remove stale “start Phase 4” wording now that the first runtime-truth slice is already shipped.
+
+### Shipped
+
+- Updated `handoff.md` so next pickup starts from **continue Phase 4**, not from a stale “start Phase 4” reset point.
+- Updated `recovery-plan.md` immediate-next-actions so the remaining Phase 4 work matches current reality after session 20.
+
+### Deviations from decisions.md
+
+- None. Docs-only sync to keep recovery contract truthful.
+
+### Open issues
+
+- Same as session 20: messaging delivery truth, peer/beacon staged-runtime fencing, onboarding permission-prompt behavior, and remaining settings/runtime edge cases still define the unfinished Phase 4 scope.
+
+### Handoff
+
+Docs are now aligned with actual branch state: Phase 4 is in progress, not merely queued. Next session should continue the remaining runtime-truth seams instead of redoing wallet/history/onboarding truth work already landed in `d240fdb`.

@@ -192,8 +192,8 @@ The recovery is done when all are true:
 
 ## Immediate next actions
 
-1. start Phase 4 backend truth pass now that Home, Send, Messages, Peers, and Settings are rebuilt
-2. tighten the remaining staged affordances first where users can still misread runtime truth: wallet history/status, messaging delivery, peer/beacon notes, and Settings identity/export semantics
+1. continue Phase 4 backend truth pass now that the first wallet/onboarding/identity truth slice is landed
+2. tighten the remaining staged affordances first where users can still misread runtime truth: messaging delivery, peer/beacon notes, onboarding permission behavior, and the remaining settings/runtime edge cases
 3. preserve the single token / primitive lane while backend truth work lands; no second design grammar
 4. keep the canonical docs and build-around language aligned as each backend truth wave lands
 
