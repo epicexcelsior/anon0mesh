@@ -1,2 +1,6 @@
 export { SolanaTransactionService, solanaTransactionService } from './SolanaTransactionService';
-export { solanaConnection, checkConfirmation } from './SolanaAdapter';
+export {
+  solanaConnection,
+  checkConfirmation,
+  getWalletTransferHistory,
+} from './SolanaAdapter';

@@ -15,7 +15,11 @@ import type {
   WalletService,
 } from '@/src/domain/services/WalletService';
 import { MWAWallet } from './MWAWallet';
-import { solanaConnection, solanaTransactionService } from '@/src/infrastructure/solana';
+import {
+  getWalletTransferHistory,
+  solanaConnection,
+  solanaTransactionService,
+} from '@/src/infrastructure/solana';
 
 export class MWAWalletAdapter implements WalletService {
   private wallet: MWAWallet;
@@ -26,6 +30,29 @@ export class MWAWalletAdapter implements WalletService {
 
   getMode() {
     return 'mwa' as const;
+  }
+
+  canCreateLocalWallet() {
+    return false;
+  }
+
+  canConnectExternalWallet() {
+    return true;
+  }
+
+  async createLocalWallet(): Promise<Wallet> {
+    throw new Error('Local wallet creation is unavailable in external wallet mode');
+  }
+
+  async connectExternalWallet(): Promise<Wallet> {
+    this.assertAndroid();
+    await this.wallet.connect();
+
+    const wallet = await this.getWallet();
+    if (!wallet) {
+      throw new Error('MWA wallet connected, but no account was returned');
+    }
+    return wallet;
   }
 
   private assertAndroid(): void {
@@ -164,6 +191,17 @@ export class MWAWalletAdapter implements WalletService {
   }
 
   async getHistory(): Promise<Transaction[]> {
-    return [];
+    this.assertAndroid();
+
+    if (!this.wallet.isConnected()) {
+      const hasCached = await MWAWallet.hasCachedToken();
+      if (!hasCached) return [];
+      await this.wallet.connect();
+    }
+
+    const pubkey = this.wallet.getPublicKey();
+    if (!pubkey) return [];
+
+    return getWalletTransferHistory(pubkey);
   }
 }

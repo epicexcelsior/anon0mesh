@@ -37,11 +37,11 @@ Read `decisions.md` and `architecture.md` first.
 ### 3. Onboarding — Setup
 
 - **Route:** `app/onboarding/setup.tsx`
-- **Purpose:** Step 2 of 2. Identity (display name optional, auto-generated mesh alias shown). Permission priming cards (Bluetooth, notifications — explanation only, no toggles). Wallet path picker: Create New / Connect (MWA, Android only).
+- **Purpose:** Step 2 of 2. Identity (display name optional, auto-generated mesh alias shown). Permission priming cards (Bluetooth, notifications — explanation only, no toggles). Wallet path picker keeps local create vs external connect explicit, with unsupported paths disabled rather than faked.
 - **Source — design:** redesign canon.
 - **Source — content:** Stitch Setup (design/SCREEN_MAP.md item 3).
-- **Backend:** real — wires into `useWallet` (create local or MWA connect). MWA path Android-only; on iOS, show only Create New.
-- **CTA:** "ENTER THE MESH" fires OS permission dialogs, then creates/connects wallet, then navigates to Home.
+- **Backend:** real within the active wallet lane — local-wallet devices can create and enter, external-wallet devices can connect and enter, and the typed display name now persists as the local device label once an address exists.
+- **Truth note:** the unsupported wallet path is disabled instead of faked. Permission cards are still explanatory; OS permission dialogs remain contextual later rather than firing eagerly from Setup.
 
 ### 4. Tech deep-dive drawer
 
@@ -68,9 +68,10 @@ Read `decisions.md` and `architecture.md` first.
 - **Source — design:** redesign canon for shell, hierarchy, and emphasis, implemented through the reconciled `src/design-system/` lane on current `v3-full`.
 - **Source — content:** `screen-inventory.md` contract + valid wallet/transaction seams from current `v3-full`.
 - **Backend:**
-  - Balance: real via `useWallet` → `SolanaTransactionService.getBalance`.
-  - Recent activity: real via `useTransaction` → Solana RPC recent sigs; fallback to fixture when offline.
+  - Balance: real via `useWallet` → current wallet adapter balance fetch.
+  - Recent activity / history: real via `useTransaction` → merged in-session submit state plus parsed on-chain SOL transfer history; fixture fallback when offline.
   - Mesh status: real via `useMesh` → BLE adapter; fixture fallback when mesh not running.
+- **Truth note:** the hero now reflects the saved local device label when one exists, while the address and wallet-derived alias remain visible as the underlying identity anchors.
 
 ### 6. Mesh status strip (component, not a route)
 
@@ -125,7 +126,7 @@ Read `decisions.md` and `architecture.md` first.
 - **Purpose:** Step 3. Recipient, amount, fee estimate, current route, privacy mode toggle (stealth). **SlideToConfirm** widget at bottom.
 - **Source — design:** redesign canon with `SlideToConfirm` retained if it still fits. Do not add Skia; keep the no-Skia path.
 - **Source — content:** Stitch send + current transaction/status contract.
-- **Backend:** current screen calls wallet send directly. The rebuilt branch keeps this flow **on-chain only** for now; nearby peers can be selected as recipients, but they do not switch delivery into mesh relay yet. The stealth toggle remains **preview-only** until the full privacy path lands.
+- **Backend:** current screen calls wallet send directly. The rebuilt branch keeps this flow **on-chain only** for now; nearby peers can be selected as recipients, but they do not switch delivery into mesh relay yet. The stealth control now updates the saved local default, but end-to-end stealth settlement remains **preview-only** until the full privacy path lands.
 
 ### 12. Send — Success
 
@@ -139,14 +140,14 @@ Read `decisions.md` and `architecture.md` first.
 - **Route:** `app/receive.tsx`
 - **Purpose:** QR code of wallet address, address text (copy), share action, optional "request amount" input.
 - **Source — design:** redesign canon receive surface + Stitch content needs.
-- **Backend:** real via `useWallet.getAddress`.
+- **Backend:** real via `useWallet` wallet/address state.
 
 ### 14. Transaction detail
 
 - **Route:** `app/history/[txId].tsx`
 - **Purpose:** Push from history row. Mirrors Success layout with extra fields (block time, slot, fee, counterparty identity if mesh-tagged).
 - **Source — design:** redesign canon + current detail-card structure where still useful.
-- **Backend:** `useTransaction(txId)`.
+- **Backend:** `useTransaction(txId)` over the merged transaction lane (in-session pending submits + parsed on-chain SOL transfer history).
 
 ## Messages tab
 
@@ -193,7 +194,7 @@ Read `decisions.md` and `architecture.md` first.
 - **Purpose:** Display name edit, mesh alias, QR code of identity, identity export.
 - **Source — design:** redesign canon using current identity surface structure where valid.
 - **Backend:** wallet alias / address from `useWallet`, plus local device-label persistence on this device.
-- **Truth note:** the editable label is a local device label for now; broader identity propagation remains staged, so wallet alias still stays key-derived elsewhere on the branch.
+- **Truth note:** the editable label is a local device label for now; it now appears in Settings and the Home hero, but broader identity propagation remains staged elsewhere on the branch.
 
 ### 20. Wallet export modal
 

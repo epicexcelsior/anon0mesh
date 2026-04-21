@@ -1,18 +1,20 @@
 import React, { useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 
-import { DepthButton, AppTextInput } from "@/components/primitives";
+import { AppTextInput } from "@/components/primitives";
 import { Backdrop } from "@/components/primitives/Backdrop";
 import { PermissionPrimer } from "@/components/onboarding/PermissionPrimer";
 import { WalletPathPicker } from "@/components/onboarding/WalletPathPicker";
 import { appTheme as theme } from "@/src/design-system/theme";
+import { saveLocalDisplayNameForAddress } from "@/src/hooks/useLocalDisplayName";
+import { useAdapters } from "@/src/providers/AdapterProvider";
 
 const PERMISSIONS = [
   {
     iconName: "bluetooth",
     title: "Bluetooth",
-    reason: "Needed to discover and relay transactions across nearby devices.",
+    reason: "Needed to discover nearby peers and future mesh delivery flows.",
   },
   {
     iconName: "bell",
@@ -29,11 +31,50 @@ function generateAlias() {
 
 export default function SetupScreen() {
   const router = useRouter();
+  const adapters = useAdapters();
   const [displayName, setDisplayName] = useState("");
   const [alias] = useState(generateAlias);
+  const [error, setError] = useState<string | null>(null);
+  const [submittingPath, setSubmittingPath] = useState<"create" | "connect" | null>(null);
 
-  function handleEnter() {
+  const canCreate = adapters.wallet.canCreateLocalWallet();
+  const canConnect = adapters.wallet.canConnectExternalWallet();
+
+  async function finalizeSetup(address: string) {
+    await saveLocalDisplayNameForAddress(address, displayName);
     router.replace("/(tabs)/home");
+  }
+
+  async function handleCreate() {
+    if (!canCreate || submittingPath) return;
+
+    setError(null);
+    setSubmittingPath("create");
+
+    try {
+      const wallet = await adapters.wallet.createLocalWallet();
+      await finalizeSetup(wallet.address);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Wallet setup failed");
+    } finally {
+      setSubmittingPath(null);
+    }
+  }
+
+  async function handleConnect() {
+    if (!canConnect || submittingPath) return;
+
+    setError(null);
+    setSubmittingPath("connect");
+
+    try {
+      const wallet = await adapters.wallet.connectExternalWallet();
+      await finalizeSetup(wallet.address);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Wallet connect failed");
+    } finally {
+      setSubmittingPath(null);
+    }
   }
 
   return (
@@ -67,15 +108,36 @@ export default function SetupScreen() {
           ))}
         </View>
 
-        <WalletPathPicker onCreateNew={handleEnter} onConnect={handleEnter} />
-
-        <DepthButton
-          label="ENTER THE MESH"
-          variant="primary"
-          tone="cyan"
-          size="lg"
-          onPress={handleEnter}
+        <WalletPathPicker
+          canConnect={canConnect}
+          canCreate={canCreate}
+          connectHint={
+            canConnect ? null : "This device is currently using the local wallet lane."
+          }
+          createHint={
+            canCreate ? null : "This device is currently using the external wallet lane."
+          }
+          loading={submittingPath !== null}
+          onCreateNew={handleCreate}
+          onConnect={handleConnect}
         />
+
+        {submittingPath ? (
+          <View style={styles.statusRow}>
+            <ActivityIndicator color={theme.colors.cyan} size="small" />
+            <Text style={styles.statusText}>
+              {submittingPath === "create"
+                ? "Preparing local wallet…"
+                : "Connecting external wallet…"}
+            </Text>
+          </View>
+        ) : null}
+
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+        <Text style={styles.flowNote}>
+          Wallet path buttons above are the live entry into this build.
+        </Text>
       </ScrollView>
     </View>
   );
@@ -116,5 +178,27 @@ const styles = StyleSheet.create({
   aliasValue: {
     color: theme.colors.cyan,
     fontFamily: theme.fonts.mono,
+  },
+  statusRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: theme.spacing.sm,
+  },
+  statusText: {
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.body,
+    fontSize: theme.type.caption,
+  },
+  errorText: {
+    color: theme.colors.red,
+    fontFamily: theme.fonts.body,
+    fontSize: theme.type.caption,
+    lineHeight: theme.type.caption * 1.45,
+  },
+  flowNote: {
+    color: theme.colors.textMuted,
+    fontFamily: theme.fonts.body,
+    fontSize: theme.type.caption,
+    lineHeight: theme.type.caption * 1.45,
   },
 });

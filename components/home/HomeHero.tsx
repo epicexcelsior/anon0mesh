@@ -4,6 +4,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import { Icon } from "@/components/primitives/Icon";
 import { appTheme as theme } from "@/src/design-system/theme";
+import { useLocalDisplayName } from "@/src/hooks/useLocalDisplayName";
 import { useWallet } from "@/src/hooks/useWallet";
 
 function shortAddress(address?: string) {
@@ -14,12 +15,14 @@ function shortAddress(address?: string) {
 export function HomeHero() {
   const router = useRouter();
   const { wallet } = useWallet();
-
-  const alias = wallet?.identity
+  const walletAlias = wallet?.identity
     ? wallet.identity.length <= 14 ? wallet.identity : `${wallet.identity.slice(0, 10)}…`
     : wallet?.address
       ? `${wallet.address.slice(0, 4)}…${wallet.address.slice(-4)}`
       : "—";
+  const { displayName } = useLocalDisplayName(wallet?.address ?? null, walletAlias);
+
+  const alias = displayName || walletAlias;
 
   return (
     <View style={styles.row}>

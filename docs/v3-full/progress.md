@@ -865,3 +865,48 @@ Peers is now rebuilt and Phase 3 has only **Settings** left before the backend-t
 ### Handoff
 
 Phase 3 is now complete: Home, Send, Messages, Peers, and Settings all match the redesign direction. The next session should start **Phase 4 backend truth pass**. Read `recovery-plan.md`, this progress block, `README.md`, and the refreshed `handoff.md` first, then choose the smallest safe backend-truth commit rather than another visual wave.
+
+## 2026-04-21 — session 20 (Phase 4 runtime-truth pass)
+
+- **Model:** GPT-5.4
+- **Agent / human:** Codex
+- **Goal:** Tighten the highest-risk runtime truth gaps first: wallet history/detail, onboarding wallet entry, local identity propagation, and saved stealth-default behavior.
+
+### Shipped
+
+- Tightened wallet history/detail truth:
+  - `useTransaction` now merges in-session runtime transfers with parsed on-chain SOL transfer history from the active wallet address
+  - local and MWA wallet adapters now expose real history through the current Solana RPC seam
+  - Home/history/detail can now show settled on-chain transfers without pretending the lane is only in-memory
+- Tightened onboarding/setup truth:
+  - Setup wallet buttons now perform real entry actions through the active wallet lane instead of only routing home
+  - local-wallet lane can create/reconnect and enter
+  - external-wallet lane can connect MWA and enter
+  - unsupported wallet path is disabled with explicit copy instead of being a fake affordance
+  - typed display name now persists as the local device label once an address exists
+- Tightened local preference / identity truth:
+  - Home hero now reflects the saved local device label
+  - send review now updates the saved local stealth default instead of toggling preview state only
+- Updated canonical docs:
+  - `README.md`
+  - `screen-inventory.md`
+  - `handoff.md`
+- Re-verified baseline after the truth pass:
+  - `npm run lint` → 0 errors / 11 inherited warnings
+  - `npx tsc --noEmit` → same 5 inherited baseline errors (`components/screens/SolanaTransactionScreen.tsx`, `components/ui/Header.tsx`, `src/gossip/{GCSFilter,PacketIdUtil}.ts`, `src/solana/SolanaTransactionManager.ts`)
+
+### Deviations from decisions.md
+
+- None. This session stayed inside Phase 4’s runtime-truth scope and did not open a second design or adapter lane.
+
+### Open issues
+
+- Setup permission cards are still explanatory only; Bluetooth / notification OS prompts still happen contextually later instead of eagerly from onboarding.
+- Wallet-path choice is now truthful, but the branch still exposes one active wallet family per device/session. Solana Mobile lane still does not offer local-wallet creation alongside MWA in the same live adapter path.
+- Transaction history now covers parsed on-chain SOL transfer activity plus in-session pending sends. Broader non-transfer / non-SOL wallet activity is still outside the current surfaced lane.
+- Messaging remains fixture-backed, and beacon staking remains preview-only. Phase 4 is not done until those remaining truth seams are tightened or clearly fenced.
+- Global terminology grep still hits legacy non-v3-full surfaces (`components/screens/*`, `components/networking/MeshNetworkingManager.tsx`) outside the rebuilt expo-router lane.
+
+### Handoff
+
+Phase 4 has started and the biggest wallet/onboarding truth gaps are now tighter: Home/history/detail no longer depend on in-memory sends alone, Setup no longer uses fake wallet buttons, and local identity/preferences propagate more honestly. Next session should continue Phase 4 on the remaining seams: messaging delivery truth, peer/beacon staged-runtime fencing, and the onboarding permission-prompt caveat. Read `recovery-plan.md`, this block, `README.md`, `screen-inventory.md`, and `handoff.md` first.

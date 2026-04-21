@@ -38,6 +38,22 @@ export class FixtureWalletAdapter implements WalletService {
     return 'fixture' as const;
   }
 
+  canCreateLocalWallet() {
+    return true;
+  }
+
+  canConnectExternalWallet() {
+    return true;
+  }
+
+  async createLocalWallet(): Promise<Wallet> {
+    return cloneWallet(this.wallet);
+  }
+
+  async connectExternalWallet(): Promise<Wallet> {
+    return cloneWallet(this.wallet);
+  }
+
   async getWallet(): Promise<Wallet | null> {
     return cloneWallet(this.wallet);
   }

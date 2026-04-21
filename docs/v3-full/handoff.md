@@ -46,11 +46,12 @@ Source precedence is:
 
 Current truth to preserve:
 - BLE peer discovery is live
-- wallet/send/history seams are live
+- wallet/send/history seams are live, with Home/history/detail now merging in-session submit state with parsed on-chain SOL transfer history
+- onboarding wallet entry is live through the active adapter lane, but unsupported wallet paths are still disabled per device/session instead of both being simultaneously available
 - redesigned send flow is live, but delivery is still on-chain only
 - redesigned messaging UI is live, but message history / delivery are still fixture-backed
 - redesigned peer surfaces are live around the BLE discovery seam, but deeper relay / beacon metrics are still staged
-- redesigned settings surfaces are live, with local device-label persistence and truthful wallet-export gating
+- redesigned settings surfaces are live, with local device-label persistence, Home hero propagation, and truthful wallet-export gating
 - LXMF runtime is still stubbed
 - stealth transfer path is still staged, not complete
 - beacon staking is still placeholder
@@ -70,6 +71,7 @@ Your job for the next phase:
 3. start Phase 4 backend truth pass
 4. tighten the runtime-truth seams across wallet history / send status / messaging / peers / settings without opening a second design lane
 5. do not overclaim unfinished LXMF / stealth / beacon functionality in UI copy
+6. keep onboarding Setup truthful about which wallet path is live on the current device, and do not claim eager permission prompts that still happen contextually later
 
 Execution rules:
 - Append a new session block to docs/v3-full/progress.md

@@ -41,9 +41,10 @@ These are the main areas where current functionality is intentionally being buil
 
 - **Send delivery path:** the redesigned send flow and recipient QR scan are live, but transfer delivery is still **on-chain only** in this branch. Mesh relay integration lands later.
 - **Amount quote:** the send amount screen's USD equivalent is a local estimate, not a live market quote yet.
+- **Onboarding wallet lane:** Setup now enters through the active adapter lane (local-wallet create on local lane, MWA connect on external-wallet lane), but the branch still does not expose both wallet families as live choices on the same device/session.
 - **Messaging runtime:** the rebuilt messages list/thread UI is live, but thread history and delivery are still fixture-backed while LXMF runtime work continues.
 - **Peer graph depth:** rebuilt peer list/detail surfaces now reflect the live discovery seam, but deeper relay, latency/distance, and beacon-specific metrics are still staged.
-- **Settings identity label:** the rebuilt Settings lane can save a local device label, but that label is not yet propagated across every branch surface. Wallet alias remains key-derived elsewhere unless explicitly wired.
+- **Settings identity label:** the rebuilt Settings lane can save a local device label, and Home now reflects it too, but that label is not yet propagated across every branch surface. Wallet alias remains key-derived elsewhere unless explicitly wired.
 - **Wallet export semantics:** local wallets can reveal raw private-key hex through the secure-store auth path. External MWA wallets and fixture wallets still cannot export key material here.
 - **LXMF runtime:** interface shape is preserved, but the native runtime is still a stub in this branch.
 - **Stealth transfer path:** preferences and review-screen affordances exist, but full end-to-end stealth settlement is not live yet. UI and copy should frame this as staged work, not a completed privacy guarantee.

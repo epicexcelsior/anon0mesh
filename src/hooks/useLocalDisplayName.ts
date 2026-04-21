@@ -7,6 +7,20 @@ function storageKey(address: string) {
   return `${STORAGE_PREFIX}${address}`;
 }
 
+export async function saveLocalDisplayNameForAddress(
+  address: string,
+  nextValue: string,
+): Promise<string | null> {
+  const trimmed = nextValue.trim();
+  if (trimmed) {
+    await AsyncStorage.setItem(storageKey(address), trimmed);
+    return trimmed;
+  }
+
+  await AsyncStorage.removeItem(storageKey(address));
+  return null;
+}
+
 export function useLocalDisplayName(address: string | null, fallback: string) {
   const [storedDisplayName, setStoredDisplayName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -51,16 +65,9 @@ export function useLocalDisplayName(address: string | null, fallback: string) {
     async (nextValue: string) => {
       if (!address) return null;
 
-      const trimmed = nextValue.trim();
-      if (trimmed) {
-        await AsyncStorage.setItem(storageKey(address), trimmed);
-        setStoredDisplayName(trimmed);
-        return trimmed;
-      }
-
-      await AsyncStorage.removeItem(storageKey(address));
-      setStoredDisplayName(null);
-      return null;
+      const saved = await saveLocalDisplayNameForAddress(address, nextValue);
+      setStoredDisplayName(saved);
+      return saved;
     },
     [address],
   );

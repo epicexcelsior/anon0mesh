@@ -19,6 +19,10 @@ export interface SendParams {
 
 export interface WalletService {
   getMode(): WalletMode;
+  canCreateLocalWallet(): boolean;
+  canConnectExternalWallet(): boolean;
+  createLocalWallet(): Promise<Wallet>;
+  connectExternalWallet(): Promise<Wallet>;
   getWallet(): Promise<Wallet | null>;
   getExportState(): Promise<WalletExportState>;
   exportPrivateKey(): Promise<string>;

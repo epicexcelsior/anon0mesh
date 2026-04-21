@@ -13,7 +13,12 @@ import type {
   WalletService,
 } from '@/src/domain/services/WalletService';
 import { LocalWallet } from './LocalWallet';
-import { solanaConnection, solanaTransactionService } from '@/src/infrastructure/solana';
+import { WalletFactory } from './WalletFactory';
+import {
+  getWalletTransferHistory,
+  solanaConnection,
+  solanaTransactionService,
+} from '@/src/infrastructure/solana';
 
 export class LocalWalletAdapter implements WalletService {
   private wallet: LocalWallet;
@@ -24,6 +29,27 @@ export class LocalWalletAdapter implements WalletService {
 
   getMode() {
     return 'local' as const;
+  }
+
+  canCreateLocalWallet() {
+    return true;
+  }
+
+  canConnectExternalWallet() {
+    return false;
+  }
+
+  async createLocalWallet(): Promise<Wallet> {
+    this.wallet = await WalletFactory.createLocal();
+    const wallet = await this.getWallet();
+    if (!wallet) {
+      throw new Error('Local wallet was created, but no address was returned');
+    }
+    return wallet;
+  }
+
+  async connectExternalWallet(): Promise<Wallet> {
+    throw new Error('External wallet connect is unavailable in local wallet mode');
   }
 
   async getWallet(): Promise<Wallet | null> {
@@ -141,6 +167,15 @@ export class LocalWalletAdapter implements WalletService {
   }
 
   async getHistory(): Promise<Transaction[]> {
-    return [];
+    if (!this.wallet.isConnected()) {
+      const exists = await LocalWallet.exists();
+      if (!exists) return [];
+      await this.wallet.connect();
+    }
+
+    const pubkey = this.wallet.getPublicKey();
+    if (!pubkey) return [];
+
+    return getWalletTransferHistory(pubkey);
   }
 }

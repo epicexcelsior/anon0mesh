@@ -27,7 +27,7 @@ export function ReviewCard({ to, amount, symbol }: ReviewCardProps) {
   const router = useRouter();
   const adapters = useAdapters();
   const { peers } = usePeers();
-  const { privacy } = usePreferences();
+  const { privacy, updatePrivacy } = usePreferences();
 
   const [stealthEnabled, setStealthEnabled] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -146,7 +146,7 @@ export function ReviewCard({ to, amount, symbol }: ReviewCardProps) {
                 </Text>
               </View>
               <Text style={styles.utilityBody}>
-                Saved preference is loaded here, but stealth settlement is still preview-only in this build.
+                Toggling here updates the saved local default, but stealth settlement is still preview-only in this build.
               </Text>
             </View>
 
@@ -154,7 +154,11 @@ export function ReviewCard({ to, amount, symbol }: ReviewCardProps) {
               accessibilityLabel={stealthEnabled ? "Disable stealth default" : "Enable stealth default"}
               accessibilityRole="button"
               activeOpacity={0.8}
-              onPress={() => setStealthEnabled((current) => !current)}
+              onPress={() => {
+                const next = !stealthEnabled;
+                setStealthEnabled(next);
+                void updatePrivacy({ stealthByDefault: next });
+              }}
             >
               <Pill
                 label={stealthEnabled ? "Preview on" : "Preview off"}
