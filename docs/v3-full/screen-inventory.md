@@ -184,21 +184,24 @@ Read `decisions.md` and `architecture.md` first.
 - **Route:** `app/(tabs)/settings.tsx`
 - **Purpose:** Sections for identity, network, privacy, beacon registry, wallet, about. Each section navigates to a sub-page.
 - **Source — design:** redesign canon settings shell.
-- **Backend:** pulls identity/alias from `useWallet`; peer count for a preview from `useMesh`.
+- **Backend:** pulls wallet identity / mode from `useWallet`, local device-label preview from Settings storage, peer count from `useMesh`, and privacy preview from `usePreferences`.
+- **Truth note:** the screen is rebuilt and live, but its preview cards must still distinguish local device-label state from wallet-derived alias state.
 
 ### 19. Identity modal
 
 - **Route:** `app/settings/identity.tsx` (modal or push)
 - **Purpose:** Display name edit, mesh alias, QR code of identity, identity export.
 - **Source — design:** redesign canon using current identity surface structure where valid.
-- **Backend:** `useWallet.getIdentity`.
+- **Backend:** wallet alias / address from `useWallet`, plus local device-label persistence on this device.
+- **Truth note:** the editable label is a local device label for now; broader identity propagation remains staged, so wallet alias still stays key-derived elsewhere on the branch.
 
 ### 20. Wallet export modal
 
 - **Route:** `app/settings/wallet-export.tsx` (modal, requires biometric)
 - **Purpose:** Export seed phrase or private key with clear warnings. Requires biometric unlock.
 - **Source — design:** v3 export flow (recent commit: "export wallet modal, QR identity modal").
-- **Backend:** real — reads from SecureStore via `LocalWalletAdapter.exportSeed`.
+- **Backend:** real for local wallets through `WalletService.exportPrivateKey()` / SecureStore-authenticated secret-key export; unavailable for MWA and fixture wallets.
+- **Truth note:** this branch reveals raw private-key hex for local wallets, not a mnemonic seed phrase.
 
 ### 21. Network config
 
@@ -206,7 +209,7 @@ Read `decisions.md` and `architecture.md` first.
 - **Purpose:** BLE on/off, LoRa (future), LXMF iface selection (BleOnly / TcpClient / TcpServer / Reticulum), auto-connect toggle.
 - **Source — design:** redesign canon list rows.
 - **Source — content:** Stitch Settings + v3 patterns + LXMF package `LxmfNodeMode` enum.
-- **Backend:** real for BLE toggle; stub for LXMF mode (writes to config, no-op until parallel agent lands).
+- **Backend:** real for BLE toggle and local auto-connect persistence; LXMF mode persists locally but still points at the current stub runtime.
 
 ### 22. Privacy toggles
 
@@ -214,7 +217,7 @@ Read `decisions.md` and `architecture.md` first.
 - **Purpose:** Stealth default on/off, tx privacy mode, key rotation cadence.
 - **Source — design:** redesign canon.
 - **Source — content:** Stitch Settings.
-- **Backend:** writes to user preferences service. These defaults seed the send flow, but they do **not** mean full end-to-end stealth cryptography is live yet.
+- **Backend:** writes to user preferences service. These defaults seed the send flow and persist locally, but they do **not** mean full end-to-end stealth cryptography is live yet.
 
 ### 23. Beacon registry
 
@@ -223,6 +226,7 @@ Read `decisions.md` and `architecture.md` first.
 - **Source — design:** redesign canon.
 - **Source — content:** v3 recent commit "BeaconRegistry — stake SOL".
 - **Backend:** stub — `useBeacon` returns placeholder data; real staking lands later.
+- **Truth note:** current mode / advertising state can render, but no funds move and no live staking transaction starts from this surface.
 
 ### 24. About / Tech deep-dive
 
@@ -230,7 +234,7 @@ Read `decisions.md` and `architecture.md` first.
 - **Purpose:** Version, licenses, links, "how this works" content (same as onboarding tech drawer, reachable from Settings too).
 - **Source — design:** redesign canon minimal/info style.
 - **Backend:** none.
-- **Truth note:** technology summary must distinguish what is already live (BLE peer discovery, wallet/send/history seams) from what is still being completed (LXMF runtime, stealth settlement path).
+- **Truth note:** technology summary and links must distinguish what is already live (BLE peer discovery, wallet/send/history seams, rebuilt core screens) from what is still being completed (LXMF runtime, stealth settlement path, beacon staking).
 
 ## Global
 

@@ -9,3 +9,4 @@ export { useBeacon } from './useBeacon';
 export { useLxmf, LxmfNodeMode } from './useLxmf';
 export type { Beacon, LxmfEvent, LxmfNodeStatus, LxmfReturnShape, TcpInterface, UseLxmfOptions } from './useLxmf';
 export { usePreferences } from './usePreferences';
+export { useLocalDisplayName } from './useLocalDisplayName';

@@ -192,10 +192,10 @@ The recovery is done when all are true:
 
 ## Immediate next actions
 
-1. continue Phase 3 after Home + Send + Messages + Peers with the Settings rebuild
-2. then run the backend truth pass on the remaining staged affordances
-3. keep the messaging + peer-runtime notes truthful while Settings lands around them
-4. keep the canonical docs and build-around language aligned as each screen wave lands
+1. start Phase 4 backend truth pass now that Home, Send, Messages, Peers, and Settings are rebuilt
+2. tighten the remaining staged affordances first where users can still misread runtime truth: wallet history/status, messaging delivery, peer/beacon notes, and Settings identity/export semantics
+3. preserve the single token / primitive lane while backend truth work lands; no second design grammar
+4. keep the canonical docs and build-around language aligned as each backend truth wave lands
 
 ## Notes on ambition
 

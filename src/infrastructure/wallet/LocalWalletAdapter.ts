@@ -7,7 +7,11 @@ import {
 } from '@solana/web3.js';
 import type { Transaction } from '@/src/domain/entities/Transaction';
 import type { Wallet } from '@/src/domain/entities/Wallet';
-import type { SendParams, WalletService } from '@/src/domain/services/WalletService';
+import type {
+  SendParams,
+  WalletExportState,
+  WalletService,
+} from '@/src/domain/services/WalletService';
 import { LocalWallet } from './LocalWallet';
 import { solanaConnection, solanaTransactionService } from '@/src/infrastructure/solana';
 
@@ -16,6 +20,10 @@ export class LocalWalletAdapter implements WalletService {
 
   constructor() {
     this.wallet = new LocalWallet();
+  }
+
+  getMode() {
+    return 'local' as const;
   }
 
   async getWallet(): Promise<Wallet | null> {
@@ -36,6 +44,37 @@ export class LocalWalletAdapter implements WalletService {
       ],
       identity: pubkey.toBase58(),
     };
+  }
+
+  async getExportState(): Promise<WalletExportState> {
+    const exists = await LocalWallet.exists();
+    if (!exists) {
+      return {
+        available: false,
+        kind: 'private-key',
+        mode: 'local',
+        reason: 'No local wallet found on this device.',
+      };
+    }
+
+    return {
+      available: true,
+      kind: 'private-key',
+      mode: 'local',
+    };
+  }
+
+  async exportPrivateKey(): Promise<string> {
+    if (!this.wallet.isConnected()) {
+      await this.wallet.connect();
+    }
+
+    const secretKey = await this.wallet.exportSecretKey();
+    try {
+      return Buffer.from(secretKey).toString('hex');
+    } finally {
+      secretKey.fill(0);
+    }
   }
 
   async refreshBalances(): Promise<void> {

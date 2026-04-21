@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { GlassSurface } from "@/components/primitives/GlassSurface";
 import { SectionLabel } from "@/components/primitives/SectionLabel";
@@ -7,13 +7,17 @@ import { appTheme as theme } from "@/src/design-system/theme";
 
 interface SettingsSectionProps {
   title: string;
+  description?: string;
   children: React.ReactNode;
 }
 
-export function SettingsSection({ title, children }: SettingsSectionProps) {
+export function SettingsSection({ title, description, children }: SettingsSectionProps) {
   return (
     <View style={styles.section}>
-      <SectionLabel label={title} />
+      <View style={styles.header}>
+        <SectionLabel label={title} />
+        {description ? <Text style={styles.description}>{description}</Text> : null}
+      </View>
       <GlassSurface variant="regular" style={styles.card}>
         {children}
       </GlassSurface>
@@ -23,11 +27,19 @@ export function SettingsSection({ title, children }: SettingsSectionProps) {
 
 const styles = StyleSheet.create({
   section: {
+    gap: theme.spacing.sm,
+  },
+  header: {
     gap: theme.spacing.xs,
-    marginHorizontal: theme.spacing.lg,
+  },
+  description: {
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.body,
+    fontSize: theme.type.caption,
+    lineHeight: theme.type.caption * 1.55,
   },
   card: {
-    borderRadius: theme.radius.md,
+    borderRadius: theme.radius.xl,
     overflow: "hidden",
   },
 });

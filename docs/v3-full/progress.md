@@ -824,3 +824,44 @@ Messages is now rebuilt and the earlier stale send/home mesh-handoff drift is cl
 ### Handoff
 
 Peers is now rebuilt and Phase 3 has only **Settings** left before the backend-truth pass. The next session should read `recovery-plan.md`, this progress block, `screen-inventory.md` items 18–24, and the refreshed `handoff.md`, then rebuild Settings without overclaiming unfinished stealth / beacon / LXMF behavior.
+
+## 2026-04-21 — session 19 (Phase 3 Settings rebuild)
+
+- **Model:** GPT-5.4
+- **Agent / human:** Codex
+- **Goal:** Finish Phase 3 by rebuilding the Settings tab and sub-pages against the redesign canon while making identity/export/privacy/beacon language more truthful.
+
+### Shipped
+
+- Rebuilt the Settings shell around one shared grammar:
+  - `components/settings/{SettingsScaffold,IdentityCard,SettingsSection,SettingsRow}.tsx`
+  - `app/(tabs)/settings.tsx`
+- Rebuilt every Settings sub-surface:
+  - `app/settings/{identity,wallet-export,network,privacy,beacon,about}.tsx`
+- Tightened Settings behavior where low-cost truth work was worth doing now:
+  - added local device-label persistence for the Settings identity lane
+  - added wallet export support metadata plus real local-wallet private-key export through the current SecureStore path
+  - kept MWA / fixture wallet export explicitly unavailable
+  - kept network/privacy settings tied to their real local preference seams
+- Updated canonical docs for the post-Settings state:
+  - `README.md`
+  - `screen-inventory.md`
+  - `recovery-plan.md`
+  - `handoff.md`
+- Re-verified baseline after the rebuild:
+  - `npm run lint` → 0 errors / 11 inherited warnings
+  - `npx tsc --noEmit` → same 5 inherited baseline errors (`components/screens/SolanaTransactionScreen.tsx`, `components/ui/Header.tsx`, `src/gossip/{GCSFilter,PacketIdUtil}.ts`, `src/solana/SolanaTransactionManager.ts`)
+
+### Deviations from decisions.md
+
+- None. This session finished the planned Phase 3 screen wave and kept staged-runtime areas explicit instead of inventing new backend depth.
+
+### Open issues
+
+- The local device label currently lives in the rebuilt Settings lane only; broader identity propagation across Home and other surfaces still belongs to the backend truth pass.
+- Wallet export now reveals raw private-key hex for local wallets, not a mnemonic seed phrase. If product wants mnemonic export later, that is new work, not a copy tweak.
+- Phase 4 still needs the broader runtime-truth sweep across wallet history/status progression, messaging delivery semantics, and remaining staged peer/beacon affordances.
+
+### Handoff
+
+Phase 3 is now complete: Home, Send, Messages, Peers, and Settings all match the redesign direction. The next session should start **Phase 4 backend truth pass**. Read `recovery-plan.md`, this progress block, `README.md`, and the refreshed `handoff.md` first, then choose the smallest safe backend-truth commit rather than another visual wave.

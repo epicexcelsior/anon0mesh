@@ -1,219 +1,209 @@
+import Constants from "expo-constants";
 import React from "react";
-import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Image, Linking, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Backdrop } from "@/components/primitives/Backdrop";
 import { GlassSurface } from "@/components/primitives/GlassSurface";
-import { Icon } from "@/components/primitives/Icon";
-import { SectionLabel } from "@/components/primitives/SectionLabel";
+import { Pill } from "@/components/primitives/Pill";
+import {
+  SettingsRow,
+  SettingsScaffold,
+  SettingsSection,
+} from "@/components/settings";
 import { appTheme as theme } from "@/src/design-system/theme";
 
+const REPO_URL = "https://github.com/epicexcelsior/anon0mesh";
+const LICENSE_URL = "https://github.com/epicexcelsior/anon0mesh/blob/main/LICENSE";
+
 export default function AboutScreen() {
-  const insets = useSafeAreaInsets();
   const router = useRouter();
+  const version = Constants.expoConfig?.version ?? "dev";
 
-  function handleGitHub() {
-    Alert.alert("Coming Soon", "GitHub link coming soon.");
-  }
-
-  function handleLicenses() {
-    Alert.alert("Coming Soon", "License viewer coming soon.");
+  async function openExternal(url: string) {
+    try {
+      await Linking.openURL(url);
+    } catch {
+      Alert.alert("Link unavailable", url);
+    }
   }
 
   return (
-    <View style={styles.root}>
-      <Backdrop preset="settings" />
+    <SettingsScaffold
+      eyebrow="Runtime truth"
+      onBack={() => router.back()}
+      showBack
+      subtitle="Keep version, links, and technology language aligned with what this branch actually ships today."
+      title="About"
+      tone="green"
+      trailing={<Pill label={`v${version}`} tone="green" />}
+    >
+      <GlassSurface variant="strong" style={styles.hero}>
+        <View style={styles.traceRow}>
+          <View style={styles.traceDot} />
+          <View style={styles.traceLine} />
+        </View>
 
-      {/* Header */}
-      <View style={[styles.header, { paddingTop: insets.top + theme.spacing.sm }]}>
-        <TouchableOpacity accessibilityLabel="Back" accessibilityRole="button" onPress={() => router.back()} hitSlop={8} style={styles.backBtn}>
-          <Icon name="arrow-left" size={22} color={theme.colors.textPrimary} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>About</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+        <Image
+          resizeMode="contain"
+          source={require("@/assets/brand/anonmesh-logo.png")}
+          style={styles.logo}
+        />
 
-      <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + theme.spacing.xxxl }]}
-        showsVerticalScrollIndicator={false}
+        <Text style={styles.appName}>AnonMesh</Text>
+        <Text style={styles.laneLabel}>v3-full recovery lane</Text>
+        <Text style={styles.heroBody}>
+          Design canon comes from the Void Protocol redesign lane. Product truth comes from `docs/v3-full/` and the live seams currently wired in this branch.
+        </Text>
+
+        <View style={styles.heroPills}>
+          <Pill label="BLE live" tone="green" />
+          <Pill label="On-chain send" tone="cyan" />
+          <Pill label="Core screens rebuilt" tone="neutral" />
+        </View>
+      </GlassSurface>
+
+      <SettingsSection
+        title="Runtime truth"
+        description="Split what is solid today from what is still staged, so the screen remains honest even after the visual polish pass."
       >
-        {/* App info card */}
-        <GlassSurface variant="regular" style={styles.appCard}>
-          <Image
-            source={require("@/assets/brand/anonmesh-logo.png")}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-          <Text style={styles.appName}>AnonMesh</Text>
-          <Text style={styles.versionText}>v3-full (dev)</Text>
-          <Text style={styles.buildText}>Build: 2026-04-18</Text>
-        </GlassSurface>
+        <View style={styles.runtimeStack}>
+          <GlassSurface variant="regular" style={styles.runtimeCard}>
+            <Text style={styles.runtimeTitle}>Live now</Text>
+            <Text style={styles.runtimeBody}>
+              BLE peer discovery, wallet/send/history seams, on-chain transfer flow, and the rebuilt Home, Send, Messages, Peers, and Settings surfaces.
+            </Text>
+          </GlassSurface>
 
-        {/* Tech description */}
-        <View style={styles.section}>
-          <SectionLabel label="Technology" />
-          <GlassSurface variant="regular" style={styles.techCard}>
-            <Text style={styles.techText}>
-              AnonMesh uses Bluetooth LE for local peer discovery today, with LXMF/Reticulum
-              messaging and stealth-oriented settlement paths still being completed in the
-              recovery branch.
+          <GlassSurface variant="regular" style={styles.runtimeCard}>
+            <Text style={styles.runtimeTitle}>Staged next</Text>
+            <Text style={styles.runtimeBody}>
+              LXMF runtime, full stealth settlement path, beacon staking, and deeper relay or routing intelligence beyond direct BLE discovery.
             </Text>
           </GlassSurface>
         </View>
+      </SettingsSection>
 
-        {/* Links section */}
-        <View style={styles.section}>
-          <SectionLabel label="Links" />
-          <GlassSurface variant="regular" style={styles.linksCard}>
-            <TouchableOpacity
-              accessibilityLabel="View on GitHub"
-              accessibilityRole="button"
-              style={[styles.linkRow, styles.linkRowBordered]}
-              onPress={handleGitHub}
-              activeOpacity={0.7}
-            >
-              <View style={styles.linkIconWrap}>
-                <Icon name="github" size={18} color={theme.colors.textSecondary} />
-              </View>
-              <Text style={styles.linkLabel}>View on GitHub</Text>
-              <Icon name="external-link" size={16} color={theme.colors.textMuted} />
-            </TouchableOpacity>
+      <SettingsSection
+        title="Links"
+        description="Source and license entry points. Prefer real links over placeholder alerts here."
+      >
+        <SettingsRow
+          iconName="github"
+          iconTone="green"
+          label="GitHub repository"
+          onPress={() => {
+            void openExternal(REPO_URL);
+          }}
+          sublabel="Open the anon0mesh source repository"
+          value="Open"
+        />
+        <SettingsRow
+          iconName="file-text"
+          iconTone="neutral"
+          label="License"
+          onPress={() => {
+            void openExternal(LICENSE_URL);
+          }}
+          showSeparator={false}
+          sublabel="View the current repository license"
+          value="Open"
+        />
+      </SettingsSection>
 
-            <TouchableOpacity
-              accessibilityLabel="Licenses"
-              accessibilityRole="button"
-              style={styles.linkRow}
-              onPress={handleLicenses}
-              activeOpacity={0.7}
-            >
-              <View style={styles.linkIconWrap}>
-                <Icon name="file-text" size={18} color={theme.colors.textSecondary} />
-              </View>
-              <Text style={styles.linkLabel}>Licenses</Text>
-              <Icon name="chevron-right" size={16} color={theme.colors.textMuted} />
-            </TouchableOpacity>
-          </GlassSurface>
-        </View>
-
-        {/* Footer */}
-        <Text style={styles.footer}>
-          AnonMesh — Private mesh payments on Solana
+      <GlassSurface variant="regular" style={styles.footerCard}>
+        <Text style={styles.footerText}>
+          Private mesh payments on Solana, rebuilt in one token lane and one visual grammar. Docs stay source of truth while backend catches up.
         </Text>
-      </ScrollView>
-    </View>
+      </GlassSurface>
+    </SettingsScaffold>
   );
 }
 
 const styles = StyleSheet.create({
-  root: {
-    backgroundColor: theme.colors.background,
-    flex: 1,
-  },
-  header: {
+  hero: {
     alignItems: "center",
-    flexDirection: "row",
-    paddingBottom: theme.spacing.md,
-    paddingHorizontal: theme.spacing.lg,
-  },
-  backBtn: {
-    height: 36,
-    justifyContent: "center",
-    width: 36,
-  },
-  headerTitle: {
-    color: theme.colors.textPrimary,
-    flex: 1,
-    fontFamily: theme.fonts.heading,
-    fontSize: theme.type.section,
-    textAlign: "center",
-  },
-  headerSpacer: {
-    width: 36,
-  },
-  scroll: {
-    flex: 1,
-  },
-  content: {
-    gap: theme.spacing.lg,
-    paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.sm,
-  },
-  appCard: {
-    alignItems: "center",
-    borderRadius: theme.radius.md,
-    gap: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.xxl,
-  },
-  logo: {
-    height: 64,
-    width: 64,
-  },
-  appName: {
-    color: theme.colors.textPrimary,
-    fontFamily: theme.fonts.heading,
-    fontSize: theme.type.title,
-  },
-  versionText: {
-    color: theme.colors.cyan,
-    fontFamily: theme.fonts.bodyMedium,
-    fontSize: theme.type.body,
-  },
-  buildText: {
-    color: theme.colors.textMuted,
-    fontFamily: theme.fonts.body,
-    fontSize: theme.type.caption,
-  },
-  section: {
-    gap: theme.spacing.xs,
-  },
-  techCard: {
-    borderRadius: theme.radius.md,
+    borderRadius: theme.radius.xl,
+    gap: theme.spacing.md,
     paddingHorizontal: theme.spacing.lg,
     paddingVertical: theme.spacing.lg,
   },
-  techText: {
+  traceRow: {
+    alignItems: "center",
+    alignSelf: "stretch",
+    flexDirection: "row",
+    gap: theme.spacing.sm,
+  },
+  traceDot: {
+    backgroundColor: theme.colors.green,
+    borderRadius: theme.radius.pill,
+    height: 8,
+    width: 8,
+  },
+  traceLine: {
+    backgroundColor: theme.colors.greenGlow,
+    borderRadius: theme.radius.pill,
+    height: 1,
+    width: 88,
+  },
+  logo: {
+    height: 72,
+    width: 72,
+  },
+  appName: {
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.display,
+    fontSize: theme.type.section,
+    letterSpacing: -0.5,
+  },
+  laneLabel: {
+    color: theme.colors.green,
+    fontFamily: theme.fonts.bodyMedium,
+    fontSize: theme.type.body,
+  },
+  heroBody: {
     color: theme.colors.textSecondary,
     fontFamily: theme.fonts.body,
     fontSize: theme.type.body,
-    lineHeight: theme.type.body * 1.6,
+    lineHeight: theme.type.body * 1.55,
+    textAlign: "center",
   },
-  linksCard: {
-    borderRadius: theme.radius.md,
-    overflow: "hidden",
-  },
-  linkRow: {
-    alignItems: "center",
+  heroPills: {
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: theme.spacing.sm,
-    minHeight: 52,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.sm,
-  },
-  linkRowBordered: {
-    borderBottomColor: theme.colors.line,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  linkIconWrap: {
-    alignItems: "center",
-    flexShrink: 0,
-    height: 24,
     justifyContent: "center",
-    width: 24,
   },
-  linkLabel: {
+  runtimeStack: {
+    gap: theme.spacing.md,
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.lg,
+  },
+  runtimeCard: {
+    borderRadius: theme.radius.lg,
+    gap: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.lg,
+  },
+  runtimeTitle: {
     color: theme.colors.textPrimary,
-    flex: 1,
-    fontFamily: theme.fonts.body,
-    fontSize: theme.type.body,
+    fontFamily: theme.fonts.bodyMedium,
+    fontSize: theme.type.bodyLg,
   },
-  footer: {
-    color: theme.colors.textMuted,
+  runtimeBody: {
+    color: theme.colors.textSecondary,
     fontFamily: theme.fonts.body,
     fontSize: theme.type.caption,
-    paddingHorizontal: theme.spacing.xs,
-    textAlign: "center",
+    lineHeight: theme.type.caption * 1.55,
+  },
+  footerCard: {
+    borderRadius: theme.radius.xl,
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.lg,
+  },
+  footerText: {
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.body,
+    fontSize: theme.type.caption,
+    lineHeight: theme.type.caption * 1.6,
   },
 });

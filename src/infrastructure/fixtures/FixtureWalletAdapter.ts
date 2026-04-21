@@ -1,4 +1,8 @@
-import type { SendParams, WalletService } from '@/src/domain/services/WalletService';
+import type {
+  SendParams,
+  WalletExportState,
+  WalletService,
+} from '@/src/domain/services/WalletService';
 import type { Wallet } from '@/src/domain/entities/Wallet';
 import type { Transaction } from '@/src/domain/entities/Transaction';
 import { fixtureTransactionAdapter } from '@/src/infrastructure/fixtures/FixtureTransactionAdapter';
@@ -30,8 +34,25 @@ function randomBase58(length: number): string {
 export class FixtureWalletAdapter implements WalletService {
   private wallet: Wallet = cloneWallet(FIXTURE_WALLET);
 
+  getMode() {
+    return 'fixture' as const;
+  }
+
   async getWallet(): Promise<Wallet | null> {
     return cloneWallet(this.wallet);
+  }
+
+  async getExportState(): Promise<WalletExportState> {
+    return {
+      available: false,
+      kind: 'private-key',
+      mode: 'fixture',
+      reason: 'Fixture wallets do not expose private keys.',
+    };
+  }
+
+  async exportPrivateKey(): Promise<string> {
+    throw new Error('Fixture wallets do not expose private keys');
   }
 
   async refreshBalances(): Promise<void> {

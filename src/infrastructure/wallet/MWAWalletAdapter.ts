@@ -9,7 +9,11 @@ import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 import type { Transaction } from '@/src/domain/entities/Transaction';
 import type { Wallet } from '@/src/domain/entities/Wallet';
-import type { SendParams, WalletService } from '@/src/domain/services/WalletService';
+import type {
+  SendParams,
+  WalletExportState,
+  WalletService,
+} from '@/src/domain/services/WalletService';
 import { MWAWallet } from './MWAWallet';
 import { solanaConnection, solanaTransactionService } from '@/src/infrastructure/solana';
 
@@ -18,6 +22,10 @@ export class MWAWalletAdapter implements WalletService {
 
   constructor() {
     this.wallet = new MWAWallet();
+  }
+
+  getMode() {
+    return 'mwa' as const;
   }
 
   private assertAndroid(): void {
@@ -51,6 +59,19 @@ export class MWAWalletAdapter implements WalletService {
       ],
       identity: pubkey.toBase58(),
     };
+  }
+
+  async getExportState(): Promise<WalletExportState> {
+    return {
+      available: false,
+      kind: 'private-key',
+      mode: 'mwa',
+      reason: 'External MWA wallets keep private keys inside the wallet app.',
+    };
+  }
+
+  async exportPrivateKey(): Promise<string> {
+    throw new Error('MWA wallets do not expose private keys');
   }
 
   async refreshBalances(): Promise<void> {

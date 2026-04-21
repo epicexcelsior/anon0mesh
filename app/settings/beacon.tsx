@@ -1,222 +1,232 @@
 import React from "react";
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Backdrop } from "@/components/primitives/Backdrop";
-import { GlassSurface } from "@/components/primitives/GlassSurface";
 import { DepthButton } from "@/components/primitives/DepthButton";
-import { Pill } from "@/components/primitives/Pill";
+import { GlassSurface } from "@/components/primitives/GlassSurface";
 import { Icon } from "@/components/primitives/Icon";
-import { SectionLabel } from "@/components/primitives/SectionLabel";
-import { useBeacon } from "@/src/hooks/useBeacon";
+import { Pill } from "@/components/primitives/Pill";
+import {
+  SettingsRow,
+  SettingsScaffold,
+  SettingsSection,
+} from "@/components/settings";
+import { useBeacon } from "@/src/hooks";
 import { appTheme as theme } from "@/src/design-system/theme";
 
-function modePillTone(mode: string): "green" | "amber" | "neutral" {
-  if (mode === "active") return "green";
-  if (mode === "passive") return "amber";
-  return "neutral";
+function modeTone(mode: string) {
+  if (mode === "active") return "green" as const;
+  if (mode === "passive") return "amber" as const;
+  return "neutral" as const;
+}
+
+function titleCase(value: string) {
+  return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
 export default function BeaconScreen() {
-  const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { mode } = useBeacon();
+  const { advertising, mode } = useBeacon();
 
-  function handleStake() {
+  function handleStakePreview() {
     Alert.alert(
-      "Coming Soon",
-      "Beacon staking — backend integration pending.",
-      [{ text: "OK" }]
+      "Beacon staking not live yet",
+      "This screen is honest preview UI only. Contract deployment and settlement wiring land in a later phase.",
     );
   }
 
   return (
-    <View style={styles.root}>
-      <Backdrop preset="settings" />
-
-      {/* Header */}
-      <View style={[styles.header, { paddingTop: insets.top + theme.spacing.sm }]}>
-        <TouchableOpacity accessibilityLabel="Back" accessibilityRole="button" onPress={() => router.back()} hitSlop={8} style={styles.backBtn}>
-          <Icon name="arrow-left" size={22} color={theme.colors.textPrimary} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Beacon Node</Text>
-        <View style={styles.headerSpacer} />
-      </View>
-
-      <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + theme.spacing.xxxl }]}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Status card */}
-        <View style={styles.section}>
-          <SectionLabel label="Status" />
-          <GlassSurface variant="strong" style={styles.statusCard}>
-            <View style={styles.statusHeader}>
-              <View style={styles.beaconIconWrap}>
-                <Icon name="beacon" size={28} color={theme.colors.amber} />
-              </View>
-              <View style={styles.statusInfo}>
-                <Text style={styles.statusTitle}>Beacon Status</Text>
-                <Pill
-                  label={mode.charAt(0).toUpperCase() + mode.slice(1)}
-                  tone={modePillTone(mode)}
-                />
-              </View>
-            </View>
-
-            <View style={styles.statsRow}>
-              <View style={styles.stat}>
-                <Text style={styles.statValue}>0 SOL</Text>
-                <Text style={styles.statLabel}>Staked</Text>
-              </View>
-              <View style={styles.statDivider} />
-              <View style={styles.stat}>
-                <Text style={styles.statValue}>0 SOL</Text>
-                <Text style={styles.statLabel}>Earned</Text>
-              </View>
-            </View>
-          </GlassSurface>
+    <SettingsScaffold
+      eyebrow="Beacon registry"
+      onBack={() => router.back()}
+      showBack
+      subtitle="Beacon economics and staking are still placeholder work. This surface keeps the role visible without pretending funds can move yet."
+      title="Beacon Node"
+      tone="amber"
+      trailing={<Pill label={titleCase(mode)} tone={modeTone(mode)} />}
+    >
+      <GlassSurface variant="strong" style={styles.hero}>
+        <View style={styles.traceRow}>
+          <View style={styles.traceDot} />
+          <View style={styles.traceLine} />
         </View>
 
-        {/* Become a beacon section */}
-        <View style={styles.section}>
-          <SectionLabel label="Become a Beacon" />
-          <GlassSurface variant="regular" style={styles.becomeCard}>
-            <Text style={styles.becomeDescription}>
-              Stake SOL to co-sign confidential transactions and earn fees as a beacon node.
+        <View style={styles.heroTop}>
+          <View style={styles.heroIconWrap}>
+            <Icon color={theme.colors.amber} name="beacon" size={18} />
+          </View>
+
+          <View style={styles.heroCopy}>
+            <Text style={styles.heroTitle}>Beacon role stays preview-only.</Text>
+            <Text style={styles.heroBody}>
+              Use this lane to shape the future staking and co-signing surface without implying that the beacon contract or earnings path are live on this branch.
             </Text>
-            <DepthButton
-              label="Stake to Become a Beacon"
-              tone="amber"
-              onPress={handleStake}
-              icon={<Icon name="anchor" size={16} color={theme.colors.textOnAccent} />}
-              style={styles.stakeButton}
-            />
-          </GlassSurface>
+          </View>
         </View>
 
-        {/* Footer note */}
-        <Text style={styles.footerNote}>
-          Beacon staking requires the beacon smart contract to be deployed. Coming in a future release.
+        <View style={styles.metricRow}>
+          <View style={styles.metricCard}>
+            <Text style={styles.metricLabel}>Staked</Text>
+            <Text style={styles.metricValue}>0 SOL</Text>
+          </View>
+          <View style={styles.metricCard}>
+            <Text style={styles.metricLabel}>Earned</Text>
+            <Text style={styles.metricValue}>0 SOL</Text>
+          </View>
+          <View style={styles.metricCard}>
+            <Text style={styles.metricLabel}>Advertise</Text>
+            <Text style={styles.metricValue}>{advertising ? "On" : "Off"}</Text>
+          </View>
+        </View>
+      </GlassSurface>
+
+      <SettingsSection
+        title="Role state"
+        description="Show what the current beacon seam knows today: mode and whether local advertising is active."
+      >
+        <SettingsRow
+          iconName="beacon"
+          iconTone="amber"
+          label="Current mode"
+          pillLabel={titleCase(mode)}
+          pillTone={modeTone(mode)}
+          sublabel="Placeholder runtime role surfaced from the current beacon hook."
+        />
+        <SettingsRow
+          iconName="radio"
+          iconTone="neutral"
+          label="Advertising"
+          showSeparator={false}
+          sublabel="Local advertising flag only. No live stake-backed routing implied."
+          value={advertising ? "Enabled" : "Disabled"}
+        />
+      </SettingsSection>
+
+      <SettingsSection
+        title="Stake preview"
+        description="Reserve the interaction shape now, but keep the action clearly non-financial until backend work exists."
+      >
+        <View style={styles.ctaBlock}>
+          <Text style={styles.ctaBody}>
+            Future beacon nodes will stake SOL to co-sign confidential flows and earn fees. This branch only previews that role and terminology.
+          </Text>
+
+          <DepthButton
+            icon={<Icon color={theme.colors.textOnAccent} name="anchor" size={16} />}
+            label="Preview staking flow"
+            onPress={handleStakePreview}
+            size="md"
+            tone="amber"
+          />
+        </View>
+      </SettingsSection>
+
+      <GlassSurface variant="regular" style={styles.noteCard}>
+        <Text style={styles.noteText}>
+          No stake transaction fires from this screen. Beacon mode, rewards, and smart-contract settlement all remain staged work for the next recovery phase.
         </Text>
-      </ScrollView>
-    </View>
+      </GlassSurface>
+    </SettingsScaffold>
   );
 }
 
 const styles = StyleSheet.create({
-  root: {
-    backgroundColor: theme.colors.background,
-    flex: 1,
+  hero: {
+    borderRadius: theme.radius.xl,
+    gap: theme.spacing.md,
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.lg,
   },
-  header: {
+  traceRow: {
     alignItems: "center",
     flexDirection: "row",
-    paddingBottom: theme.spacing.md,
-    paddingHorizontal: theme.spacing.lg,
+    gap: theme.spacing.sm,
   },
-  backBtn: {
-    height: 36,
-    justifyContent: "center",
-    width: 36,
+  traceDot: {
+    backgroundColor: theme.colors.amber,
+    borderRadius: theme.radius.pill,
+    height: 8,
+    width: 8,
   },
-  headerTitle: {
-    color: theme.colors.textPrimary,
-    flex: 1,
-    fontFamily: theme.fonts.heading,
-    fontSize: theme.type.section,
-    textAlign: "center",
+  traceLine: {
+    backgroundColor: theme.colors.amberGlow,
+    borderRadius: theme.radius.pill,
+    height: 1,
+    width: 88,
   },
-  headerSpacer: {
-    width: 36,
-  },
-  scroll: {
-    flex: 1,
-  },
-  content: {
-    gap: theme.spacing.lg,
-    paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.sm,
-  },
-  section: {
-    gap: theme.spacing.xs,
-  },
-  statusCard: {
-    borderRadius: theme.radius.md,
-    gap: theme.spacing.xl,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.xl,
-  },
-  statusHeader: {
-    alignItems: "center",
+  heroTop: {
     flexDirection: "row",
     gap: theme.spacing.md,
   },
-  beaconIconWrap: {
+  heroIconWrap: {
     alignItems: "center",
     backgroundColor: theme.colors.amberSoft,
     borderRadius: theme.radius.pill,
-    height: 48,
+    height: 44,
     justifyContent: "center",
-    width: 48,
+    width: 44,
   },
-  statusInfo: {
+  heroCopy: {
     flex: 1,
     gap: theme.spacing.xs,
   },
-  statusTitle: {
+  heroTitle: {
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.heading,
     fontSize: theme.type.section,
   },
-  statsRow: {
+  heroBody: {
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.body,
+    fontSize: theme.type.body,
+    lineHeight: theme.type.body * 1.55,
+  },
+  metricRow: {
     flexDirection: "row",
-    gap: theme.spacing.lg,
+    gap: theme.spacing.sm,
   },
-  stat: {
-    alignItems: "center",
+  metricCard: {
+    backgroundColor: theme.colors.surfaceContainerLowest,
+    borderColor: theme.colors.lineStrong,
+    borderRadius: theme.radius.lg,
+    borderWidth: 1,
     flex: 1,
-    gap: theme.spacing.xxs,
+    gap: theme.spacing.xs,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.md,
   },
-  statValue: {
+  metricLabel: {
+    color: theme.colors.textMuted,
+    fontFamily: theme.fonts.bodyMedium,
+    fontSize: theme.type.caption,
+    textTransform: "uppercase",
+    letterSpacing: 0.6,
+  },
+  metricValue: {
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.heading,
     fontSize: theme.type.bodyLg,
   },
-  statLabel: {
-    color: theme.colors.textMuted,
-    fontFamily: theme.fonts.body,
-    fontSize: theme.type.caption,
-    textTransform: "uppercase",
-    letterSpacing: 0.4,
-  },
-  statDivider: {
-    backgroundColor: theme.colors.line,
-    width: StyleSheet.hairlineWidth,
-  },
-  becomeCard: {
-    borderRadius: theme.radius.md,
+  ctaBlock: {
     gap: theme.spacing.lg,
     paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.xl,
+    paddingVertical: theme.spacing.lg,
   },
-  becomeDescription: {
+  ctaBody: {
     color: theme.colors.textSecondary,
     fontFamily: theme.fonts.body,
     fontSize: theme.type.body,
-    lineHeight: theme.type.body * 1.5,
+    lineHeight: theme.type.body * 1.55,
   },
-  stakeButton: {
-    // width inherited from parent flex
+  noteCard: {
+    borderRadius: theme.radius.xl,
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.lg,
   },
-  footerNote: {
-    color: theme.colors.textMuted,
+  noteText: {
+    color: theme.colors.textSecondary,
     fontFamily: theme.fonts.body,
     fontSize: theme.type.caption,
     lineHeight: theme.type.caption * 1.6,
-    paddingHorizontal: theme.spacing.xs,
-    textAlign: "center",
   },
 });

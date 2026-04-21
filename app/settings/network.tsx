@@ -1,27 +1,27 @@
 import React from "react";
 import {
   ActivityIndicator,
-  ScrollView,
+  Linking,
   StyleSheet,
   Switch,
   Text,
-  TouchableOpacity,
   View,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { DepthButton } from "@/components/primitives/DepthButton";
+import { GlassSurface } from "@/components/primitives/GlassSurface";
+import { Icon } from "@/components/primitives/Icon";
+import { Pill } from "@/components/primitives/Pill";
+import { SegmentedControl } from "@/components/primitives/SegmentedControl";
+import {
+  SettingsRow,
+  SettingsScaffold,
+  SettingsSection,
+} from "@/components/settings";
+import { LxmfNodeMode, useLxmf, useMesh, usePreferences } from "@/src/hooks";
 import * as haptics from "@/src/design-system/haptics";
 import * as sound from "@/src/design-system/sound";
-import { Backdrop } from "@/components/primitives/Backdrop";
-import { GlassSurface } from "@/components/primitives/GlassSurface";
-import { Pill } from "@/components/primitives/Pill";
-import { Icon } from "@/components/primitives/Icon";
-import { SectionLabel } from "@/components/primitives/SectionLabel";
-import { SegmentedControl } from "@/components/primitives/SegmentedControl";
-import { useLxmf, LxmfNodeMode } from "@/src/hooks/useLxmf";
-import { useMesh } from "@/src/hooks/useMesh";
-import { usePreferences } from "@/src/hooks/usePreferences";
 import { appTheme as theme } from "@/src/design-system/theme";
 
 const LXMF_SEGMENTS = [
@@ -36,25 +36,39 @@ const LXMF_MODE_LABEL: Record<LxmfNodeMode, string> = {
   [LxmfNodeMode.Reticulum]: "Reticulum",
 };
 
-function connectionPillTone(state: string): "green" | "amber" | "neutral" {
-  if (state === "Live") return "green";
-  if (state === "Silent") return "amber";
-  return "neutral";
+function connectionTone(state: "Live" | "Silent" | "Offline", error?: string | null) {
+  if (error) return "red" as const;
+  switch (state) {
+    case "Live":
+      return "green" as const;
+    case "Silent":
+      return "amber" as const;
+    case "Offline":
+      return "neutral" as const;
+  }
 }
 
 export default function NetworkScreen() {
-  const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { connectionState, nodeCount, bleError, enabled, scanning, setEnabled } = useMesh();
+  const {
+    bleError,
+    connectionState,
+    enabled,
+    iface,
+    nodeCount,
+    refresh,
+    scanning,
+    setEnabled,
+  } = useMesh();
   const { isNativeAvailable } = useLxmf();
-  const { network, loading, updateNetwork } = usePreferences();
+  const { loading, network, updateNetwork } = usePreferences();
 
   const bleEnabled = loading ? enabled : network.bleEnabled;
-  const statusSublabel = !enabled
+  const statusSublabel = !bleEnabled
     ? "Mesh scanning paused on this device"
     : scanning
-      ? `${nodeCount} peer${nodeCount !== 1 ? "s" : ""} visible`
-      : "Waiting for BLE scan";
+      ? `${nodeCount} ${nodeCount === 1 ? "peer" : "peers"} visible right now`
+      : "Waiting for next BLE scan cycle";
 
   function handleBleToggle(value: boolean) {
     setEnabled(value);
@@ -77,245 +91,318 @@ export default function NetworkScreen() {
   }
 
   return (
-    <View style={styles.root}>
-      <Backdrop preset="settings" />
+    <SettingsScaffold
+      eyebrow="Mesh transport"
+      onBack={() => router.back()}
+      showBack
+      subtitle="BLE controls are live. LXMF mode saves as local config while deeper runtime work continues in the next phase."
+      title="Network"
+      tone="cyan"
+      trailing={<Pill label={bleError ? "BLE error" : connectionState} tone={connectionTone(connectionState, bleError)} />}
+    >
+      <GlassSurface variant="strong" style={styles.hero}>
+        <View style={styles.traceRow}>
+          <View style={styles.traceDot} />
+          <View style={styles.traceLine} />
+        </View>
 
-      <View style={[styles.header, { paddingTop: insets.top + theme.spacing.sm }]}>
-        <TouchableOpacity accessibilityLabel="Back" accessibilityRole="button" onPress={() => router.back()} hitSlop={8} style={styles.backBtn}>
-          <Icon name="arrow-left" size={22} color={theme.colors.textPrimary} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Network</Text>
-        <View style={styles.headerSpacer} />
+        <View style={styles.heroTop}>
+          <View style={styles.heroIconWrap}>
+            <Icon color={theme.colors.cyan} name="radio" size={18} />
+          </View>
+
+          <View style={styles.heroCopy}>
+            <Text style={styles.heroTitle}>Direct radio, honest transport.</Text>
+            <Text style={styles.heroBody}>
+              This lane owns BLE scan state today. LXMF choices persist locally, but native message runtime remains staged until backend truth pass.
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.heroPills}>
+          <Pill label={`${nodeCount} ${nodeCount === 1 ? "peer" : "peers"}`} tone="cyan" />
+          <Pill label={iface} tone="neutral" />
+          <Pill label={LXMF_MODE_LABEL[network.lxmfMode]} tone="neutral" />
+        </View>
+      </GlassSurface>
+
+      <View style={styles.actionsRow}>
+        <DepthButton
+          icon={<Icon color={theme.colors.textPrimary} name="refresh-cw" size={16} />}
+          label={scanning ? "Scanning" : "Refresh scan"}
+          onPress={refresh}
+          size="md"
+          style={styles.actionButton}
+          tone="cyan"
+          variant="secondary"
+        />
+
+        {bleError ? (
+          <DepthButton
+            icon={<Icon color={theme.colors.textPrimary} name="settings" size={16} />}
+            label="System settings"
+            onPress={() => {
+              void Linking.openSettings();
+            }}
+            size="md"
+            style={styles.actionButton}
+            tone="cyan"
+            variant="secondary"
+          />
+        ) : !bleEnabled ? (
+          <DepthButton
+            icon={<Icon color={theme.colors.textOnAccent} name="bluetooth" size={16} />}
+            label="Enable BLE"
+            onPress={() => handleBleToggle(true)}
+            size="md"
+            style={styles.actionButton}
+            tone="cyan"
+          />
+        ) : null}
       </View>
 
-      <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + theme.spacing.xxxl }]}
-        showsVerticalScrollIndicator={false}
+      <SettingsSection
+        title="Bluetooth mesh"
+        description="This toggle drives live scan state on the device. Status copy stays tied to real peer discovery, not mocked transport claims."
       >
-        <View style={styles.section}>
-          <SectionLabel label="Bluetooth" />
-          <GlassSurface variant="regular" style={styles.card}>
-            <View style={[styles.row, styles.rowBordered]}>
-              <View style={styles.iconWrap}>
-                <Icon name="bluetooth" size={18} color={theme.colors.textSecondary} />
-              </View>
-              <View style={styles.rowMid}>
-                <Text style={styles.rowLabel}>Bluetooth Mesh</Text>
-                <Text style={styles.rowSublabel}>Directly controls scan state on this device</Text>
-              </View>
-              <Switch
-                disabled={loading}
-                value={bleEnabled}
-                onValueChange={handleBleToggle}
-                trackColor={{ false: theme.colors.surfaceMuted, true: theme.colors.cyanSoft }}
-                thumbColor={bleEnabled ? theme.colors.cyan : theme.colors.textMuted}
-              />
-            </View>
+        <View style={[styles.controlRow, styles.controlRowBordered]}>
+          <View style={[styles.controlIconWrap, { backgroundColor: theme.colors.cyanSoft }]}>
+            <Icon color={theme.colors.cyan} name="bluetooth" size={18} />
+          </View>
 
-            <View style={styles.row}>
-              <View style={styles.iconWrap}>
-                <Icon name="activity" size={18} color={theme.colors.textSecondary} />
-              </View>
-              <View style={styles.rowMid}>
-                <Text style={styles.rowLabel}>Status</Text>
-                <Text style={styles.rowSublabel}>{statusSublabel}</Text>
-              </View>
-              {loading ? (
-                <ActivityIndicator size="small" color={theme.colors.cyan} />
-              ) : (
-                <Pill
-                  label={bleError ? "Error" : connectionState}
-                  tone={bleError ? "red" : connectionPillTone(connectionState)}
-                />
-              )}
-            </View>
+          <View style={styles.controlCopy}>
+            <Text style={styles.controlLabel}>Bluetooth mesh</Text>
+            <Text style={styles.controlBody}>Directly enables or pauses local BLE peer scanning.</Text>
+          </View>
 
-            {bleError ? (
-              <View style={styles.errorBanner}>
-                <Icon name="alert-circle" size={14} color={theme.colors.red} />
-                <Text style={styles.errorBannerText}>{bleError}</Text>
-              </View>
-            ) : null}
-          </GlassSurface>
+          <Switch
+            disabled={loading}
+            onValueChange={handleBleToggle}
+            thumbColor={bleEnabled ? theme.colors.cyan : theme.colors.textMuted}
+            trackColor={{ false: theme.colors.surfaceMuted, true: theme.colors.cyanGlowStrong }}
+            value={bleEnabled}
+          />
         </View>
 
-        <View style={styles.section}>
-          <SectionLabel label="LXMF" />
-          <GlassSurface variant="regular" style={styles.card}>
-            <View style={[styles.row, styles.rowBordered]}>
-              <View style={styles.iconWrap}>
-                <Icon name="mesh-nodes" size={18} color={theme.colors.textSecondary} />
-              </View>
-              <View style={styles.rowMid}>
-                <Text style={styles.rowLabel}>LXMF Mode</Text>
-                <Text style={styles.rowSublabel}>Current: {LXMF_MODE_LABEL[network.lxmfMode]}</Text>
-              </View>
-            </View>
+        <SettingsRow
+          iconName="activity"
+          iconTone="neutral"
+          label="Current status"
+          right={
+            loading ? (
+              <ActivityIndicator color={theme.colors.cyan} size="small" />
+            ) : (
+              <Pill label={bleError ? "Error" : connectionState} tone={connectionTone(connectionState, bleError)} />
+            )
+          }
+          sublabel={statusSublabel}
+          value={bleError ? undefined : iface}
+        />
 
-            <View style={styles.segmentRow}>
-              <SegmentedControl
-                segments={LXMF_SEGMENTS}
-                selected={String(network.lxmfMode)}
-                onSelect={handleLxmfModeSelect}
-              />
-            </View>
+        {bleError ? (
+          <View style={styles.errorBanner}>
+            <Icon color={theme.colors.red} name="alert-circle" size={14} />
+            <Text style={styles.errorBannerText}>{bleError}</Text>
+          </View>
+        ) : null}
+      </SettingsSection>
 
-            <View style={styles.noteRow}>
-              <Text style={styles.noteText}>
-                Saved on this device now. Native LXMF runtime is {isNativeAvailable ? "available" : "still stubbed"}.
-              </Text>
-            </View>
-          </GlassSurface>
+      <SettingsSection
+        title="LXMF mode"
+        description="Selection persists in local preferences today. Runtime shape is preserved, but this branch still runs the stub adapter."
+      >
+        <View style={styles.segmentBlock}>
+          <View style={styles.segmentHeader}>
+            <Text style={styles.segmentLabel}>Current route</Text>
+            <Text style={styles.segmentValue}>{LXMF_MODE_LABEL[network.lxmfMode]}</Text>
+          </View>
+
+          <SegmentedControl
+            onSelect={handleLxmfModeSelect}
+            segments={LXMF_SEGMENTS}
+            selected={String(network.lxmfMode)}
+          />
+
+          <Text style={styles.segmentNote}>
+            Native LXMF runtime is {isNativeAvailable ? "available" : "still stubbed"} in this recovery lane.
+          </Text>
+        </View>
+      </SettingsSection>
+
+      <SettingsSection
+        title="Connectivity defaults"
+        description="Local behavior switches live now. Longer-range relay still stays explicitly marked as future work."
+      >
+        <View style={[styles.controlRow, styles.controlRowBordered]}>
+          <View style={[styles.controlIconWrap, { backgroundColor: theme.colors.cyanSoft }]}>
+            <Icon color={theme.colors.cyan} name="zap" size={18} />
+          </View>
+
+          <View style={styles.controlCopy}>
+            <Text style={styles.controlLabel}>Auto-connect</Text>
+            <Text style={styles.controlBody}>Reconnect to visible nearby peers without manual tap-through.</Text>
+          </View>
+
+          <Switch
+            disabled={loading}
+            onValueChange={handleAutoConnectToggle}
+            thumbColor={network.autoConnect ? theme.colors.cyan : theme.colors.textMuted}
+            trackColor={{ false: theme.colors.surfaceMuted, true: theme.colors.cyanGlowStrong }}
+            value={network.autoConnect}
+          />
         </View>
 
-        <View style={styles.section}>
-          <SectionLabel label="Connectivity" />
-          <GlassSurface variant="regular" style={styles.card}>
-            <View style={[styles.row, styles.rowBordered]}>
-              <View style={styles.iconWrap}>
-                <Icon name="zap" size={18} color={theme.colors.textSecondary} />
-              </View>
-              <View style={styles.rowMid}>
-                <Text style={styles.rowLabel}>Auto-connect</Text>
-                <Text style={styles.rowSublabel}>Automatically connect to nearby peers</Text>
-              </View>
-              <Switch
-                disabled={loading}
-                value={network.autoConnect}
-                onValueChange={handleAutoConnectToggle}
-                trackColor={{ false: theme.colors.surfaceMuted, true: theme.colors.cyanSoft }}
-                thumbColor={network.autoConnect ? theme.colors.cyan : theme.colors.textMuted}
-              />
-            </View>
-
-            <View style={[styles.row, styles.disabledRow]}>
-              <View style={styles.iconWrap}>
-                <Icon name="radio" size={18} color={theme.colors.textMuted} />
-              </View>
-              <View style={styles.rowMid}>
-                <Text style={styles.rowLabelDisabled}>LoRa</Text>
-                <Text style={styles.rowSublabel}>Coming soon</Text>
-              </View>
-              <Pill label="Soon" tone="neutral" />
-            </View>
-          </GlassSurface>
-        </View>
-      </ScrollView>
-    </View>
+        <SettingsRow
+          iconName="radio"
+          iconTone="neutral"
+          label="LoRa bridge"
+          right={<Pill label="Soon" tone="neutral" />}
+          showSeparator={false}
+          sublabel="Hardware-backed long-range relay stays out of scope for this pass."
+        />
+      </SettingsSection>
+    </SettingsScaffold>
   );
 }
 
 const styles = StyleSheet.create({
-  root: {
-    backgroundColor: theme.colors.background,
-    flex: 1,
-  },
-  header: {
-    alignItems: "center",
-    flexDirection: "row",
-    paddingBottom: theme.spacing.md,
+  hero: {
+    borderRadius: theme.radius.xl,
+    gap: theme.spacing.md,
     paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.lg,
   },
-  backBtn: {
-    height: 36,
-    justifyContent: "center",
-    width: 36,
-  },
-  headerTitle: {
-    color: theme.colors.textPrimary,
-    flex: 1,
-    fontFamily: theme.fonts.heading,
-    fontSize: theme.type.section,
-    textAlign: "center",
-  },
-  headerSpacer: {
-    width: 36,
-  },
-  scroll: {
-    flex: 1,
-  },
-  content: {
-    gap: theme.spacing.lg,
-    paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.sm,
-  },
-  section: {
-    gap: theme.spacing.xs,
-  },
-  card: {
-    borderRadius: theme.radius.md,
-    overflow: "hidden",
-  },
-  row: {
+  traceRow: {
     alignItems: "center",
     flexDirection: "row",
     gap: theme.spacing.sm,
-    minHeight: 52,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.sm,
   },
-  rowBordered: {
-    borderBottomColor: theme.colors.line,
-    borderBottomWidth: StyleSheet.hairlineWidth,
+  traceDot: {
+    backgroundColor: theme.colors.cyan,
+    borderRadius: theme.radius.pill,
+    height: 8,
+    width: 8,
   },
-  disabledRow: {
-    opacity: 0.5,
+  traceLine: {
+    backgroundColor: theme.colors.cyanGlow,
+    borderRadius: theme.radius.pill,
+    height: 1,
+    width: 88,
   },
-  iconWrap: {
+  heroTop: {
+    flexDirection: "row",
+    gap: theme.spacing.md,
+  },
+  heroIconWrap: {
     alignItems: "center",
-    flexShrink: 0,
-    height: 24,
+    backgroundColor: theme.colors.cyanSoft,
+    borderRadius: theme.radius.pill,
+    height: 44,
     justifyContent: "center",
-    width: 24,
+    width: 44,
   },
-  rowMid: {
+  heroCopy: {
     flex: 1,
-    gap: theme.spacing.xxs,
+    gap: theme.spacing.xs,
   },
-  rowLabel: {
+  heroTitle: {
     color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.heading,
+    fontSize: theme.type.section,
+  },
+  heroBody: {
+    color: theme.colors.textSecondary,
     fontFamily: theme.fonts.body,
     fontSize: theme.type.body,
+    lineHeight: theme.type.body * 1.55,
   },
-  rowLabelDisabled: {
-    color: theme.colors.textMuted,
-    fontFamily: theme.fonts.body,
-    fontSize: theme.type.body,
+  heroPills: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: theme.spacing.sm,
   },
-  rowSublabel: {
-    color: theme.colors.textMuted,
-    fontFamily: theme.fonts.body,
-    fontSize: theme.type.caption,
+  actionsRow: {
+    flexDirection: "row",
+    gap: theme.spacing.sm,
   },
-  segmentRow: {
+  actionButton: {
+    flex: 1,
+  },
+  controlRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: theme.spacing.md,
+    minHeight: 72,
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.md,
+  },
+  controlRowBordered: {
     borderBottomColor: theme.colors.line,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
   },
-  noteRow: {
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
+  controlIconWrap: {
+    alignItems: "center",
+    borderRadius: theme.radius.pill,
+    height: 40,
+    justifyContent: "center",
+    width: 40,
   },
-  noteText: {
-    color: theme.colors.textMuted,
+  controlCopy: {
+    flex: 1,
+    gap: theme.spacing.xs,
+  },
+  controlLabel: {
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bodyMedium,
+    fontSize: theme.type.bodyLg,
+  },
+  controlBody: {
+    color: theme.colors.textSecondary,
     fontFamily: theme.fonts.body,
     fontSize: theme.type.caption,
-    lineHeight: theme.type.caption * 1.6,
+    lineHeight: theme.type.caption * 1.45,
   },
   errorBanner: {
     alignItems: "center",
-    borderTopColor: theme.colors.line,
+    backgroundColor: theme.colors.errorContainer,
+    borderTopColor: theme.colors.errorOutline,
     borderTopWidth: StyleSheet.hairlineWidth,
     flexDirection: "row",
     gap: theme.spacing.xs,
     paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.sm,
+    paddingVertical: theme.spacing.md,
   },
   errorBannerText: {
     color: theme.colors.red,
     flex: 1,
+    fontFamily: theme.fonts.body,
+    fontSize: theme.type.caption,
+    lineHeight: theme.type.caption * 1.45,
+  },
+  segmentBlock: {
+    gap: theme.spacing.md,
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.lg,
+  },
+  segmentHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  segmentLabel: {
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.bodyMedium,
+    fontSize: theme.type.caption,
+    textTransform: "uppercase",
+    letterSpacing: 0.6,
+  },
+  segmentValue: {
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bodyMedium,
+    fontSize: theme.type.body,
+  },
+  segmentNote: {
+    color: theme.colors.textSecondary,
     fontFamily: theme.fonts.body,
     fontSize: theme.type.caption,
     lineHeight: theme.type.caption * 1.5,
