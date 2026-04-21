@@ -107,7 +107,21 @@ npm run lint          # eslint
 npx tsc --noEmit      # typecheck
 ```
 
-Both must exit 0. If they don't, fix before commit.
+`npm run lint` must stay at 0 errors.
+
+`npx tsc --noEmit` currently has an inherited 5-error baseline in untouched upstream files. Until that baseline is cleared, treat typecheck as:
+
+- do not add new errors
+- do not increase the baseline count
+- if the baseline changes, document why in `progress.md`
+
+Current inherited baseline:
+
+- `components/screens/SolanaTransactionScreen.tsx(151,22)` wrong arg count
+- `components/ui/Header.tsx(61,45)` route type issue for `"/landing"`
+- `src/gossip/GCSFilter.ts` missing `@noble/hashes/sha2`
+- `src/gossip/PacketIdUtil.ts` missing `@noble/hashes/sha2`
+- `src/solana/SolanaTransactionManager.ts` missing `@noble/hashes/sha2`
 
 ### Per-screen acceptance
 
@@ -177,7 +191,7 @@ Only after Pass 1 covers all surfaces:
 
 Before each session-end commit:
 
-- Run the app against the latest workbench preset (`EXPO_PUBLIC_LAUNCH_PRESET=pending-relay-queue npm run start:workbench` equivalent, ported to new branch).
+- Run the app against the current branch build or fixture lane (`EXPO_PUBLIC_ADAPTERS=fixtures npm run start` when the fixture lane is the fastest truthful check).
 - Navigate every surface touched this session.
 - Confirm: nothing broken, nothing obviously regressed, motion/haptics feel right.
 

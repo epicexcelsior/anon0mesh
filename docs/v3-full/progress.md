@@ -633,3 +633,32 @@ Current branch truth is now documented in both UI copy and canonical docs. Build
 3. staged-but-not-finished LXMF / stealth / beacon deeper behavior
 
 Next major move remains Phase 2: reconcile tokens/primitives to the redesign canon before rebuilding Home.
+
+---
+
+## 2026-04-20 — session 14 (handoff refresh)
+
+- **Model:** GPT-5.4
+- **Agent / human:** Codex
+- **Goal:** Make the fresh-agent kickoff truthful so the next phase can start from the real recovery contract instead of stale pre-recovery instructions.
+
+### Shipped
+
+- Rewrote `docs/v3-full/handoff.md` around the active recovery state:
+  - required reading now starts with `recovery-plan.md` and `progress.md`
+  - kickoff prompt now names the real source precedence, real branch constraints, and the current next phase
+  - kickoff now points the next agent at Phase 2 token / primitive reconciliation and Home rebuild first
+- Updated `docs/v3-full/quality-gates.md` so typecheck instructions match the real 5-error inherited baseline instead of claiming clean `tsc` is currently required.
+
+### Deviations from decisions.md
+
+- None. This was a documentation truth pass only.
+
+### Open issues
+
+- `architecture.md` still contains some older workbench-port wording and should be reconciled when that file is next touched.
+- Phase 2 implementation itself has not started yet; this session only refreshed the kickoff path.
+
+### Handoff
+
+Fresh-agent handoff is now good enough to use directly from disk. The new agent should start with `docs/v3-full/handoff.md`, then follow the required read order inside it.

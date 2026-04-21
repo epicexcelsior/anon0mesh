@@ -1,107 +1,127 @@
-# handoff.md — v3-full execution kickoff
+# handoff.md — v3-full recovery kickoff
 
-Use this when starting a fresh chat / session for execution. Copy the "Kickoff prompt" section into the new session verbatim.
+Use this when starting a fresh chat / session for the next recovery phase.
+
+## Status
+
+As of 2026-04-20:
+
+- recovery Phase 0 reset is done
+- first Phase 1 functional repairs are done
+- current build-around limits are documented in `README.md`, `screen-inventory.md`, and `progress.md`
+- next major move is **Phase 2: token / primitive reconciliation to the redesign canon, then Home rebuild**
+
+Do **not** treat older "final gates complete" or workbench-first wording as active contract.
 
 ## Kickoff prompt (paste this into a fresh chat)
 
-```
-You are picking up execution of the `v3-full` effort on the `anon0mesh` repo.
+```text
+You are picking up the next recovery phase of `v3-full` in the `anon0mesh` repo.
 
-Branch: v3-full (currently at upstream/main).
 Repo: /home/epic/Downloads/anonmesh/anon0mesh
+Branch: v3-full
 Planning folder: docs/v3-full/
 
-Required reading before any action, in order:
+Read these files before making any code changes, in this exact order:
 
-1. docs/v3-full/README.md — orientation
-2. docs/v3-full/decisions.md — the ledger (D1–D29). Treat as contract.
-3. docs/v3-full/architecture.md — layer rules, folder structure, import direction
-4. docs/v3-full/screen-inventory.md — every surface in scope
-5. docs/v3-full/implementation-plan.md — step-by-step execution
-6. docs/v3-full/quality-gates.md — commit discipline, grep locks, polish rules
-7. docs/v3-full/progress.md — read every prior session block before starting
+1. docs/v3-full/recovery-plan.md
+2. docs/v3-full/progress.md
+3. docs/v3-full/decisions.md
+4. docs/v3-full/README.md
+5. docs/v3-full/screen-inventory.md
+6. docs/v3-full/handoff.md
 
-After reading, follow these rules:
+Secondary reads only if needed:
+- docs/v3-full/architecture.md
+- docs/v3-full/quality-gates.md
+- docs/v3-full/implementation-plan.md
 
-- Start at the next unfinished step in implementation-plan.md.
-- Open progress.md. Append a new session block: date, model, goal.
-- Use TodoWrite (or the task tool) to track work per step.
-- Commit after each step (or logical group) with conventional messages referencing decision IDs where relevant.
-- If you need a decision not covered in decisions.md, pause, update decisions.md, commit the doc update, then resume.
-- Never silently deviate from decisions.md. Updating it in the same commit as the deviation is mandatory.
-- Run `npm run lint` and `npx tsc --noEmit` before every commit.
-- If a problem requires architectural judgment beyond the plan, escalate: write the issue as a progress.md open-issue block and pause.
-- At session end, fill in the "Shipped / Deviations / Open issues / Handoff" fields of your progress.md block.
+Source precedence is:
+1. worktrees/anon0mesh-fork-ui (feature/ui-redesign, Void Protocol lane) for visual canon
+2. docs/v3-full/{recovery-plan,decisions,screen-inventory}.md for product contract
+3. current v3-full app code for architecture and working seams
+4. historical workbench references only when they still align
 
-Model guidance:
-- Sonnet 4.6 is the expected execution model. Use it unless you hit an escalation condition.
-- Opus 4.7 is reserved for architectural judgment and code review.
-- Do not use Haiku 4.5 for polish-heavy work on this branch.
+Current truth to preserve:
+- BLE peer discovery is live
+- wallet/send/history seams are live
+- messaging is still fixture-backed
+- LXMF runtime is still stubbed
+- stealth transfer path is still staged, not complete
+- beacon staking is still placeholder
 
-First action: read the required reading. Then review progress.md. Then claim the next step from implementation-plan.md.
+Current baseline to preserve:
+- npm run lint => 0 errors / 30 inherited warnings
+- npx tsc --noEmit => 5 inherited baseline errors:
+  - components/screens/SolanaTransactionScreen.tsx(151,22)
+  - components/ui/Header.tsx(61,45)
+  - src/gossip/GCSFilter.ts
+  - src/gossip/PacketIdUtil.ts
+  - src/solana/SolanaTransactionManager.ts
 
-Do NOT start writing code until you have read docs/v3-full/decisions.md and docs/v3-full/architecture.md end to end.
+Your job for the next phase:
+1. keep docs truthful
+2. commit in small scoped chunks
+3. start Phase 2 by reconciling the active token / primitive lane to the redesign canon
+4. rebuild Home first after the token/primitives pass
+5. do not overclaim unfinished LXMF / stealth / beacon functionality in UI copy
+
+Execution rules:
+- Append a new session block to docs/v3-full/progress.md
+- If you change behavior or meaning, update the relevant canonical doc in the same commit
+- Run npm run lint and npx tsc --noEmit before each commit, and compare against the known baseline above
+- If a supporting doc conflicts with recovery-plan.md or progress.md, treat the recovery docs as authoritative and either fix the stale doc or record it in progress.md
+- Do not start from implementation-plan.md; it is historical reference only where it does not conflict with recovery docs
+
+First action after reading: summarize the current phase, list the active constraints, and propose the smallest safe Phase 2 first commit.
 ```
 
-## Phase-specific notes
+## What To Read vs Ignore
 
-### Starting Phase 2 (first execution session after scaffolding)
+Always trust first:
 
-Pasting the kickoff prompt above is sufficient. The plan's Phase 2 section is self-contained. Additional context the Phase 2 agent should know on day one:
+- `recovery-plan.md`
+- `progress.md`
+- `decisions.md`
+- `README.md`
+- `screen-inventory.md`
 
-- **D6 is locked** (2026-04-18 session 3): mesh status strip is a persistent slim band across every tab, implemented in `app/(tabs)/_layout.tsx` above the Stack/Slot. See decisions.md D6 body + screen-inventory.md item 6 + implementation-plan.md Step 2.1 for the locked spec.
-- **First Phase 2 commit should also fix the tsc baseline** — add `"exclude": ["proxy_transfer_program/**"]` to `tsconfig.json`. Without this, `npx tsc --noEmit` will keep reporting ~40 errors from a nested Vite project that is not part of the expo build. Details in progress.md session 3 open issues.
-- **Fixtures are yours to write** per Step 2.3 (`src/fixtures/{peers,conversations,transactions,presets}.ts`). They were intentionally not pre-created.
-- **Routes are clean** — all stale upstream routes were deleted in session 3. `app/` contains only: `index.tsx`, `_layout.tsx`, `onboarding/`, `(tabs)/`. Anything else in `app/` before Phase 2 work starts means someone else is touching the branch.
+Use carefully:
 
-### Starting Phase 6 (polish after Phase 5 + 5.5)
+- `architecture.md`
+- `quality-gates.md`
+- `implementation-plan.md`
 
-Pasting the kickoff prompt above is sufficient. Additional context the Phase 6 agent should know:
+Those supporting docs still contain some older workbench-first / pre-recovery wording in places.
 
-- **Phase 5.5 (hardening) landed in session 6** — 10 review findings fixed. Read progress.md session 6 block before touching anything; the "Handoff" section lists the concrete Phase 6 priorities.
-- **`useMesh` now returns `bleError`** — use this in Peers sheet empty / permission-denied copy as part of step 6.1. Do not add another error channel.
-- **LxmfService lives in `src/domain/services/LxmfService.ts`** — types + numeric `LxmfNodeMode` enum. When the parallel LXMF agent's package ships, the stub adapter swaps with no hook or component changes.
-- **Wallet adapter selection** — `WalletFactory.isSolanaMobile()` picks MWA on Saga/Seeker, LocalWallet elsewhere. Phase 6 should not touch this logic; only UI polish for the wallet export + identity modals.
-- **Solana RPC is centralized** — do not reintroduce per-adapter Connection constructors. If you need the connection, import `solanaConnection` from `@/src/infrastructure/solana` (but only from `src/providers/` or `src/infrastructure/`, never from app/ or components/).
-- **Phase 6 scope is polish, not feature work.** Anything tempting to add is a Phase 7 or post-launch concern — drop it into progress.md open-issues.
+## Next Phase Scope
 
-## Context budget
+The next phase is **not** "finish everything."
 
-The planning folder is comprehensive but not huge (~2000 lines total). Load on demand:
+The next phase is:
 
-- Always load: `decisions.md`, `architecture.md`, `progress.md`, current step in `implementation-plan.md`.
-- Load when needed: `screen-inventory.md` (when on a specific surface), `quality-gates.md` (when committing or grepping), `lxmf-brief.md` (only if you become the LXMF agent), `handoff.md` (just this file; low value after kickoff).
+1. reconcile the single active token/primitives lane with the redesign canon
+2. remove obvious hybrid visual seams
+3. rebuild **Home** as the first fully truthful visual screen
 
-## External context
+After Home, continue in recovery order:
 
-You may need to reference (out-of-tree):
+1. Send
+2. Messages
+3. Peers
+4. Settings
 
-- Workbench design system docs: `docs/ui-system/` on `epic/ui-workbench-fixtures` branch. Use `git show epic/ui-workbench-fixtures:docs/ui-system/<file>` or `git worktree add` to mount.
-- v3 branch `mobile_app/` for code to port: `git show upstream/v3:mobile_app/<path>` or `git checkout upstream/v3 -- mobile_app/<path>`.
-- Wireframe: `/home/epic/Downloads/Telegram Desktop/anonmesh_ui_ux/` — reference only.
-- Stitch screen map: `/home/epic/Downloads/anonmesh/design/SCREEN_MAP.md`.
-- Mempool: `/home/epic/Downloads/anonmesh/anonmesh_mempool/` — ADR 0003, ADR 0004, repo profile, CONTEXT.md.
-- LXMF repo: `/home/epic/Downloads/anonmesh/lxmf_react_native_rust/`.
-
-## Commands you'll use
+## Commands
 
 ```bash
-# inspect branches
-git branch -a
-git log --oneline -20
-
-# pull a file from another branch without switching
-git show epic/ui-workbench-fixtures:components/dev/workbench/motion.ts
-git checkout upstream/v3 -- mobile_app/src/infrastructure/wallet/MWA/MWAWalletAdapter.ts
-
 # run the app
 npm install
-npm run start                # live app
-EXPO_PUBLIC_ADAPTERS=fixtures npm run start   # /dev mode
-npm run android              # build for Android
-npm run ios                  # build for iOS
+npm run start
+EXPO_PUBLIC_ADAPTERS=fixtures npm run start
+npm run android
+npm run ios
 
-# quality gates
+# quality baseline
 npm run lint
 npx tsc --noEmit
 
@@ -109,42 +129,19 @@ npx tsc --noEmit
 grep -rnE '\b(Pending|Broadcasting|Confirmed|Incognito)\b' app/ components/ src/hooks/ src/fixtures/ | grep -v node_modules
 ```
 
-## Escalation path
+## Session End Checklist
 
-If any of these happen during execution, pause and escalate:
-
-- Two decisions in `decisions.md` contradict each other in a specific context.
-- A port from v3/workbench fails (API mismatch, missing module, compile error you can't resolve in one attempt).
-- You detect that a completed earlier step is broken.
-- A step's success criterion cannot be met with the current design.
-- Scope creep becomes unclear — a step needs more than expected and the right split is ambiguous.
-
-Escalation output: append a block to `progress.md` under "Open issues" with:
-- What step / file triggered it.
-- What specifically is blocking.
-- What options you see.
-- Request review from @intern or Opus.
-
-Do not work around escalations silently. That's the failure mode this folder is designed to prevent.
-
-## Session end checklist
-
-Before closing a session:
-
-- [ ] All commits pushed to `v3-full`.
-- [ ] `npm run lint` and `npx tsc --noEmit` pass on HEAD.
-- [ ] `progress.md` block filled (Shipped / Deviations / Open issues / Handoff).
-- [ ] If `decisions.md` changed, the commit referenced the decision ID(s).
-- [ ] If new scope surfaces emerged, they're listed in `progress.md` open issues and/or `screen-inventory.md`.
-- [ ] If a doc became misleading, it's updated (not left as a parallel note).
+- [ ] `progress.md` updated with Shipped / Deviations / Open issues / Handoff
+- [ ] any changed behavior reflected in canonical docs
+- [ ] `npm run lint` still at 0 errors / 30 inherited warnings
+- [ ] `npx tsc --noEmit` still only shows the 5 inherited baseline errors, or any change is documented
+- [ ] commits are small and scoped
 
 ## Related
 
-- [README.md](./README.md) — orientation
-- [decisions.md](./decisions.md) — contract
-- [architecture.md](./architecture.md) — layer rules
-- [screen-inventory.md](./screen-inventory.md) — surfaces
-- [implementation-plan.md](./implementation-plan.md) — steps
-- [quality-gates.md](./quality-gates.md) — process
-- [progress.md](./progress.md) — log
-- [lxmf-brief.md](./lxmf-brief.md) — parallel agent
+- [recovery-plan.md](./recovery-plan.md)
+- [progress.md](./progress.md)
+- [decisions.md](./decisions.md)
+- [README.md](./README.md)
+- [screen-inventory.md](./screen-inventory.md)
+- [quality-gates.md](./quality-gates.md)
