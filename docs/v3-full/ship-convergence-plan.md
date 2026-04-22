@@ -478,11 +478,27 @@ Tester-ready MVP is successful if all of this is true:
 - repo READMEs implying stealth / beacon / transport are production-ready
 - memory entry `feedback_workbench_target.md` pre-update (workbench-first was right then; retired now)
 
-## 12. Immediate next move
+## 12. Phase status
 
-Phase 0 deliverables are staged. Pending user green-light to commit, then Phase 1 (primitive + haptic audit) begins.
+**Phase 0 — Alignment + archive:** complete (commits `32a5ea2`, `06d1039`, `226820a`).
 
-After Phase 1 exits user feel-review, Phase 2 (onboarding) starts. No phase skipping. No batching.
+**Phase 1 — Primitive + haptic consistency:** complete. Added `PressSurface` and `IconButton` primitives with supporting motion tokens, a `/dev/tokens` swatch + haptic tester, migrated 22 call sites, and fixed the BottomNav tap-delay + strip border-radius regression found during device review. User-approved.
+
+**Phase 2 — Onboarding polish:** complete. Landing, Welcome, Setup, and the Under-the-hood Sheet all rebuilt. Key landed work:
+- Existing-user auto-skip straight to Home with minimum splash moment so the logo is always seen on open.
+- Welcome: horizontal-row features with locked row heights + staggered top-to-bottom entrance, hero anchored at top, CTAs anchored at bottom, features vertically centered via equal flex spacers.
+- Setup: adapts to device wallet mode (MWA Seed Vault on Seeker, local wallet elsewhere), real runtime permission request for BLE + location, back button top-left with proper headline clearance, single `Create / Connect` CTA at bottom.
+- Tech drawer: converted from standalone route to inline Sheet opened from Welcome via `sheetRef`, single header row with title + X close.
+- BLE scan gated on permission check — root-cause fix for the "Not Responding" loop.
+- Dev `/dev` catalog now has a red "🧹 Reset wallet & restart onboarding" row that runs `resetOnboarding` and calls `Updates.reloadAsync` for a true fresh state.
+- Feather icons everywhere in onboarding; custom SVG icons retired from these screens for rendering reliability.
+- Onboarding typography bumped to iOS HIG / Material Display Small floors (36 headline, 17 body).
+
+Onboarding → Home transition polish explicitly deferred to Phase 3.
+
+**Phase 3 — Home rebuild:** next. Wallet hero + mesh strip + send/receive/history shell, absorbing the v3-latest wallet portfolio/allocation pattern. References available at `docs/v3-full/references/home/` (Cash App, Fuse screenshots already dropped).
+
+**Phases 4–8:** Messages, Settings, Peers sheet, Runtime truth, Ship gate — unchanged from §8.
 
 This plan intentionally rejects more ideation.
 
