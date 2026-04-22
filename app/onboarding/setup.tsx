@@ -122,7 +122,9 @@ export default function SetupScreen() {
         contentContainerStyle={[
           styles.content,
           {
-            paddingTop: insets.top + theme.spacing.huge,
+            // Back button (44px) + safe-area top + vertical breathing room
+            // so the headline never clips into the pressable.
+            paddingTop: insets.top + theme.spacing.sm + 44 + theme.spacing.lg,
             paddingBottom: insets.bottom + theme.spacing.xxxl,
           },
         ]}
