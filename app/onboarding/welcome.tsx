@@ -2,12 +2,20 @@ import React from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Animated, { FadeInDown } from "react-native-reanimated";
 
 import { DepthButton } from "@/components/primitives";
 import { Backdrop } from "@/components/primitives/Backdrop";
 import { FeatureHighlight } from "@/components/onboarding/FeatureHighlight";
 import * as haptics from "@/src/design-system/haptics";
 import { appTheme as theme } from "@/src/design-system/theme";
+
+const REVEAL_DURATION = 480;
+const REVEAL_STAGGER = 110;
+const REVEAL_START = 80;
+function reveal(index: number) {
+  return FadeInDown.duration(REVEAL_DURATION).delay(REVEAL_START + index * REVEAL_STAGGER);
+}
 
 const FEATURES = [
   {
@@ -49,42 +57,52 @@ export default function WelcomeScreen() {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.headline}>Private by default.</Text>
-        <Text style={styles.subheadline}>
+        <Animated.Text entering={reveal(0)} style={styles.headline}>
+          Private by default.
+        </Animated.Text>
+        <Animated.Text entering={reveal(1)} style={styles.subheadline}>
           Payments and messages that work without the internet.
-        </Text>
+        </Animated.Text>
 
         <View style={styles.features}>
-          {FEATURES.map((f) => (
-            <FeatureHighlight key={f.iconName} {...f} />
+          {FEATURES.map((f, index) => (
+            <Animated.View key={f.iconName} entering={reveal(2 + index)}>
+              <FeatureHighlight {...f} />
+            </Animated.View>
           ))}
         </View>
 
         <View style={styles.actions}>
-          <DepthButton
-            label="GET STARTED"
-            variant="primary"
-            tone="cyan"
-            size="lg"
-            onPress={() => router.push("/onboarding/setup")}
-          />
-          <DepthButton
-            label="I have an identity"
-            variant="secondary"
-            tone="cyan"
-            size="md"
-            onPress={() => router.push(existingIdentityTarget)}
-          />
-          <Pressable
-            accessibilityLabel="Open technical overview"
-            accessibilityRole="button"
-            onPress={() => {
-              haptics.select();
-              router.push("/onboarding/tech-drawer");
-            }}
-          >
-            <Text style={styles.techLink}>Under the hood →</Text>
-          </Pressable>
+          <Animated.View entering={reveal(2 + FEATURES.length)} style={styles.ctaPrimary}>
+            <DepthButton
+              label="GET STARTED"
+              variant="primary"
+              tone="cyan"
+              size="lg"
+              onPress={() => router.push("/onboarding/setup")}
+            />
+          </Animated.View>
+          <Animated.View entering={reveal(3 + FEATURES.length)} style={styles.ctaSecondary}>
+            <DepthButton
+              label="I have an identity"
+              variant="secondary"
+              tone="cyan"
+              size="md"
+              onPress={() => router.push(existingIdentityTarget)}
+            />
+          </Animated.View>
+          <Animated.View entering={reveal(4 + FEATURES.length)}>
+            <Pressable
+              accessibilityLabel="Open technical overview"
+              accessibilityRole="button"
+              onPress={() => {
+                haptics.select();
+                router.push("/onboarding/tech-drawer");
+              }}
+            >
+              <Text style={styles.techLink}>Under the hood →</Text>
+            </Pressable>
+          </Animated.View>
         </View>
       </ScrollView>
     </View>
@@ -119,8 +137,10 @@ const styles = StyleSheet.create({
   },
   actions: {
     gap: theme.spacing.md,
-    alignItems: "center",
+    alignItems: "stretch",
   },
+  ctaPrimary: {},
+  ctaSecondary: {},
   techLink: {
     color: theme.colors.textMuted,
     fontFamily: theme.fonts.body,
