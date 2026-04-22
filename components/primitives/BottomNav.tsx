@@ -65,35 +65,31 @@ export default function BottomNav({ active, onSelect }: BottomNavProps) {
     setBarWidth(e.nativeEvent.layout.width);
   }
 
+  // Lift the wrapper above the system gesture area so the bar doesn't
+  // get cut off by Android's gesture bar or iOS home indicator.
+  const bottomOffset = Math.max(insets.bottom, theme.spacing.sm);
+
   return (
-    <View
-      style={[
-        styles.wrapper,
-        { bottom: theme.component.nav.minimumBottomOffset },
-      ]}
-    >
+    <View style={[styles.wrapper, { bottom: bottomOffset }]}>
       <View style={styles.barShell}>
         <GlassSurface variant="soft" style={StyleSheet.absoluteFillObject} />
         <LinearGradient
           colors={[theme.colors.navTop, theme.colors.navBottom]}
           end={{ x: 0.9, y: 1 }}
           start={{ x: 0.1, y: 0 }}
-          style={[
-            styles.bar,
-            { paddingBottom: Math.max(insets.bottom, theme.spacing.sm) },
-          ]}
+          style={[styles.bar, { paddingBottom: theme.spacing.sm }]}
         >
           <View style={styles.innerHighlight} />
-          <Animated.View style={[styles.indicator, indicatorStyle]}>
-            <LinearGradient
-              colors={[theme.colors.navIndicatorTop, theme.colors.navIndicatorBottom]}
-              end={{ x: 1, y: 1 }}
-              start={{ x: 0, y: 0 }}
-              style={styles.indicatorFill}
-            />
-            <View style={styles.indicatorGlow} />
-          </Animated.View>
           <View onLayout={handleLayout} style={styles.tabRow}>
+            <Animated.View style={[styles.indicator, indicatorStyle]}>
+              <LinearGradient
+                colors={[theme.colors.navIndicatorTop, theme.colors.navIndicatorBottom]}
+                end={{ x: 1, y: 1 }}
+                start={{ x: 0, y: 0 }}
+                style={styles.indicatorFill}
+              />
+              <View style={styles.indicatorGlow} />
+            </Animated.View>
             {TABS.map(({ id, label, Icon }) => {
               const isActive = id === active;
               return (
@@ -112,6 +108,8 @@ export default function BottomNav({ active, onSelect }: BottomNavProps) {
     </View>
   );
 }
+
+
 
 interface TabButtonProps {
   Icon: React.ComponentType<{ size?: number; weight?: "fill" | "regular"; color?: string }>;
