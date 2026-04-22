@@ -140,11 +140,6 @@ export function PeerDetail({ peer, onTrust, onBlock }: PeerDetailProps) {
       showsVerticalScrollIndicator={false}
     >
       <GlassSurface variant="strong" style={styles.heroCard}>
-        <View style={styles.heroTraceRow}>
-          <View style={styles.heroTraceDot} />
-          <View style={styles.heroTraceLine} />
-        </View>
-
         <View style={styles.heroTop}>
           <View style={styles.avatarLarge}>
             <Icon
@@ -324,23 +319,6 @@ const styles = StyleSheet.create({
     gap: theme.spacing.md,
     paddingHorizontal: theme.spacing.lg,
     paddingVertical: theme.spacing.lg,
-  },
-  heroTraceRow: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: theme.spacing.sm,
-  },
-  heroTraceDot: {
-    backgroundColor: theme.colors.cyan,
-    borderRadius: theme.radius.pill,
-    height: 8,
-    width: 8,
-  },
-  heroTraceLine: {
-    backgroundColor: theme.colors.cyanGlow,
-    borderRadius: theme.radius.pill,
-    height: 1,
-    width: 88,
   },
   heroTop: {
     alignItems: "center",

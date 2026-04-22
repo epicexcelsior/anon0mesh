@@ -95,11 +95,6 @@ export function IdentityCard({
   return (
     <PressSurface onPress={onPress ? handlePress : undefined} style={styles.wrapper} variant="card">
       <GlassSurface variant="strong" style={styles.card}>
-        <View style={styles.traceRow}>
-          <View style={styles.traceDot} />
-          <View style={styles.traceLine} />
-        </View>
-
         <View style={styles.topRow}>
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>{getInitial(label)}</Text>
@@ -149,23 +144,6 @@ const styles = StyleSheet.create({
     gap: theme.spacing.md,
     paddingHorizontal: theme.spacing.lg,
     paddingVertical: theme.spacing.lg,
-  },
-  traceRow: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: theme.spacing.sm,
-  },
-  traceDot: {
-    backgroundColor: theme.colors.cyan,
-    borderRadius: theme.radius.pill,
-    height: 8,
-    width: 8,
-  },
-  traceLine: {
-    backgroundColor: theme.colors.cyanGlow,
-    borderRadius: theme.radius.pill,
-    height: 1,
-    width: 88,
   },
   topRow: {
     alignItems: "flex-start",

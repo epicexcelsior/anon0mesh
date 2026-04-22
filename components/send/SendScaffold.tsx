@@ -76,10 +76,6 @@ export function SendScaffold({
         </View>
 
         <View style={styles.intro}>
-          <View style={styles.traceRow}>
-            <View style={styles.traceDot} />
-            <View style={styles.traceLine} />
-          </View>
           <Text style={styles.eyebrow}>{resolvedEyebrow}</Text>
           <Text style={styles.title}>{title}</Text>
           {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
@@ -126,24 +122,6 @@ const styles = StyleSheet.create({
     gap: theme.spacing.xs,
     paddingHorizontal: theme.spacing.lg,
     paddingTop: theme.spacing.lg,
-  },
-  traceRow: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: theme.spacing.sm,
-    marginBottom: theme.spacing.xs,
-  },
-  traceDot: {
-    backgroundColor: theme.colors.cyan,
-    borderRadius: theme.radius.pill,
-    height: 8,
-    width: 8,
-  },
-  traceLine: {
-    backgroundColor: theme.colors.cyanGlow,
-    borderRadius: theme.radius.pill,
-    height: 1,
-    width: 72,
   },
   eyebrow: {
     color: theme.colors.textMuted,

@@ -55,8 +55,10 @@ export function SettingsScaffold({
   tone = "purple",
   trailing,
 }: SettingsScaffoldProps) {
-  const accent = TONE_ACCENT[tone];
-  const glow = TONE_GLOW[tone];
+  // Accent/glow retained on the type signature for future tinted
+  // highlights; dot-dash decoration was stripped per user feedback.
+  void TONE_ACCENT[tone];
+  void TONE_GLOW[tone];
 
   return (
     <View style={styles.root}>
@@ -88,10 +90,6 @@ export function SettingsScaffold({
           style={styles.scroll}
         >
           <View style={styles.intro}>
-            <View style={styles.traceRow}>
-              <View style={[styles.traceDot, { backgroundColor: accent }]} />
-              <View style={[styles.traceLine, { backgroundColor: glow }]} />
-            </View>
             <Text style={styles.eyebrow}>{eyebrow}</Text>
             <Text style={styles.title}>{title}</Text>
             {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
@@ -146,22 +144,6 @@ const styles = StyleSheet.create({
   },
   intro: {
     gap: 6,
-  },
-  traceRow: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: theme.spacing.sm,
-    marginBottom: theme.spacing.xs,
-  },
-  traceDot: {
-    borderRadius: theme.radius.pill,
-    height: 8,
-    width: 8,
-  },
-  traceLine: {
-    borderRadius: theme.radius.pill,
-    height: 1,
-    width: 88,
   },
   eyebrow: {
     color: theme.colors.textMuted,

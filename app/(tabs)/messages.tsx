@@ -56,12 +56,7 @@ export default function MessagesScreen() {
       </View>
 
       <GlassSurface style={styles.hero} variant="strong">
-        <View style={styles.heroTraceRow}>
-          <View style={styles.heroTraceDot} />
-          <View style={styles.heroTraceLine} />
-        </View>
-
-        <View style={styles.heroTop}>
+<View style={styles.heroTop}>
           <View style={styles.heroIconWrap}>
             <Icon color={theme.colors.cyan} name="lock-mesh" size={20} />
           </View>
@@ -129,23 +124,6 @@ const styles = StyleSheet.create({
     marginHorizontal: theme.spacing.lg,
     paddingHorizontal: theme.spacing.lg,
     paddingVertical: theme.spacing.md,
-  },
-  heroTraceRow: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: theme.spacing.sm,
-  },
-  heroTraceDot: {
-    backgroundColor: theme.colors.cyan,
-    borderRadius: theme.radius.pill,
-    height: 8,
-    width: 8,
-  },
-  heroTraceLine: {
-    backgroundColor: theme.colors.cyanGlow,
-    borderRadius: theme.radius.pill,
-    height: 1,
-    width: 88,
   },
   heroTop: {
     alignItems: "flex-start",
