@@ -69,10 +69,9 @@ export default function MessagesScreen() {
 
           <View style={styles.heroCopy}>
             <Text style={styles.heroEyebrow}>Private mesh inbox</Text>
-            <Text style={styles.heroTitle}>Secure threads, honest runtime.</Text>
+            <Text style={styles.heroTitle}>Secure threads.</Text>
             <Text style={styles.heroBody}>
-              Peer discovery is live. Message history and delivery remain fixture-backed in
-              this recovery lane while the LXMF runtime lands.
+              Peer discovery is live. Delivery stays fixture-backed until LXMF lands.
             </Text>
           </View>
         </View>
@@ -87,8 +86,7 @@ export default function MessagesScreen() {
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Active threads</Text>
         <Text style={styles.sectionMeta}>
-          New conversations come from the live peer graph. Thread delivery stays fixture-backed
-          for now.
+          New conversations come from the live peer graph.
         </Text>
       </View>
 
@@ -138,10 +136,10 @@ const styles = StyleSheet.create({
   },
   hero: {
     borderRadius: theme.radius.xl,
-    gap: theme.spacing.md,
+    gap: theme.spacing.sm,
     marginHorizontal: theme.spacing.lg,
     paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.lg,
+    paddingVertical: theme.spacing.md,
   },
   heroTraceRow: {
     alignItems: "center",
@@ -161,7 +159,7 @@ const styles = StyleSheet.create({
     width: 88,
   },
   heroTop: {
-    alignItems: "center",
+    alignItems: "flex-start",
     flexDirection: "row",
     gap: theme.spacing.md,
   },
@@ -169,9 +167,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: theme.colors.cyanSoft,
     borderRadius: theme.radius.pill,
-    height: 48,
+    height: 44,
     justifyContent: "center",
-    width: 48,
+    width: 44,
   },
   heroCopy: {
     flex: 1,
@@ -186,14 +184,14 @@ const styles = StyleSheet.create({
   },
   heroTitle: {
     color: theme.colors.textPrimary,
-    fontFamily: theme.fonts.heading,
-    fontSize: theme.type.section,
+    fontFamily: theme.fonts.headingBold,
+    fontSize: theme.type.bodyLg,
   },
   heroBody: {
     color: theme.colors.textSecondary,
     fontFamily: theme.fonts.body,
-    fontSize: theme.type.body,
-    lineHeight: theme.type.body * 1.55,
+    fontSize: theme.type.caption,
+    lineHeight: theme.type.caption * 1.55,
   },
   heroPills: {
     flexDirection: "row",
@@ -215,7 +213,7 @@ const styles = StyleSheet.create({
     color: theme.colors.textSecondary,
     fontFamily: theme.fonts.body,
     fontSize: theme.type.caption,
-    lineHeight: theme.type.caption * 1.55,
+    lineHeight: theme.type.caption * 1.4,
   },
   listWrap: {
     flex: 1,

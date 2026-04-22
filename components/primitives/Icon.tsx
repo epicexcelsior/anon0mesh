@@ -4,6 +4,8 @@ import React from "react";
 import { View } from "react-native";
 import Svg, { Circle, Line, Path, Rect } from "react-native-svg";
 
+import { appTheme as theme } from "@/src/design-system/theme";
+
 type FeatherName = ComponentProps<typeof Feather>["name"];
 
 type CustomIconName =
@@ -99,7 +101,7 @@ function CustomIcon({ name, size, color }: { name: CustomIconName; size: number;
   }
 }
 
-export function Icon({ name, size = 20, color = "#ffffff" }: IconProps) {
+export function Icon({ name, size = 20, color = theme.colors.textPrimary }: IconProps) {
   if (CUSTOM_ICONS.has(name as CustomIconName)) {
     return <CustomIcon name={name as CustomIconName} size={size} color={color} />;
   }

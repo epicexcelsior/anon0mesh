@@ -2,9 +2,19 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback, useEffect, useState } from "react";
 
 const STORAGE_PREFIX = "display-name:";
+const MAX_DISPLAY_NAME_LENGTH = 20;
+const DISPLAY_NAME_PATTERN = /^[a-zA-Z0-9\s\-_.]+$/;
 
 function storageKey(address: string) {
   return `${STORAGE_PREFIX}${address}`;
+}
+
+function sanitizeStoredDisplayName(value: string | null): string | null {
+  const trimmed = value?.trim();
+  if (!trimmed) return null;
+  if (trimmed.length > MAX_DISPLAY_NAME_LENGTH) return null;
+  if (!DISPLAY_NAME_PATTERN.test(trimmed)) return null;
+  return trimmed;
 }
 
 export async function saveLocalDisplayNameForAddress(
@@ -41,8 +51,11 @@ export function useLocalDisplayName(address: string | null, fallback: string) {
       try {
         const value = await AsyncStorage.getItem(storageKey(address));
         if (!active) return;
-        const trimmed = value?.trim();
-        setStoredDisplayName(trimmed ? trimmed : null);
+        const sanitized = sanitizeStoredDisplayName(value);
+        if (sanitized === null && value) {
+          await AsyncStorage.removeItem(storageKey(address));
+        }
+        setStoredDisplayName(sanitized);
       } catch {
         if (active) {
           setStoredDisplayName(null);

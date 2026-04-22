@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
   tokenButton: {
     alignItems: "center",
     backgroundColor: theme.colors.cyanSoft,
-    borderColor: "rgba(0, 218, 243, 0.22)",
+    borderColor: theme.colors.cyanBorderSoft,
     borderRadius: theme.radius.pill,
     borderWidth: 1,
     flexDirection: "row",
@@ -203,11 +203,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.xs,
   },
-  tokenButtonPressed: { backgroundColor: "rgba(0, 218, 243, 0.16)", transform: [{ scale: 0.96 }] },
+  tokenButtonPressed: { backgroundColor: theme.colors.cyanGlow, transform: [{ scale: 0.96 }] },
   tokenButtonStatic: {
     alignItems: "center",
     backgroundColor: theme.colors.cyanSoft,
-    borderColor: "rgba(0, 218, 243, 0.22)",
+    borderColor: theme.colors.cyanBorderSoft,
     borderRadius: theme.radius.pill,
     borderWidth: 1,
     flexDirection: "row",
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
   chipRow: { alignItems: "center" },
   useMaxChip: {
     backgroundColor: theme.colors.cyanSoft,
-    borderColor: "rgba(0, 218, 243, 0.18)",
+    borderColor: theme.colors.cyanBorderSoft,
     borderRadius: theme.radius.pill,
     borderWidth: 1,
     paddingHorizontal: theme.spacing.lg,

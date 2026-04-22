@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useIsFocused } from "@react-navigation/native";
 
 import type { Wallet } from "@/src/domain/entities/Wallet";
 import type { WalletExportState } from "@/src/domain/services/WalletService";
@@ -9,6 +10,7 @@ export function useWallet() {
   const [exportState, setExportState] = useState<WalletExportState | null>(null);
   const [loading, setLoading] = useState(true);
   const adapters = useAdapters();
+  const isFocused = useIsFocused();
   const mode = adapters.wallet.getMode();
 
   const loadWallet = useCallback(async () => {
@@ -25,14 +27,13 @@ export function useWallet() {
   }, [adapters]);
 
   useEffect(() => {
+    if (!isFocused) {
+      return;
+    }
+
+    setLoading(true);
     void loadWallet();
-    const intervalId = setInterval(() => {
-      void loadWallet();
-    }, 5000);
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [loadWallet]);
+  }, [isFocused, loadWallet]);
 
   const refresh = useCallback(() => {
     setLoading(true);

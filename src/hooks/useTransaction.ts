@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
+import { useIsFocused } from "@react-navigation/native";
 
 import type { Transaction } from "@/src/domain/entities/Transaction";
 import { useAdapters } from "@/src/providers/AdapterProvider";
 
-const HISTORY_REFRESH_MS = 6000;
+const HISTORY_REFRESH_MS = 30000;
 const PENDING_REFRESH_MS = 1500;
 
 function mergeTransactions(
@@ -48,6 +49,7 @@ export function useTransaction(txId?: string) {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const adapters = useAdapters();
+  const isFocused = useIsFocused();
 
   const loadTransactions = useCallback(async () => {
     try {
@@ -63,6 +65,11 @@ export function useTransaction(txId?: string) {
   }, [adapters]);
 
   useEffect(() => {
+    if (!isFocused) {
+      return;
+    }
+
+    setLoading(true);
     void loadTransactions();
     const intervalId = setInterval(() => {
       void loadTransactions();
@@ -70,9 +77,13 @@ export function useTransaction(txId?: string) {
     return () => {
       clearInterval(intervalId);
     };
-  }, [loadTransactions]);
+  }, [isFocused, loadTransactions]);
 
   useEffect(() => {
+    if (!isFocused) {
+      return;
+    }
+
     if (!adapters.transaction.refreshPendingStatuses) {
       return;
     }
@@ -102,7 +113,7 @@ export function useTransaction(txId?: string) {
       cancelled = true;
       clearInterval(intervalId);
     };
-  }, [adapters, loadTransactions, transactions]);
+  }, [adapters, isFocused, loadTransactions, transactions]);
 
   const selected = txId
     ? transactions.find((transaction) => transaction.id === txId) ?? null

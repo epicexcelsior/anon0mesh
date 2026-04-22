@@ -11,7 +11,7 @@ import { Backdrop } from "@/components/primitives/Backdrop";
 import { Icon } from "@/components/primitives/Icon";
 import { SegmentedControl } from "@/components/primitives/SegmentedControl";
 import { appTheme as theme } from "@/src/design-system/theme";
-import { useTransaction } from "@/src/hooks";
+import { useTransaction, useWallet } from "@/src/hooks";
 
 const SEGMENTS = [
   { id: "balance", label: "Balance" },
@@ -50,14 +50,15 @@ export default function HomeScreen() {
   const router = useRouter();
   const [segment, setSegment] = useState("balance");
   const { transactions } = useTransaction();
+  const { wallet, loading, mode, exportState } = useWallet();
 
   return (
     <View style={styles.root}>
       <Backdrop preset="home" animated />
 
       <View style={[styles.content, { paddingTop: insets.top + theme.spacing.md }]}>
-        <HomeHero />
-        <BalanceCard />
+        <HomeHero mode={mode} wallet={wallet} />
+        <BalanceCard exportState={exportState} loading={loading} mode={mode} wallet={wallet} />
 
         <View style={styles.actionRow}>
           {ACTIONS.map((action) => {
@@ -152,7 +153,7 @@ const styles = StyleSheet.create({
     width: 36,
   },
   actionIconWrapAccent: {
-    backgroundColor: "rgba(5, 10, 10, 0.12)",
+    backgroundColor: theme.colors.surfaceOnAccent,
   },
   actionLabel: {
     color: theme.colors.textPrimary,
@@ -169,7 +170,7 @@ const styles = StyleSheet.create({
     lineHeight: theme.type.caption * 1.45,
   },
   actionDetailAccent: {
-    color: "rgba(5, 10, 10, 0.72)",
+    color: theme.colors.textOnAccentMuted,
   },
   segmentRow: {
     marginHorizontal: theme.spacing.lg,

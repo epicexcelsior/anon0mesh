@@ -15,6 +15,7 @@ import type {
 import { LocalWallet } from './LocalWallet';
 import { WalletFactory } from './WalletFactory';
 import {
+  getWalletBalance,
   getWalletTransferHistory,
   solanaConnection,
   solanaTransactionService,
@@ -60,7 +61,7 @@ export class LocalWalletAdapter implements WalletService {
     const pubkey = this.wallet.getPublicKey();
     if (!pubkey) return null;
 
-    const balance = await solanaConnection.getBalance(pubkey);
+    const balance = await getWalletBalance(pubkey);
     const solAmount = (balance / LAMPORTS_PER_SOL).toFixed(6);
 
     return {
@@ -109,7 +110,7 @@ export class LocalWalletAdapter implements WalletService {
     }
     const pubkey = this.wallet.getPublicKey();
     if (!pubkey) return;
-    await solanaConnection.getBalance(pubkey);
+    await getWalletBalance(pubkey, { force: true });
   }
 
   async send(params: SendParams): Promise<Transaction> {

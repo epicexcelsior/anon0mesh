@@ -70,7 +70,7 @@ export default function BottomNav({ active, onSelect }: BottomNavProps) {
       <View style={styles.barShell}>
         <GlassSurface variant="soft" style={StyleSheet.absoluteFillObject} />
         <LinearGradient
-          colors={["rgba(15, 26, 30, 0.96)", "rgba(5, 10, 10, 0.98)"]}
+          colors={[theme.colors.navTop, theme.colors.navBottom]}
           end={{ x: 0.9, y: 1 }}
           start={{ x: 0.1, y: 0 }}
           style={[
@@ -81,7 +81,7 @@ export default function BottomNav({ active, onSelect }: BottomNavProps) {
           <View style={styles.innerHighlight} />
           <Animated.View style={[styles.indicator, indicatorStyle]}>
             <LinearGradient
-              colors={["rgba(34, 211, 238, 0.18)", "rgba(34, 211, 238, 0.08)"]}
+              colors={[theme.colors.navIndicatorTop, theme.colors.navIndicatorBottom]}
               end={{ x: 1, y: 1 }}
               start={{ x: 0, y: 0 }}
               style={styles.indicatorFill}
@@ -104,7 +104,7 @@ export default function BottomNav({ active, onSelect }: BottomNavProps) {
                   style={[styles.tab, isActive && styles.tabActive]}
                 >
                   <Icon
-                    size={20}
+                    size={18}
                     weight={isActive ? "fill" : "regular"}
                     color={isActive ? theme.colors.cyan : theme.colors.textMuted}
                   />
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     top: 0,
   },
   indicator: {
-    borderColor: "rgba(34, 211, 238, 0.16)",
+    borderColor: theme.colors.cyanBorderSoft,
     borderRadius: theme.radius.lg,
     borderWidth: 1,
     bottom: theme.component.nav.indicatorInsetY,
@@ -175,18 +175,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: theme.radius.lg,
     flex: 1,
-    gap: theme.spacing.xs,
+    gap: 2,
     justifyContent: "center",
     minHeight: theme.component.nav.tabMinHeight,
-    paddingVertical: theme.spacing.xs,
+    paddingVertical: 2,
   },
   tabActive: {},
   label: {
     color: theme.colors.textMuted,
     fontFamily: theme.fonts.bodyMedium,
-    fontSize: theme.type.micro,
-    letterSpacing: 0.6,
-    textTransform: "uppercase",
+    fontSize: 11,
+    letterSpacing: 0.2,
   },
   labelActive: { color: theme.colors.cyan },
 });

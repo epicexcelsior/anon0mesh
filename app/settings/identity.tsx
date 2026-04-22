@@ -24,6 +24,12 @@ function shortAddress(address: string | null) {
   return `${address.slice(0, 10)}...${address.slice(-6)}`;
 }
 
+function shortIdentity(value: string | null) {
+  if (!value) return "Anonymous";
+  if (value.length <= 20) return value;
+  return `${value.slice(0, 10)}...${value.slice(-6)}`;
+}
+
 function modeLabel(mode: ReturnType<typeof useWallet>["mode"]) {
   switch (mode) {
     case "local":
@@ -59,6 +65,9 @@ export default function IdentityScreen() {
   const trimmedDraft = draftName.trim();
   const storedValue = storedDisplayName ?? "";
   const isDirty = trimmedDraft !== storedValue;
+  const heroLabel = hasCustomDisplayName ? displayName : shortIdentity(alias);
+  const heroAlias = alias ? `Alias ${shortIdentity(alias)}` : "Alias unavailable";
+  const heroAddress = address ? `Address ${shortAddress(address)}` : "No wallet connected";
 
   async function handleCopy() {
     if (!address) return;
@@ -110,7 +119,7 @@ export default function IdentityScreen() {
       eyebrow="Identity surface"
       onBack={() => router.back()}
       showBack
-      subtitle="Wallet alias stays key-derived. Device label saves locally here without pretending global identity sync is live."
+      subtitle="Wallet alias stays key-derived. Device labels save locally on this phone."
       title="Identity"
       tone="cyan"
       trailing={<Pill label={hasCustomDisplayName ? "Local label" : "Alias only"} tone={hasCustomDisplayName ? "cyan" : "neutral"} />}
@@ -126,7 +135,7 @@ export default function IdentityScreen() {
             <QRCode
               backgroundColor="transparent"
               color={theme.colors.textPrimary}
-              size={168}
+              size={148}
               value={address}
             />
           ) : (
@@ -134,11 +143,9 @@ export default function IdentityScreen() {
           )}
         </View>
 
-        <Text style={styles.displayName}>{displayName}</Text>
-        <Text style={styles.aliasText}>Mesh alias {alias}</Text>
-        <Text selectable style={styles.addressText}>
-          {address ?? "No wallet connected"}
-        </Text>
+        <Text numberOfLines={1} style={styles.displayName}>{heroLabel}</Text>
+        <Text numberOfLines={1} style={styles.aliasText}>{heroAlias}</Text>
+        <Text numberOfLines={1} style={styles.addressText}>{heroAddress}</Text>
 
         <View style={styles.heroPills}>
           <Pill label={modeLabel(mode)} tone={mode === "local" ? "cyan" : mode === "mwa" ? "amber" : "neutral"} />
@@ -167,22 +174,23 @@ export default function IdentityScreen() {
             style={styles.heroAction}
           >
             <Icon color={theme.colors.textPrimary} name="download-cloud" size={16} />
-            <Text style={styles.heroActionText}>Wallet export</Text>
+            <Text style={styles.heroActionText}>Export</Text>
           </TouchableOpacity>
         </View>
       </GlassSurface>
 
       <SettingsSection
         title="Device label"
-        description="Saved on this device only. Nearby peers and other screens still resolve wallet-derived identity unless specifically wired later."
+        description="Saved on this device only."
       >
         <View style={styles.editorBlock}>
           <AppTextInput
             autoCorrect={false}
             containerStyle={styles.input}
+            maxLength={20}
             label="Local display label"
             onChangeText={setDraftName}
-            placeholder={alias}
+            placeholder={shortIdentity(alias)}
             value={draftName}
           />
 
@@ -192,7 +200,7 @@ export default function IdentityScreen() {
             <DepthButton
               disabled={!address || !isDirty || loading}
               icon={<Icon color={theme.colors.textOnAccent} name="save" size={16} />}
-              label={hasCustomDisplayName ? "Save label" : "Save local label"}
+              label="Save label"
               onPress={handleSave}
               size="md"
               style={styles.actionButton}
@@ -201,7 +209,7 @@ export default function IdentityScreen() {
             <DepthButton
               disabled={!hasCustomDisplayName || loading}
               icon={<Icon color={theme.colors.textPrimary} name="rotate-ccw" size={16} />}
-              label="Reset to alias"
+              label="Use alias"
               onPress={handleReset}
               size="md"
               style={styles.actionButton}
@@ -214,7 +222,7 @@ export default function IdentityScreen() {
 
       <SettingsSection
         title="Identity layers"
-        description="Keep naming honest while profile sync and richer identity metadata stay outside this pass."
+        description="Naming stays honest while richer identity metadata stays out of scope."
       >
         <SettingsRow
           iconName="user"
@@ -250,7 +258,7 @@ const styles = StyleSheet.create({
   hero: {
     alignItems: "center",
     borderRadius: theme.radius.xl,
-    gap: theme.spacing.md,
+    gap: theme.spacing.sm,
     paddingHorizontal: theme.spacing.lg,
     paddingVertical: theme.spacing.lg,
   },
@@ -284,27 +292,27 @@ const styles = StyleSheet.create({
   qrPlaceholder: {
     backgroundColor: theme.colors.surfaceMuted,
     borderRadius: theme.radius.md,
-    height: 168,
-    width: 168,
+    height: 148,
+    width: 148,
   },
   displayName: {
     color: theme.colors.textPrimary,
-    fontFamily: theme.fonts.display,
-    fontSize: theme.type.section,
-    letterSpacing: -0.4,
+    fontFamily: theme.fonts.headingBold,
+    fontSize: theme.type.bodyLg,
+    letterSpacing: -0.2,
     textAlign: "center",
   },
   aliasText: {
     color: theme.colors.textSecondary,
     fontFamily: theme.fonts.bodyMedium,
-    fontSize: theme.type.body,
+    fontSize: theme.type.caption,
     textAlign: "center",
   },
   addressText: {
     color: theme.colors.textMuted,
     fontFamily: theme.fonts.mono,
     fontSize: theme.type.caption,
-    lineHeight: theme.type.caption * 1.45,
+    lineHeight: theme.type.caption * 1.35,
     textAlign: "center",
   },
   heroPills: {

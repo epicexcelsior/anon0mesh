@@ -88,7 +88,7 @@ export function SettingsRow({
       <View style={styles.rightWrap}>
         {right ?? (
           <>
-            {value ? <Text style={styles.value}>{value}</Text> : null}
+            {value ? <Text numberOfLines={1} style={styles.value}>{value}</Text> : null}
             {onPress ? <Icon name="chevron-right" size={16} color={theme.colors.textMuted} /> : null}
           </>
         )}
@@ -142,12 +142,14 @@ const styles = StyleSheet.create({
   rightWrap: {
     alignItems: "center",
     flexDirection: "row",
-    flexShrink: 0,
+    flexShrink: 1,
     gap: theme.spacing.xs,
+    maxWidth: "42%",
   },
   value: {
     color: theme.colors.textMuted,
     fontFamily: theme.fonts.bodyMedium,
     fontSize: theme.type.body,
+    textAlign: "right",
   },
 });

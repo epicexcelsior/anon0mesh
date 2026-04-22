@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
   bubbleSent: {
     backgroundColor: theme.colors.cyan,
     borderBottomRightRadius: theme.radius.sm,
-    borderColor: "rgba(34, 211, 238, 0.26)",
+    borderColor: theme.colors.cyanBorderStrong,
   },
   bubbleReceived: {
     backgroundColor: theme.colors.surfaceContainerLowest,
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
     width: 28,
   },
   transferIconWrapSent: {
-    backgroundColor: "rgba(5, 10, 10, 0.14)",
+    backgroundColor: theme.colors.surfaceOnAccent,
   },
   transferIconWrapReceived: {
     backgroundColor: theme.colors.cyanSoft,

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AppTextInput } from "@/components/primitives";
 import { Backdrop } from "@/components/primitives/Backdrop";
@@ -31,11 +32,14 @@ function generateAlias() {
 
 export default function SetupScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { intent } = useLocalSearchParams<{ intent?: string }>();
   const adapters = useAdapters();
   const [displayName, setDisplayName] = useState("");
   const [alias] = useState(generateAlias);
   const [error, setError] = useState<string | null>(null);
   const [submittingPath, setSubmittingPath] = useState<"create" | "connect" | null>(null);
+  const returning = intent === "existing";
 
   const canCreate = adapters.wallet.canCreateLocalWallet();
   const canConnect = adapters.wallet.canConnectExternalWallet();
@@ -82,10 +86,23 @@ export default function SetupScreen() {
       <Backdrop preset="home" />
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[
+          styles.content,
+          {
+            paddingTop: insets.top + theme.spacing.xxl,
+            paddingBottom: insets.bottom + theme.spacing.xxxl,
+          },
+        ]}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.headline}>Set up your identity</Text>
+        <Text style={styles.headline}>
+          {returning ? "Resume your identity" : "Set up your identity"}
+        </Text>
+        <Text style={styles.subheadline}>
+          {returning
+            ? "Use the live wallet lane below to reconnect this device. Unsupported paths stay disabled instead of faked."
+            : "Choose the live wallet lane for this device. Unsupported paths stay disabled instead of faked."}
+        </Text>
 
         <View style={styles.section}>
           <AppTextInput
@@ -93,11 +110,11 @@ export default function SetupScreen() {
             placeholder="Leave blank to stay anonymous"
             value={displayName}
             onChangeText={setDisplayName}
-            autoCapitalize="none"
+            autoCapitalize="words"
             autoCorrect={false}
           />
           <Text style={styles.aliasPreview}>
-            Mesh alias: <Text style={styles.aliasValue}>{alias}</Text>
+            Suggested mesh alias: <Text style={styles.aliasValue}>{alias}</Text>
           </Text>
         </View>
 
@@ -117,6 +134,7 @@ export default function SetupScreen() {
           createHint={
             canCreate ? null : "This device is currently using the external wallet lane."
           }
+          intent={returning ? "existing" : "new"}
           loading={submittingPath !== null}
           onCreateNew={handleCreate}
           onConnect={handleConnect}
@@ -136,7 +154,9 @@ export default function SetupScreen() {
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
         <Text style={styles.flowNote}>
-          Wallet path buttons above are the live entry into this build.
+          {returning
+            ? "Existing-identity entry lands in the same truthful wallet lane. Local devices reconnect here or create fresh only when nothing is stored yet."
+            : "Wallet path buttons above are the live entry into this build."}
         </Text>
       </ScrollView>
     </View>
@@ -151,15 +171,19 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
   content: {
     padding: theme.spacing.xxl,
-    paddingTop: 64,
     gap: theme.spacing.xxl,
-    paddingBottom: 48,
   },
   headline: {
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.headingBold,
     fontSize: theme.type.display,
-    lineHeight: 36,
+    lineHeight: theme.type.display + theme.spacing.sm,
+  },
+  subheadline: {
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.body,
+    fontSize: theme.type.body,
+    lineHeight: theme.type.body * 1.5,
   },
   section: {
     gap: theme.spacing.md,

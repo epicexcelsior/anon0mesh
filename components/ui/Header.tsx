@@ -58,7 +58,7 @@ export default function Header({
                     } catch (e) {
                         console.warn('[Header] Failed to purge local storage', e);
                     } finally {
-                        navigation.navigate('/landing');
+                        navigation.navigate('/');
                     }
                 })();
             }

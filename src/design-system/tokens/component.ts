@@ -25,15 +25,15 @@ export const componentTokens = {
     highlightInset: spacing.md,
   },
   nav: {
-    barHeight: 68,
+    barHeight: 58,
     wrapperInset: 0,
     minimumBottomOffset: 0,
-    paddingX: spacing.md,
-    paddingY: spacing.sm,
-    tabMinHeight: 50,
-    indicatorInsetY: spacing.sm,
-    indicatorInsetX: spacing.sm,
-    indicatorGlowInset: spacing.md,
+    paddingX: spacing.sm,
+    paddingY: spacing.xs,
+    tabMinHeight: 44,
+    indicatorInsetY: spacing.xs,
+    indicatorInsetX: spacing.xs,
+    indicatorGlowInset: spacing.sm,
   },
   rows: {
     info: {

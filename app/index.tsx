@@ -1,6 +1,8 @@
+import Constants from "expo-constants";
 import React from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { DepthButton } from "@/components/primitives";
 import { LandingCanvas } from "@/components/onboarding/LandingCanvas";
@@ -8,11 +10,21 @@ import { appTheme as theme } from "@/src/design-system/theme";
 
 export default function LandingScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const version = Constants.expoConfig?.version ?? "dev";
 
   return (
     <View style={styles.root}>
       <LandingCanvas />
-      <View style={styles.content}>
+      <View
+        style={[
+          styles.content,
+          {
+            paddingTop: insets.top + theme.spacing.xxxl,
+            paddingBottom: insets.bottom + theme.spacing.xxxl,
+          },
+        ]}
+      >
         <View style={styles.logoBlock}>
           <Image
             source={require("@/assets/brand/anonmesh-logo.png")}
@@ -40,7 +52,7 @@ export default function LandingScreen() {
           </Text>
         )}
 
-        <Text style={styles.version}>v0.3.0 — alpha</Text>
+        <Text style={styles.version}>v{version} • recovery lane</Text>
       </View>
     </View>
   );
@@ -56,13 +68,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: theme.spacing.xxl,
-    paddingTop: 80,
-    paddingBottom: 48,
   },
   logoBlock: {
     alignItems: "center",
     gap: theme.spacing.md,
-    marginTop: 40,
+    marginTop: theme.spacing.huge,
   },
   logo: {
     width: 80,
@@ -71,7 +81,7 @@ const styles = StyleSheet.create({
   wordmark: {
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.headingBold,
-    fontSize: 28,
+    fontSize: theme.type.title,
     letterSpacing: 6,
   },
   tagline: {

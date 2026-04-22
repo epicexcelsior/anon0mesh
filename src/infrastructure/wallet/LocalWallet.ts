@@ -9,7 +9,10 @@ interface RNGetRandomValuesModule extends TurboModule {
 }
 
 // react-native-get-random-values registers this TurboModule — already linked, no rebuild needed
-const RNGetRandomValues = TurboModuleRegistry.get<RNGetRandomValuesModule>('RNGetRandomValues');
+const RNGetRandomValues =
+  typeof TurboModuleRegistry?.get === 'function'
+    ? TurboModuleRegistry.get<RNGetRandomValuesModule>('RNGetRandomValues')
+    : null;
 
 // All keys are OS-encrypted by Android Keystore. Only SECRET_KEY is also biometric-gated.
 // PUBLIC_KEY_STORE lets connect() restore the public key without biometric on every startup.

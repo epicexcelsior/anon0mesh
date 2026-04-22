@@ -7,7 +7,7 @@ import {
   Keypair,
 } from '@solana/web3.js';
 import * as ed25519 from '@noble/ed25519';
-import { sha256 } from '@noble/hashes/sha2';
+import { sha256 } from '@noble/hashes/sha2.js';
 
 export interface SolanaTransactionPacket {
   serializedTransaction: Uint8Array;

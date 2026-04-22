@@ -14,7 +14,12 @@ export default function TechDrawerScreen() {
       <GlassSurface variant="strong" style={styles.surface}>
         <View style={styles.header}>
           <View style={styles.handle} />
-          <Pressable onPress={() => router.back()} style={styles.closeBtn}>
+          <Pressable
+            accessibilityLabel="Close technical overview"
+            accessibilityRole="button"
+            onPress={() => router.back()}
+            style={styles.closeBtn}
+          >
             <Text style={styles.closeLabel}>Close</Text>
           </Pressable>
         </View>
@@ -27,7 +32,7 @@ export default function TechDrawerScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.6)",
+    backgroundColor: theme.colors.scrim,
     justifyContent: "flex-end",
   },
   surface: {

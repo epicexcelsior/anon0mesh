@@ -21,11 +21,11 @@ const TONE_BG: Record<PillTone, string> = {
 };
 
 const TONE_BORDER: Record<PillTone, string> = {
-  cyan: "rgba(34, 211, 238, 0.18)",
-  green: "rgba(52, 211, 153, 0.18)",
-  amber: "rgba(245, 158, 11, 0.2)",
-  red: "rgba(239, 68, 68, 0.2)",
-  purple: "rgba(139, 92, 246, 0.22)",
+  cyan: theme.colors.cyanBorderSoft,
+  green: theme.colors.greenBorderSoft,
+  amber: theme.colors.amberBorderSoft,
+  red: theme.colors.redBorderSoft,
+  purple: theme.colors.purpleBorderSoft,
   neutral: theme.colors.line,
 };
 

@@ -10,6 +10,11 @@ import {
 } from "@/components/settings";
 import { useLocalDisplayName, useMesh, usePreferences, useWallet } from "@/src/hooks";
 
+function shortValue(value: string) {
+  if (value.length <= 18) return value;
+  return `${value.slice(0, 12)}…`;
+}
+
 export default function SettingsScreen() {
   const router = useRouter();
   const { wallet, mode } = useWallet();
@@ -21,7 +26,7 @@ export default function SettingsScreen() {
   return (
     <SettingsScaffold
       eyebrow="Control plane"
-      subtitle="Tune identity, transport, privacy defaults, wallet safety, and branch runtime truth from one authored surface."
+      subtitle="Identity, transport, privacy defaults, custody, and branch truth."
       title="Settings"
       trailing={<Pill label={connectionState} tone={connectionState === "Live" ? "green" : connectionState === "Silent" ? "amber" : "neutral"} />}
     >
@@ -37,7 +42,7 @@ export default function SettingsScreen() {
 
       <SettingsSection
         title="Identity"
-        description="Local label, alias, QR, and address tools. Wallet identity stays key-derived on this branch."
+        description="Local label and address tools."
       >
         <SettingsRow
           iconName="identity-chip"
@@ -45,14 +50,14 @@ export default function SettingsScreen() {
           label="Identity tools"
           onPress={() => router.push("/settings/identity" as Parameters<typeof router.push>[0])}
           showSeparator={false}
-          sublabel="Local label, alias, QR card, and address copy surface"
-          value={displayName}
+          sublabel="Label, alias, QR card, and address copy"
+          value={shortValue(displayName)}
         />
       </SettingsSection>
 
       <SettingsSection
         title="Mesh transport"
-        description="BLE controls are live. LXMF mode persists locally while native runtime remains staged."
+        description="BLE controls are live. LXMF mode is still staged."
       >
         <SettingsRow
           iconName="radio"
@@ -60,14 +65,14 @@ export default function SettingsScreen() {
           label="Network"
           onPress={() => router.push("/settings/network" as Parameters<typeof router.push>[0])}
           showSeparator={false}
-          sublabel={`${nodeCount} ${nodeCount === 1 ? "peer" : "peers"} visible · direct BLE seam`}
+          sublabel={`${nodeCount} ${nodeCount === 1 ? "peer" : "peers"} visible on the BLE seam`}
           value={connectionState}
         />
       </SettingsSection>
 
       <SettingsSection
         title="Privacy defaults"
-        description="Preferences save on this device now and seed send-flow choices without overclaiming full stealth settlement."
+        description="Saved on this device and used by the send flow."
       >
         <SettingsRow
           iconName="shield"
@@ -75,14 +80,14 @@ export default function SettingsScreen() {
           label="Privacy & Stealth"
           onPress={() => router.push("/settings/privacy" as Parameters<typeof router.push>[0])}
           showSeparator={false}
-          sublabel="Stealth default, transfer privacy lane, and key rotation cadence"
+          sublabel="Stealth default, privacy lane, and key rotation cadence"
           value={privacy.stealthByDefault ? "Stealth on" : privacy.privacyMode}
         />
       </SettingsSection>
 
       <SettingsSection
         title="Beacon registry"
-        description="Preview surface for beacon participation. Runtime and staking path stay clearly marked as placeholder."
+        description="Preview surface for future beacon participation."
       >
         <SettingsRow
           iconName="beacon"
@@ -90,14 +95,14 @@ export default function SettingsScreen() {
           label="Beacon node"
           onPress={() => router.push("/settings/beacon" as Parameters<typeof router.push>[0])}
           showSeparator={false}
-          sublabel="Role preview, stake intent, and future earnings lane"
+          sublabel="Role preview, stake intent, and earnings lane"
           value="Preview"
         />
       </SettingsSection>
 
       <SettingsSection
         title="Wallet safety"
-        description="Export surface stays honest about local vs external custody and biometric requirements."
+        description="Export stays honest about local vs external custody."
       >
         <SettingsRow
           iconName="download-cloud"
@@ -105,14 +110,14 @@ export default function SettingsScreen() {
           label="Wallet export"
           onPress={() => router.push("/settings/wallet-export" as Parameters<typeof router.push>[0])}
           showSeparator={false}
-          sublabel="Reveal private key only when local custody and device auth allow it"
+          sublabel="Reveal private key only when local custody allows it"
           value={mode === "local" ? "Local" : mode === "mwa" ? "External" : "Fixture"}
         />
       </SettingsSection>
 
       <SettingsSection
         title="About"
-        description="Branch version, live-vs-staged runtime summary, repo links, and license surface."
+        description="Version, runtime truth, and source links."
       >
         <SettingsRow
           iconName="info"
@@ -120,7 +125,7 @@ export default function SettingsScreen() {
           label="About AnonMesh"
           onPress={() => router.push("/settings/about" as Parameters<typeof router.push>[0])}
           showSeparator={false}
-          sublabel="Recovery lane status, source links, and technology truth"
+          sublabel="Recovery status and technology truth"
           value="v1.0.0"
         />
       </SettingsSection>

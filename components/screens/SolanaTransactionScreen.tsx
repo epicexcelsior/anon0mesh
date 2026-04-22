@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { TokenType } from '../../src/solana/BeaconManager';
 import { useSolanaWallet } from '../../src/solana/useSolanaWallet';
 import { RateLimitManager } from '../../src/utils/RateLimitManager';
 import { useMeshNetworking } from '../networking/MeshNetworkingManager';
@@ -147,8 +148,20 @@ const SolanaTransactionScreen: React.FC<SolanaTransactionScreenProps> = ({
       // Sign transaction
       const signedTx = solanaWallet.signTransaction(transaction);
 
-      // Send transaction via mesh (only pass the transaction)
-      meshNetworking.sendTransactionViaBeacon(signedTx);
+      // Send transaction via mesh.
+      meshNetworking.sendTransactionViaBeacon(
+        signedTx,
+        TokenType.SOL,
+        'devnet',
+        {
+          recipientPubKey: toAddress,
+          amount,
+          memo: memo || '',
+          priorityFee: 1000,
+          maxRetries: 3,
+          expiresIn: 300,
+        }
+      );
       
       // Unlock unlimited messaging after successful transaction
       await rateLimitManager.unlockMessaging();

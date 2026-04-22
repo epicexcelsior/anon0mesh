@@ -10,6 +10,7 @@ interface WalletPathPickerProps {
   canCreate?: boolean;
   connectHint?: string | null;
   createHint?: string | null;
+  intent?: "new" | "existing";
   loading?: boolean;
   onCreateNew: () => void;
   onConnect: () => void;
@@ -20,6 +21,7 @@ export function WalletPathPicker({
   canCreate,
   connectHint,
   createHint,
+  intent = "new",
   loading,
   onCreateNew,
   onConnect,
@@ -27,13 +29,16 @@ export function WalletPathPicker({
   const isMwaAvailable = Platform.OS === "android";
   const allowCreate = canCreate ?? true;
   const allowConnect = canConnect ?? isMwaAvailable;
+  const createLabel = intent === "existing" ? "Use local identity" : "Create local";
+  const connectLabel = intent === "existing" ? "Connect existing" : "Connect (MWA)";
+  const sectionLabel = intent === "existing" ? "IDENTITY PATH" : "WALLET PATH";
 
   return (
     <GlassSurface variant="regular" style={styles.card}>
-      <Text style={styles.label}>WALLET</Text>
+      <Text style={styles.label}>{sectionLabel}</Text>
       <View style={styles.buttons}>
         <DepthButton
-          label="Create New"
+          label={createLabel}
           variant="primary"
           tone="cyan"
           size="md"
@@ -44,7 +49,7 @@ export function WalletPathPicker({
           <Text style={styles.hint}>{createHint}</Text>
         ) : null}
         <DepthButton
-          label="Connect (MWA)"
+          label={connectLabel}
           variant="secondary"
           tone="cyan"
           size="md"

@@ -51,7 +51,7 @@ const CONFIGS: Record<BackdropPreset, BackdropConfig> = {
     blobs: [
       { color: theme.colors.purple, cx: 1.02, cy: 0.08, r: 0.78, opacity: 0.18 },
       { color: theme.colors.purple, cx: -0.08, cy: 0.6, r: 0.58, opacity: 0.07 },
-      { color: "#120C1D", cx: 0.5, cy: 1.08, r: 0.68, opacity: 0.12 },
+      { color: theme.colors.purpleShadowSurface, cx: 0.5, cy: 1.08, r: 0.68, opacity: 0.12 },
     ],
     vignette: true,
   },
@@ -160,14 +160,14 @@ function Vignette() {
   return (
     <>
       <LinearGradient
-        colors={["rgba(0,0,0,0.28)", "rgba(0,0,0,0)"]}
+        colors={[theme.colors.vignetteTop, theme.colors.transparent]}
         end={{ x: 0.5, y: 1 }}
         pointerEvents="none"
         start={{ x: 0.5, y: 0 }}
         style={styles.vignetteTop}
       />
       <LinearGradient
-        colors={["rgba(0,0,0,0)", "rgba(0,0,0,0.42)"]}
+        colors={[theme.colors.transparent, theme.colors.vignetteBottom]}
         end={{ x: 0.5, y: 1 }}
         pointerEvents="none"
         start={{ x: 0.5, y: 0 }}

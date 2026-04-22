@@ -7,6 +7,8 @@ import type { MessagingService } from "@/src/domain/services/MessagingService";
 import type { PreferencesService } from "@/src/domain/services/PreferencesService";
 import type { TransactionService } from "@/src/domain/services/TransactionService";
 import type { WalletService } from "@/src/domain/services/WalletService";
+import { fixtureAdapters } from "@/src/fixtures/adapters";
+import { realAdapters } from "@/src/infrastructure/adapters";
 
 export interface Adapters {
   wallet: WalletService;
@@ -29,9 +31,7 @@ export function AdapterProvider({ children, overrides }: AdapterProviderProps) {
   const useFixtures = process.env.EXPO_PUBLIC_ADAPTERS === "fixtures";
 
   const adapters = useMemo<Adapters>(() => {
-    const base = useFixtures
-      ? require("@/src/fixtures/adapters").fixtureAdapters
-      : require("@/src/infrastructure/adapters").realAdapters;
+    const base = useFixtures ? fixtureAdapters : realAdapters;
     return { ...base, ...overrides };
   }, [useFixtures, overrides]);
 

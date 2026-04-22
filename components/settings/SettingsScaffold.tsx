@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.xs,
+    paddingTop: 0,
   },
   navButton: {
     alignItems: "center",
@@ -139,13 +139,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    gap: theme.spacing.lg,
-    paddingBottom: theme.spacing.xxxl,
+    gap: theme.spacing.md,
+    paddingBottom: theme.component.nav.barHeight + theme.spacing.xxl,
     paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.lg,
+    paddingTop: theme.spacing.md,
   },
   intro: {
-    gap: theme.spacing.xs,
+    gap: 6,
   },
   traceRow: {
     alignItems: "center",
@@ -173,16 +173,16 @@ const styles = StyleSheet.create({
   title: {
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.display,
-    fontSize: theme.type.title,
-    letterSpacing: -0.8,
+    fontSize: 26,
+    letterSpacing: -0.6,
   },
   subtitle: {
     color: theme.colors.textSecondary,
     fontFamily: theme.fonts.body,
-    fontSize: theme.type.body,
-    lineHeight: theme.type.body * 1.55,
-    maxWidth: 360,
-    paddingTop: theme.spacing.xs,
+    fontSize: theme.type.caption,
+    lineHeight: theme.type.caption * 1.55,
+    maxWidth: 420,
+    paddingTop: 2,
   },
   footer: {
     paddingTop: theme.spacing.sm,

@@ -40,18 +40,18 @@ export interface DepthButtonProps {
 const PRIMARY_GRADIENTS: Record<DepthButtonTone, [string, string]> = {
   cyan: [theme.colors.cyanLight, theme.colors.cyanDim],
   green: [theme.colors.greenLight, theme.colors.green],
-  purple: ["#A78BFA", theme.colors.purple],
-  amber: ["#FBBF24", theme.colors.amber],
-  red: ["#F87171", theme.colors.red],
+  purple: [theme.colors.purpleLight, theme.colors.purple],
+  amber: [theme.colors.amberLight, theme.colors.amber],
+  red: [theme.colors.redLight, theme.colors.red],
 };
 
-const SECONDARY_GRADIENT: [string, string] = ["rgba(255,255,255,0.04)", "rgba(255,255,255,0.02)"];
+const SECONDARY_GRADIENT: [string, string] = [theme.colors.whiteWashSubtle, theme.colors.whiteWashFaint];
 const DANGER_GRADIENT: [string, string] = [
-  "rgba(239, 68, 68, 0.18)",
-  "rgba(239, 68, 68, 0.08)",
+  theme.colors.redSoft,
+  theme.colors.errorContainer,
 ];
 const SUCCESS_GRADIENT: [string, string] = [theme.colors.greenLight, theme.colors.green];
-const GHOST_GRADIENT: [string, string] = ["transparent", "transparent"];
+const GHOST_GRADIENT: [string, string] = [theme.colors.transparent, theme.colors.transparent];
 
 function getGradient(variant: DepthButtonVariant, tone: DepthButtonTone): [string, string] {
   switch (variant) {
@@ -79,9 +79,9 @@ function getTextColor(variant: DepthButtonVariant, tone: DepthButtonTone): strin
 
 function getBorderColor(variant: DepthButtonVariant, tone: DepthButtonTone): string {
   switch (variant) {
-    case "primary": return `${toneColor(tone)}33`;
+    case "primary": return toneBorderColor(tone);
     case "secondary": return theme.colors.lineStrong;
-    case "success": return "rgba(52, 211, 153, 0.22)";
+    case "success": return theme.colors.greenBorderStrong;
     case "danger": return theme.colors.errorOutline;
     case "ghost": return theme.colors.lineStrong;
   }
@@ -94,6 +94,17 @@ function toneColor(tone: DepthButtonTone): string {
     red: theme.colors.red,
     purple: theme.colors.purple,
     amber: theme.colors.amber,
+  };
+  return map[tone];
+}
+
+function toneBorderColor(tone: DepthButtonTone): string {
+  const map: Record<DepthButtonTone, string> = {
+    cyan: theme.colors.cyanBorderSoft,
+    green: theme.colors.greenBorderSoft,
+    red: theme.colors.redBorderSoft,
+    purple: theme.colors.purpleBorderSoft,
+    amber: theme.colors.amberBorderSoft,
   };
   return map[tone];
 }
@@ -224,7 +235,7 @@ export function DepthButton({
         >
           {showInnerShadow && (
             <LinearGradient
-              colors={["rgba(255,255,255,0.06)", "rgba(0,0,0,0.14)"]}
+              colors={[theme.colors.whiteWash, theme.colors.transparent]}
               end={{ x: 1, y: 1 }}
               pointerEvents="none"
               start={{ x: 0, y: 0 }}
@@ -234,7 +245,7 @@ export function DepthButton({
           {showInnerShadow && (
             <Animated.View pointerEvents="none" style={[styles.innerTopShadow, innerShadowStyle]}>
               <LinearGradient
-                colors={[theme.depth.pressInset, "rgba(0,0,0,0)"]}
+                colors={[theme.depth.pressInset, theme.colors.transparent]}
                 end={{ x: 0.5, y: 1 }}
                 start={{ x: 0.5, y: 0 }}
                 style={StyleSheet.absoluteFill}

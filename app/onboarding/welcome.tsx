@@ -1,6 +1,7 @@
 import React from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { DepthButton } from "@/components/primitives";
 import { Backdrop } from "@/components/primitives/Backdrop";
@@ -10,8 +11,8 @@ import { appTheme as theme } from "@/src/design-system/theme";
 const FEATURES = [
   {
     iconName: "mesh-nodes",
-    title: "Mesh-routed payments",
-    body: "Transfers queue on-device first, with mesh relay and settlement paths being tightened in the recovery build.",
+    title: "Mesh-aware payments",
+    body: "Transfers queue on-device first. This recovery branch ships on-chain sends today while mesh relay work continues.",
   },
   {
     iconName: "lock-mesh",
@@ -32,13 +33,24 @@ const FEATURES = [
 
 export default function WelcomeScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const existingIdentityTarget: Parameters<typeof router.push>[0] = {
+    pathname: "/onboarding/setup",
+    params: { intent: "existing" },
+  };
 
   return (
     <View style={styles.root}>
       <Backdrop preset="home" />
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[
+          styles.content,
+          {
+            paddingTop: insets.top + theme.spacing.xxl,
+            paddingBottom: insets.bottom + theme.spacing.xxxl,
+          },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         <Text style={styles.headline}>Private by default.</Text>
@@ -65,9 +77,13 @@ export default function WelcomeScreen() {
             variant="secondary"
             tone="cyan"
             size="md"
-            onPress={() => {}}
+            onPress={() => router.push(existingIdentityTarget)}
           />
-          <Pressable onPress={() => router.push("/onboarding/tech-drawer")}>
+          <Pressable
+            accessibilityLabel="Open technical overview"
+            accessibilityRole="button"
+            onPress={() => router.push("/onboarding/tech-drawer")}
+          >
             <Text style={styles.techLink}>Under the hood →</Text>
           </Pressable>
         </View>
@@ -84,15 +100,13 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
   content: {
     padding: theme.spacing.xxl,
-    paddingTop: 64,
     gap: theme.spacing.xxxl,
-    paddingBottom: 48,
   },
   headline: {
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.headingBold,
     fontSize: theme.type.display,
-    lineHeight: 36,
+    lineHeight: theme.type.display + theme.spacing.sm,
   },
   subheadline: {
     color: theme.colors.textSecondary,

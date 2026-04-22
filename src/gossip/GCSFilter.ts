@@ -1,5 +1,5 @@
 import { Buffer } from 'buffer';
-import { sha256 } from '@noble/hashes/sha2';
+import { sha256 } from '@noble/hashes/sha2.js';
 
 export interface GCSFilterParams {
     p: number;

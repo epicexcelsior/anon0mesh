@@ -66,7 +66,7 @@ export function RecipientPeerCard({
         <View style={styles.peerSignalRow}>
           <SignalBars
             activeColor={selected ? theme.colors.textOnAccent : theme.colors.cyan}
-            inactiveColor={selected ? "rgba(5, 10, 10, 0.18)" : theme.colors.surfaceContainerHigh}
+            inactiveColor={selected ? theme.colors.surfaceOnAccentStrong : theme.colors.surfaceContainerHigh}
             strength={peer.signalStrength}
           />
           <Text style={[styles.peerTransport, selected && styles.peerTransportSelected]}>
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     width: 40,
   },
   peerAvatarSelected: {
-    backgroundColor: "rgba(5, 10, 10, 0.14)",
+    backgroundColor: theme.colors.surfaceOnAccent,
   },
   peerCopy: {
     flex: 1,
@@ -150,6 +150,6 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
   },
   peerTransportSelected: {
-    color: "rgba(5, 10, 10, 0.72)",
+    color: theme.colors.textOnAccentMuted,
   },
 });

@@ -119,7 +119,7 @@ export default function SlideToConfirm({ label, onComplete }: SlideToConfirmProp
       borderColor: interpolateColor(
         progress,
         [0, THRESHOLD, 1],
-        [theme.colors.lineStrong, "rgba(0, 218, 243, 0.18)", "rgba(60, 227, 106, 0.22)"],
+        [theme.colors.lineStrong, theme.colors.cyanBorderSoft, theme.colors.greenBorderStrong],
       ),
       transform: [{ scale: interpolate(engagement.value, [0, 1], [1, 0.998], Extrapolation.CLAMP) }],
     };
@@ -168,7 +168,7 @@ export default function SlideToConfirm({ label, onComplete }: SlideToConfirmProp
       borderColor: interpolateColor(
         progress,
         [0, 1],
-        ["rgba(255, 255, 255, 0.1)", "rgba(255, 255, 255, 0.06)"],
+        [theme.colors.whiteWashStrong, theme.colors.whiteWash],
       ),
       shadowOpacity: interpolate(progress, [0, 1], [0.18, 0.24], Extrapolation.CLAMP),
       shadowRadius: interpolate(progress, [0, 1], [12, 16], Extrapolation.CLAMP),
@@ -214,7 +214,7 @@ export default function SlideToConfirm({ label, onComplete }: SlideToConfirmProp
         <Animated.View style={[styles.progressFill, progressStyle]}>
           <Animated.View style={[styles.progressSheen, sheenStyle]}>
             <LinearGradient
-              colors={["rgba(255,255,255,0)", "rgba(255,255,255,0.18)", "rgba(255,255,255,0)"]}
+              colors={[theme.colors.transparent, theme.colors.whiteWashStrong, theme.colors.transparent]}
               end={{ x: 1, y: 0.5 }}
               start={{ x: 0, y: 0.5 }}
               style={styles.progressSheenFill}
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   trackInnerHighlight: {
-    backgroundColor: "rgba(255,255,255,0.04)",
+    backgroundColor: theme.colors.whiteWashSubtle,
     height: 1,
     left: 14,
     position: "absolute",
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
     top: 0,
   },
   progressFill: {
-    backgroundColor: "rgba(0, 218, 243, 0.1)",
+    backgroundColor: theme.colors.cyanSoft,
     borderRadius: KNOB_RADIUS,
     bottom: KNOB_INSET,
     left: KNOB_INSET,

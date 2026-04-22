@@ -10,9 +10,6 @@ import { useMesh } from "@/src/hooks/useMesh";
 import type { ConnectionState } from "@/src/hooks/useMesh";
 import { appTheme as theme } from "@/src/design-system/theme";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnyHref = any;
-
 const STRIP_HEIGHT = theme.spacing.xxxl; // 32px — matches theme token
 
 function stateTone(state: ConnectionState): PillTone {
@@ -66,7 +63,7 @@ export function MeshStatusStrip() {
       accessibilityLabel={bleError ? "BLE error, 0 nodes" : `${nodeCount} ${nodeCount === 1 ? "node" : "nodes"}, ${connectionState}`}
       accessibilityRole="button"
       activeOpacity={0.75}
-      onPress={() => router.push("/peers" as AnyHref)}
+      onPress={() => router.push("/peers" as Parameters<typeof router.push>[0])}
       style={styles.touchable}
     >
       <GlassSurface variant="soft" style={styles.strip}>

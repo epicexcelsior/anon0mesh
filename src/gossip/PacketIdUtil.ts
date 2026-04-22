@@ -1,5 +1,5 @@
 import { Buffer } from 'buffer';
-import { sha256 } from '@noble/hashes/sha2';
+import { sha256 } from '@noble/hashes/sha2.js';
 import { Anon0MeshPacket } from './types';
 
 export class PacketIdUtil {

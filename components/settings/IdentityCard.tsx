@@ -25,6 +25,14 @@ function shortenAddress(address: string) {
   return `${address.slice(0, 10)}...${address.slice(-6)}`;
 }
 
+function compactLabel(displayName: string, alias: string | null) {
+  if (!displayName) return "Anonymous";
+  if (alias && displayName === alias) {
+    return shortenAddress(displayName);
+  }
+  return displayName;
+}
+
 function getInitial(name: string | null) {
   if (!name) return "?";
   return name.charAt(0).toUpperCase();
@@ -72,10 +80,10 @@ export function IdentityCard({
   onPress,
   peerCount,
 }: IdentityCardProps) {
-  const label = displayName || alias || "Anonymous";
+  const label = compactLabel(displayName, alias);
   const helper =
     alias && alias !== displayName
-      ? `Mesh alias ${alias}`
+      ? `Mesh alias ${shortenAddress(alias)}`
       : "Wallet identity derived from current key";
 
   function handlePress() {
@@ -102,7 +110,9 @@ export function IdentityCard({
             <Text numberOfLines={1} style={styles.name}>
               {label}
             </Text>
-            <Text style={styles.helper}>{helper}</Text>
+            <Text numberOfLines={2} style={styles.helper}>
+              {helper}
+            </Text>
           </View>
 
           <View style={styles.actionBubble}>
@@ -112,7 +122,7 @@ export function IdentityCard({
 
         {address ? (
           <Text numberOfLines={1} style={styles.address}>
-            {shortenAddress(address)}
+            {`Address ${shortenAddress(address)}`}
           </Text>
         ) : null}
 
@@ -123,7 +133,7 @@ export function IdentityCard({
         </View>
 
         <View style={styles.footerRow}>
-          <Text style={styles.footerText}>Open label, QR, address, and export tools</Text>
+          <Text style={styles.footerText}>Open label, QR, and export tools</Text>
           <Icon color={theme.colors.textMuted} name="arrow-up-right" size={16} />
         </View>
       </GlassSurface>
@@ -159,7 +169,7 @@ const styles = StyleSheet.create({
     width: 88,
   },
   topRow: {
-    alignItems: "center",
+    alignItems: "flex-start",
     flexDirection: "row",
     gap: theme.spacing.md,
   },
@@ -169,24 +179,25 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.cyanGlowStrong,
     borderRadius: theme.radius.pill,
     borderWidth: 1,
-    height: 56,
+    height: 48,
     justifyContent: "center",
-    width: 56,
+    width: 48,
   },
   avatarText: {
     color: theme.colors.cyan,
     fontFamily: theme.fonts.headingBold,
-    fontSize: theme.type.section,
+    fontSize: theme.type.bodyLg,
   },
   info: {
     flex: 1,
-    gap: theme.spacing.xs,
+    gap: 4,
+    minWidth: 0,
   },
   name: {
     color: theme.colors.textPrimary,
-    fontFamily: theme.fonts.display,
-    fontSize: theme.type.section,
-    letterSpacing: -0.4,
+    fontFamily: theme.fonts.headingBold,
+    fontSize: theme.type.bodyLg,
+    letterSpacing: -0.2,
   },
   helper: {
     color: theme.colors.textSecondary,
@@ -224,6 +235,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: theme.fonts.body,
     fontSize: theme.type.caption,
-    lineHeight: theme.type.caption * 1.45,
+    lineHeight: theme.type.caption * 1.35,
   },
 });

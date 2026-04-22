@@ -3,18 +3,34 @@ import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import { Icon } from "@/components/primitives/Icon";
+import { Pill } from "@/components/primitives/Pill";
+import type { Wallet } from "@/src/domain/entities/Wallet";
 import { appTheme as theme } from "@/src/design-system/theme";
 import { useLocalDisplayName } from "@/src/hooks/useLocalDisplayName";
-import { useWallet } from "@/src/hooks/useWallet";
 
 function shortAddress(address?: string) {
   if (!address) return "Waiting for wallet address";
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 }
 
-export function HomeHero() {
+interface HomeHeroProps {
+  mode: "fixture" | "local" | "mwa";
+  wallet: Wallet | null;
+}
+
+function modeLabel(mode: HomeHeroProps["mode"]) {
+  switch (mode) {
+    case "local":
+      return "Local vault";
+    case "mwa":
+      return "MWA live";
+    case "fixture":
+      return "Fixture";
+  }
+}
+
+export function HomeHero({ wallet, mode }: HomeHeroProps) {
   const router = useRouter();
-  const { wallet } = useWallet();
   const walletAlias = wallet?.identity
     ? wallet.identity.length <= 14 ? wallet.identity : `${wallet.identity.slice(0, 10)}…`
     : wallet?.address
@@ -31,7 +47,10 @@ export function HomeHero() {
           <Icon name="identity-chip" size={18} color={theme.colors.cyan} />
         </View>
         <View style={styles.identityCopy}>
-          <Text style={styles.kicker}>Wallet</Text>
+          <View style={styles.metaRow}>
+            <Text style={styles.kicker}>Wallet</Text>
+            <Pill label={modeLabel(mode)} tone="neutral" />
+          </View>
           <Text style={styles.alias} numberOfLines={1}>
             {alias}
           </Text>
@@ -81,6 +100,11 @@ const styles = StyleSheet.create({
     gap: 2,
     minWidth: 0,
   },
+  metaRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: theme.spacing.xs,
+  },
   kicker: {
     color: theme.colors.textMuted,
     fontFamily: theme.fonts.bodyMedium,
@@ -91,7 +115,7 @@ const styles = StyleSheet.create({
   alias: {
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.heading,
-    fontSize: theme.type.bodyLg,
+    fontSize: theme.type.section,
   },
   address: {
     color: theme.colors.textSecondary,

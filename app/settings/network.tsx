@@ -25,8 +25,10 @@ import * as sound from "@/src/design-system/sound";
 import { appTheme as theme } from "@/src/design-system/theme";
 
 const LXMF_SEGMENTS = [
-  { id: String(LxmfNodeMode.BleOnly), label: "BLE Only" },
-  { id: String(LxmfNodeMode.Reticulum), label: "Reticulum" },
+  { id: String(LxmfNodeMode.BleOnly), label: "BLE" },
+  { id: String(LxmfNodeMode.TcpClient), label: "TCP out" },
+  { id: String(LxmfNodeMode.TcpServer), label: "TCP in" },
+  { id: String(LxmfNodeMode.Reticulum), label: "RNSD" },
 ];
 
 const LXMF_MODE_LABEL: Record<LxmfNodeMode, string> = {
@@ -95,7 +97,7 @@ export default function NetworkScreen() {
       eyebrow="Mesh transport"
       onBack={() => router.back()}
       showBack
-      subtitle="BLE controls are live. LXMF mode saves as local config while deeper runtime work continues in the next phase."
+      subtitle="BLE controls are live. All LXMF transport presets save as local config while deeper runtime work continues in the next phase."
       title="Network"
       tone="cyan"
       trailing={<Pill label={bleError ? "BLE error" : connectionState} tone={connectionTone(connectionState, bleError)} />}
@@ -224,7 +226,7 @@ export default function NetworkScreen() {
           />
 
           <Text style={styles.segmentNote}>
-            Native LXMF runtime is {isNativeAvailable ? "available" : "still stubbed"} in this recovery lane.
+            Native LXMF runtime is {isNativeAvailable ? "available" : "still stubbed"} in this recovery lane. TCP and Reticulum presets persist honestly as saved intent until the real runtime lands.
           </Text>
         </View>
       </SettingsSection>

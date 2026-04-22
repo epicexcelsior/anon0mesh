@@ -148,9 +148,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     flexDirection: "row",
     gap: theme.spacing.md,
-    minHeight: 92,
+    minHeight: 84,
     paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
   },
   avatar: {
     alignItems: "center",
@@ -179,12 +179,12 @@ const styles = StyleSheet.create({
   alias: {
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.heading,
-    fontSize: theme.type.bodyLg,
+    fontSize: theme.type.body,
   },
   address: {
     color: theme.colors.textSecondary,
     fontFamily: theme.fonts.monoJetBrains,
-    fontSize: theme.type.caption,
+    fontSize: theme.type.micro,
   },
   trailingMeta: {
     alignItems: "flex-end",
@@ -227,6 +227,6 @@ const styles = StyleSheet.create({
     color: theme.colors.textSecondary,
     flex: 1,
     fontFamily: theme.fonts.body,
-    fontSize: theme.type.body,
+    fontSize: theme.type.caption,
   },
 });

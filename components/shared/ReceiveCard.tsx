@@ -1,5 +1,5 @@
 import React from "react";
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Share, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import * as Clipboard from "expo-clipboard";
 import QRCode from "react-native-qrcode-svg";
 
@@ -26,8 +26,14 @@ export function ReceiveCard({ address }: ReceiveCardProps) {
     }
   }
 
-  function handleShare() {
-    Alert.alert("Coming soon", "Share functionality is coming in a future update.");
+  async function handleShare() {
+    try {
+      await Share.share({
+        message: `AnonMesh receive address\n${address}`,
+      });
+    } catch {
+      Alert.alert("Share unavailable", "Could not open the system share sheet.");
+    }
   }
 
   return (
