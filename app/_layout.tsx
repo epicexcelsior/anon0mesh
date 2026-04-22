@@ -38,9 +38,8 @@ export default function RootLayout() {
                   name="receive"
                   options={{
                     headerShown: false,
-                    presentation: "modal",
                     animation: "slide_from_bottom",
-                    gestureEnabled: true,
+                    contentStyle: { backgroundColor: "transparent" },
                   }}
                 />
                 <Stack.Screen name="history/index" options={{ headerShown: false }} />

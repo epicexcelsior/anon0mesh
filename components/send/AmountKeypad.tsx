@@ -60,13 +60,13 @@ export function AmountKeypad() {
     <SendScaffold
       onBack={() => router.back()}
       step={2}
-      subtitle="Set the transfer size. The USD value below is a local estimate for now."
       title="Set amount"
       footer={
         <DepthButton
           disabled={!isValid}
           label="Review transfer"
           onPress={handleNext}
+          size="lg"
           tone="cyan"
           variant="primary"
         />
@@ -93,7 +93,7 @@ export function AmountKeypad() {
         <View style={styles.keypadSection}>
           <NumericKeypad
             currency="SOL"
-            fiatLabel={`Estimate only · ≈ $${usdEquiv}`}
+            fiatLabel={`≈ $${usdEquiv}`}
             maxAmount={balanceNum.toFixed(4)}
             onChangeValue={setAmount}
             showMaxChip
@@ -106,11 +106,7 @@ export function AmountKeypad() {
             <Icon color={theme.colors.red} name="alert-circle" size={14} />
             <Text style={styles.feedbackText}>Amount exceeds current SOL balance.</Text>
           </View>
-        ) : (
-          <Text style={styles.footnote}>
-            Balance is live from the current wallet. Price conversion stays local until quote wiring lands.
-          </Text>
-        )}
+        ) : null}
       </View>
     </SendScaffold>
   );
@@ -191,13 +187,5 @@ const styles = StyleSheet.create({
     color: theme.colors.red,
     fontFamily: theme.fonts.body,
     fontSize: theme.type.caption,
-  },
-  footnote: {
-    color: theme.colors.textMuted,
-    fontFamily: theme.fonts.body,
-    fontSize: theme.type.caption,
-    lineHeight: theme.type.caption * 1.55,
-    paddingBottom: theme.spacing.sm,
-    textAlign: "center",
   },
 });

@@ -74,8 +74,9 @@ export default function ReceiveScreen() {
   const qrColor = isStealth ? theme.colors.purple : "#000000";
 
   return (
-    <SwipeDismissView onDismiss={() => router.back()} style={styles.root}>
+    <View style={styles.root}>
       <Backdrop preset="settings" />
+      <SwipeDismissView onDismiss={() => router.back()} style={styles.swipeLayer}>
       <SafeAreaView edges={["top", "bottom"]} style={styles.safeArea}>
         <View style={styles.header}>
           <Text style={styles.title}>Receive</Text>
@@ -149,7 +150,8 @@ export default function ReceiveScreen() {
 
         <ActionBar address={activeAddress} />
       </SafeAreaView>
-    </SwipeDismissView>
+      </SwipeDismissView>
+    </View>
   );
 }
 
@@ -281,6 +283,9 @@ function CopyButton({
 const styles = StyleSheet.create({
   root: {
     backgroundColor: theme.colors.background,
+    flex: 1,
+  },
+  swipeLayer: {
     flex: 1,
   },
   safeArea: {

@@ -76,8 +76,7 @@ export function ReviewCard({ to, amount, symbol }: ReviewCardProps) {
     <SendScaffold
       onBack={() => router.back()}
       step={3}
-      subtitle="One last check before the transfer is signed and sent."
-      title="Review transfer"
+      title="Review"
       footer={
         <SlideToConfirm
           key={sliderResetKey}
@@ -90,92 +89,57 @@ export function ReviewCard({ to, amount, symbol }: ReviewCardProps) {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <GlassSurface style={styles.heroCard} variant="strong">
-          <Text style={styles.heroLabel}>Transfer amount</Text>
+        <View style={styles.heroBlock}>
           <Text style={styles.heroAmount}>
             {amount} <Text style={styles.heroSymbol}>{symbol}</Text>
           </Text>
-          <Text style={styles.heroRouteCopy}>
-            This branch submits sends <Text style={styles.heroRouteCopyStrong}>on-chain</Text> today.
-          </Text>
-        </GlassSurface>
+        </View>
 
         <GlassSurface style={styles.summaryCard} variant="strong">
           <DetailRow
             icon="user"
-            label="Recipient"
+            label="To"
             value={matchedPeer?.alias ?? shortAddress(to)}
             secondary={matchedPeer ? shortAddress(to) : undefined}
           />
-          <Divider />
           <DetailRow
             icon="activity"
             label="Route"
             valueComponent={<Pill label="On-chain" tone="cyan" />}
           />
-          <Divider />
           <DetailRow
             icon="zap"
-            label="Estimated fee"
+            label="Fee"
             value="~0.000005 SOL"
           />
-          {matchedPeer ? (
-            <>
-              <Divider />
-              <DetailRow
-                icon="users"
-                label="Nearby peer"
-                value={matchedPeer.alias}
-                secondary="Selected for recipient convenience only"
-              />
-            </>
-          ) : null}
         </GlassSurface>
 
-        <GlassSurface style={styles.utilityCard} variant="soft">
-          <View style={styles.utilityHeader}>
-            <View style={styles.utilityCopy}>
-              <View style={styles.utilityTitleRow}>
-                <Icon
-                  color={stealthEnabled ? theme.colors.purple : theme.colors.textMuted}
-                  name="stealth"
-                  size={16}
-                />
-                <Text style={[styles.utilityTitle, stealthEnabled && styles.utilityTitleActive]}>
-                  Stealth default
-                </Text>
-              </View>
-              <Text style={styles.utilityBody}>
-                Toggling here updates the saved local default, but stealth settlement is still preview-only in this build.
-              </Text>
-            </View>
-
-            <TouchableOpacity
-              accessibilityLabel={stealthEnabled ? "Disable stealth default" : "Enable stealth default"}
-              accessibilityRole="button"
-              activeOpacity={0.8}
-              onPress={() => {
-                const next = !stealthEnabled;
-                setStealthEnabled(next);
-                void updatePrivacy({ stealthByDefault: next });
-              }}
-            >
-              <Pill
-                label={stealthEnabled ? "Preview on" : "Preview off"}
-                tone={stealthEnabled ? "purple" : "neutral"}
-              />
-            </TouchableOpacity>
-          </View>
-        </GlassSurface>
-
-        <GlassSurface style={styles.noteCard} variant="soft">
-          <View style={styles.noteRow}>
-            <Icon color={theme.colors.cyan} name="info" size={16} />
-            <Text style={styles.noteText}>
-              Mesh relay integration is being landed separately. This redesigned send flow stays on-chain until that work is ready.
+        <TouchableOpacity
+          accessibilityLabel={stealthEnabled ? "Disable stealth default" : "Enable stealth default"}
+          accessibilityRole="button"
+          activeOpacity={0.8}
+          onPress={() => {
+            const next = !stealthEnabled;
+            setStealthEnabled(next);
+            void updatePrivacy({ stealthByDefault: next });
+          }}
+          style={styles.stealthRow}
+        >
+          <View style={styles.stealthLabelBlock}>
+            <Icon
+              color={stealthEnabled ? theme.colors.purple : theme.colors.textMuted}
+              name="eye-off"
+              size={16}
+            />
+            <Text style={[styles.stealthLabel, stealthEnabled && styles.stealthLabelActive]}>
+              Stealth
             </Text>
           </View>
-        </GlassSurface>
+          <Pill
+            label={stealthEnabled ? "On" : "Off"}
+            tone={stealthEnabled ? "purple" : "neutral"}
+          />
+        </TouchableOpacity>
 
         {error ? (
           <View style={styles.errorRow}>
@@ -224,29 +188,15 @@ function DetailRow({
   );
 }
 
-function Divider() {
-  return <View style={styles.divider} />;
-}
-
 const styles = StyleSheet.create({
   scrollContent: {
     gap: theme.spacing.lg,
     paddingBottom: theme.spacing.lg,
     paddingHorizontal: theme.spacing.lg,
   },
-  heroCard: {
+  heroBlock: {
     alignItems: "center",
-    borderRadius: theme.radius.xl,
-    gap: theme.spacing.xs,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.xxl,
-  },
-  heroLabel: {
-    color: theme.colors.textMuted,
-    fontFamily: theme.fonts.bodyMedium,
-    fontSize: theme.type.micro,
-    letterSpacing: 0.7,
-    textTransform: "uppercase",
+    paddingVertical: theme.spacing.xl,
   },
   heroAmount: {
     color: theme.colors.textPrimary,
@@ -260,22 +210,10 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.heading,
     fontSize: theme.type.bodyLg,
   },
-  heroRouteCopy: {
-    color: theme.colors.textSecondary,
-    fontFamily: theme.fonts.body,
-    fontSize: theme.type.caption,
-    lineHeight: theme.type.caption * 1.6,
-    textAlign: "center",
-  },
-  heroRouteCopyStrong: {
-    color: theme.colors.cyan,
-    fontFamily: theme.fonts.bodyMedium,
-  },
   summaryCard: {
     borderRadius: theme.radius.xl,
-    gap: theme.spacing.sm,
     paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
   },
   detailRow: {
     alignItems: "center",
@@ -313,60 +251,29 @@ const styles = StyleSheet.create({
     maxWidth: 220,
     textAlign: "right",
   },
-  divider: {
-    backgroundColor: theme.colors.line,
-    height: StyleSheet.hairlineWidth,
-  },
-  utilityCard: {
-    borderRadius: theme.radius.xl,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.lg,
-  },
-  utilityHeader: {
-    alignItems: "flex-start",
+  stealthRow: {
+    alignItems: "center",
+    backgroundColor: theme.colors.surfaceContainerLowest,
+    borderColor: theme.colors.line,
+    borderRadius: theme.radius.lg,
+    borderWidth: 1,
     flexDirection: "row",
-    gap: theme.spacing.md,
     justifyContent: "space-between",
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.md,
   },
-  utilityCopy: {
-    flex: 1,
-    gap: theme.spacing.xs,
-  },
-  utilityTitleRow: {
+  stealthLabelBlock: {
     alignItems: "center",
     flexDirection: "row",
     gap: theme.spacing.sm,
   },
-  utilityTitle: {
+  stealthLabel: {
     color: theme.colors.textPrimary,
-    fontFamily: theme.fonts.heading,
-    fontSize: theme.type.bodyLg,
+    fontFamily: theme.fonts.bodyMedium,
+    fontSize: theme.type.body,
   },
-  utilityTitleActive: {
+  stealthLabelActive: {
     color: theme.colors.purple,
-  },
-  utilityBody: {
-    color: theme.colors.textSecondary,
-    fontFamily: theme.fonts.body,
-    fontSize: theme.type.caption,
-    lineHeight: theme.type.caption * 1.6,
-  },
-  noteCard: {
-    borderRadius: theme.radius.lg,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
-  },
-  noteRow: {
-    alignItems: "flex-start",
-    flexDirection: "row",
-    gap: theme.spacing.sm,
-  },
-  noteText: {
-    color: theme.colors.textSecondary,
-    flex: 1,
-    fontFamily: theme.fonts.body,
-    fontSize: theme.type.caption,
-    lineHeight: theme.type.caption * 1.6,
   },
   errorRow: {
     alignItems: "center",
