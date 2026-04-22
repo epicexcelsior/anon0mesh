@@ -1,5 +1,5 @@
 import Constants from "expo-constants";
-import React from "react";
+import React, { useEffect } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -7,15 +7,28 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { DepthButton } from "@/components/primitives";
 import { LandingCanvas } from "@/components/onboarding/LandingCanvas";
 import { appTheme as theme } from "@/src/design-system/theme";
+import { useWallet } from "@/src/hooks/useWallet";
 
 export default function LandingScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const version = Constants.expoConfig?.version ?? "dev";
+  const { wallet, loading: walletLoading } = useWallet();
+
+  // Existing users skip onboarding entirely — route straight to Home.
+  useEffect(() => {
+    if (!walletLoading && wallet) {
+      router.replace("/(tabs)/home" as Parameters<typeof router.replace>[0]);
+    }
+  }, [walletLoading, wallet, router]);
+
+  // While we're resolving wallet state, hold content (atmosphere still renders).
+  const showContent = !walletLoading && !wallet;
 
   return (
     <View style={styles.root}>
       <LandingCanvas />
+      {showContent ? (
       <View
         style={[
           styles.content,
@@ -54,6 +67,7 @@ export default function LandingScreen() {
 
         <Text style={styles.version}>v{version}</Text>
       </View>
+      ) : null}
     </View>
   );
 }
