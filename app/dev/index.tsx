@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import { appTheme as theme } from '@/src/design-system/theme';
 
 const SCREENS = [
+  { label: '🎨 Tokens & Primitives', route: '/dev/tokens' },
   { label: 'Home', route: '/(tabs)/home' },
   { label: 'Messages', route: '/(tabs)/messages' },
   { label: 'Settings', route: '/(tabs)/settings' },
