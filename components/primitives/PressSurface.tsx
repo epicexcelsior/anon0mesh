@@ -38,6 +38,13 @@ const VARIANT_WASH: Record<PressSurfaceVariant, string> = {
   card: theme.feedback.surfaceCardPressWash,
 };
 
+// Strip is a full-bleed bar — no rounded corners unless caller asks for them.
+const VARIANT_DEFAULT_RADIUS: Record<PressSurfaceVariant, number> = {
+  row: theme.radius.lg,
+  strip: 0,
+  card: theme.radius.lg,
+};
+
 export function PressSurface({
   children,
   disabled = false,
@@ -85,7 +92,8 @@ export function PressSurface({
   // Inherit caller's borderRadius so the wash clips to the same shape.
   const flatStyle = StyleSheet.flatten(style) as ViewStyle | undefined;
   const outerRadius =
-    (flatStyle?.borderRadius as number | undefined) ?? theme.radius.lg;
+    (flatStyle?.borderRadius as number | undefined) ??
+    VARIANT_DEFAULT_RADIUS[variant];
 
   return (
     <Pressable
