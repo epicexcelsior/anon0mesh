@@ -1,5 +1,5 @@
 import React from "react";
-import { Linking, StyleSheet, Text, View } from "react-native";
+import { Linking, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 
@@ -92,6 +92,10 @@ export default function PeersScreen() {
       <Backdrop animated preset="peers" />
 
       <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
         <View style={styles.header}>
           <Pill
             label={bleError ? "BLE error" : connectionState}
@@ -217,6 +221,7 @@ export default function PeersScreen() {
             }
           />
         </View>
+        </ScrollView>
       </SafeAreaView>
     </View>
   );
@@ -229,6 +234,10 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: theme.spacing.xxxl,
   },
   header: {
     alignItems: "center",
