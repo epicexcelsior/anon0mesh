@@ -69,6 +69,8 @@ export default function ReceiveScreen() {
   );
   const activeAddress = mode === "stealth" ? stealthAddress : standardAddress;
   const qrValue = activeAddress || "anon";
+  const isStealth = mode === "stealth";
+  const qrColor = isStealth ? theme.colors.purple : "#000000";
 
   return (
     <View style={styles.root}>
@@ -87,7 +89,22 @@ export default function ReceiveScreen() {
         </View>
 
         <View style={styles.segmentRow}>
-          <SegmentedControl onSelect={setMode} segments={ADDRESS_MODES} selected={mode} />
+          <SegmentedControl
+            onSelect={setMode}
+            segments={ADDRESS_MODES}
+            selected={mode}
+            tone={isStealth ? "purple" : "cyan"}
+          />
+          {isStealth ? (
+            <View style={styles.previewPillFloat}>
+              <View style={styles.previewPill}>
+                <Icon color={theme.colors.purple} name="eye" size={12} />
+                <Text style={styles.previewPillText}>
+                  Preview — stealth wiring lands in Phase 7
+                </Text>
+              </View>
+            </View>
+          ) : null}
         </View>
 
         {loading && !wallet ? (
@@ -104,7 +121,7 @@ export default function ReceiveScreen() {
             <View style={styles.qrCard}>
               <QRCode
                 backgroundColor="#FFFFFF"
-                color="#000000"
+                color={qrColor}
                 size={220}
                 value={qrValue}
               />
@@ -117,15 +134,6 @@ export default function ReceiveScreen() {
               </View>
               <Text style={styles.networksLabel}>Supported on Solana</Text>
             </View>
-
-            {mode === "stealth" ? (
-              <View style={styles.previewPill}>
-                <Icon color={theme.colors.amber} name="eye" size={12} />
-                <Text style={styles.previewPillText}>
-                  Preview — stealth wiring lands in Phase 7
-                </Text>
-              </View>
-            ) : null}
 
             <Text
               accessibilityLabel={activeAddress}
@@ -195,6 +203,7 @@ function ShareButton({ onPress }: { onPress: () => void }) {
       hitSlop={6}
       onPress={onPress}
       onPressIn={() => {
+        haptics.tap();
         pressed.value = withTiming(1, { duration: 110 });
       }}
       onPressOut={() => {
@@ -247,6 +256,7 @@ function CopyButton({
       hitSlop={6}
       onPress={onPress}
       onPressIn={() => {
+        haptics.tap();
         pressed.value = withTiming(1, { duration: 110 });
       }}
       onPressOut={() => {
@@ -325,17 +335,27 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.body,
     fontSize: 13,
   },
+  previewPillFloat: {
+    alignItems: "center",
+    left: 0,
+    paddingTop: theme.spacing.sm,
+    position: "absolute",
+    right: 0,
+    top: "100%",
+  },
   previewPill: {
     alignItems: "center",
-    backgroundColor: theme.colors.amberSoft,
+    backgroundColor: theme.colors.purpleSoft,
+    borderColor: theme.colors.purpleBorderSoft,
     borderRadius: theme.radius.pill,
+    borderWidth: 1,
     flexDirection: "row",
     gap: theme.spacing.xs,
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.xs,
   },
   previewPillText: {
-    color: theme.colors.amber,
+    color: theme.colors.purple,
     fontFamily: theme.fonts.bodyMedium,
     fontSize: 12,
   },

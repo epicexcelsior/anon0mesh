@@ -16,13 +16,31 @@ interface Segment {
   label: string;
 }
 
+export type SegmentedControlTone = "cyan" | "purple";
+
 interface SegmentedControlProps {
   segments: Segment[];
   selected: string;
   onSelect: (id: string) => void;
+  tone?: SegmentedControlTone;
 }
 
-export function SegmentedControl({ segments, selected, onSelect }: SegmentedControlProps) {
+const TONE_ACTIVE: Record<SegmentedControlTone, string> = {
+  cyan: theme.colors.cyan,
+  purple: theme.colors.purple,
+};
+
+const TONE_THUMB_BORDER: Record<SegmentedControlTone, string> = {
+  cyan: theme.colors.cyanBorderSoft,
+  purple: theme.colors.purpleBorderSoft,
+};
+
+export function SegmentedControl({
+  segments,
+  selected,
+  onSelect,
+  tone = "cyan",
+}: SegmentedControlProps) {
   const [containerWidth, setContainerWidth] = useState(0);
   const segmentWidth = containerWidth > 0 ? containerWidth / segments.length : 0;
   const selectedIndex = segments.findIndex((s) => s.id === selected);
@@ -53,9 +71,14 @@ export function SegmentedControl({ segments, selected, onSelect }: SegmentedCont
     width: Math.max(segmentWidth - theme.spacing.sm, 0),
   }));
 
+  const activeColor = TONE_ACTIVE[tone];
+  const thumbBorderColor = TONE_THUMB_BORDER[tone];
+
   return (
     <View style={styles.track} onLayout={handleLayout}>
-      <Animated.View style={[styles.thumb, thumbStyle]} />
+      <Animated.View
+        style={[styles.thumb, thumbStyle, { borderColor: thumbBorderColor }]}
+      />
       {segments.map(({ id, label }, index) => {
         const isActive = id === selected;
         return (
@@ -64,7 +87,14 @@ export function SegmentedControl({ segments, selected, onSelect }: SegmentedCont
             onPress={() => handleSelect(id, index)}
             style={styles.segment}
           >
-            <Text style={[styles.label, isActive && styles.labelActive]}>{label}</Text>
+            <Text
+              style={[
+                styles.label,
+                isActive && { color: activeColor, fontFamily: theme.fonts.headingBold },
+              ]}
+            >
+              {label}
+            </Text>
           </Pressable>
         );
       })}
@@ -79,14 +109,13 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.md,
     borderWidth: 1,
     flexDirection: "row",
-    height: 40,
+    height: 52,
     overflow: "hidden",
     padding: theme.spacing.xs,
     position: "relative",
   },
   thumb: {
     backgroundColor: theme.colors.surfaceElevated,
-    borderColor: theme.colors.line,
     borderRadius: theme.radius.sm,
     borderWidth: 1,
     bottom: theme.spacing.xs,
@@ -103,10 +132,7 @@ const styles = StyleSheet.create({
   label: {
     color: theme.colors.textSecondary,
     fontFamily: theme.fonts.bodyMedium,
-    fontSize: theme.type.caption,
-    letterSpacing: 0.4,
-  },
-  labelActive: {
-    color: theme.colors.cyan,
+    fontSize: 15,
+    letterSpacing: 0.3,
   },
 });
