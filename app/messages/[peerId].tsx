@@ -5,7 +5,6 @@ import {
   Platform,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -15,6 +14,7 @@ import { ThreadHeaderCard } from "@/components/messages/ThreadHeaderCard";
 import { Backdrop } from "@/components/primitives/Backdrop";
 import { GlassSurface } from "@/components/primitives/GlassSurface";
 import { Icon } from "@/components/primitives/Icon";
+import { IconButton } from "@/components/primitives/IconButton";
 import { Pill } from "@/components/primitives/Pill";
 import { appTheme as theme } from "@/src/design-system/theme";
 import { useConversation, usePeers } from "@/src/hooks";
@@ -41,16 +41,14 @@ export default function ConversationScreen() {
 
       <View style={[styles.content, { paddingTop: insets.top + theme.spacing.sm }]}>
         <View style={styles.header}>
-          <TouchableOpacity
+          <IconButton
             accessibilityLabel="Back"
-            accessibilityRole="button"
-            activeOpacity={0.7}
-            hitSlop={8}
+            name="arrow-left"
             onPress={() => router.back()}
-            style={styles.backBtn}
-          >
-            <Icon name="arrow-left" size={20} color={theme.colors.textPrimary} />
-          </TouchableOpacity>
+            size="md"
+            tone="neutral"
+            variant="contained"
+          />
 
           <Pill label="Thread" tone="neutral" />
         </View>
@@ -120,16 +118,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     paddingHorizontal: theme.spacing.lg,
-  },
-  backBtn: {
-    alignItems: "center",
-    backgroundColor: theme.colors.surfaceContainerLowest,
-    borderColor: theme.colors.line,
-    borderRadius: theme.radius.pill,
-    borderWidth: 1,
-    height: 40,
-    justifyContent: "center",
-    width: 40,
   },
   intro: {
     gap: theme.spacing.xs,

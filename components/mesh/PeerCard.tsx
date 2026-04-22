@@ -1,9 +1,10 @@
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 
 import { GlassSurface } from "@/components/primitives/GlassSurface";
 import { Icon } from "@/components/primitives/Icon";
+import { IconButton } from "@/components/primitives/IconButton";
 import { Pill } from "@/components/primitives/Pill";
 import { PressSurface } from "@/components/primitives/PressSurface";
 import { SignalBars } from "@/components/primitives/SignalBars";
@@ -112,30 +113,26 @@ export function PeerCard({ peer, onPress }: PeerCardProps) {
           </View>
 
           <View style={styles.actions}>
-            <TouchableOpacity
+            <IconButton
               accessibilityLabel={`Message ${peer.alias}`}
-              accessibilityRole="button"
-              activeOpacity={0.7}
-              hitSlop={8}
+              name="message-circle"
               onPress={() => router.push(("/messages/" + peer.id) as AnyHref)}
-              style={styles.actionBtn}
-            >
-              <Icon name="message-circle" size={18} color={theme.colors.textPrimary} />
-            </TouchableOpacity>
-            <TouchableOpacity
+              size="sm"
+              tone="neutral"
+              variant="contained"
+            />
+            <IconButton
               accessibilityLabel={`Send to ${peer.alias}`}
-              accessibilityRole="button"
-              activeOpacity={0.7}
-              hitSlop={8}
+              name="send"
               onPress={() =>
                 router.push(
                   (`/send/recipient?to=${encodeURIComponent(peer.publicKey)}`) as AnyHref,
                 )
               }
-              style={styles.actionBtn}
-            >
-              <Icon name="send" size={18} color={theme.colors.cyan} />
-            </TouchableOpacity>
+              size="sm"
+              tone="cyan"
+              variant="contained"
+            />
             <View style={styles.chevron}>
               <Icon name="chevron-right" size={16} color={theme.colors.textMuted} />
             </View>
@@ -233,16 +230,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     gap: theme.spacing.xs,
-  },
-  actionBtn: {
-    alignItems: "center",
-    backgroundColor: theme.colors.surfaceContainerLowest,
-    borderColor: theme.colors.line,
-    borderRadius: theme.radius.pill,
-    borderWidth: 1,
-    height: 36,
-    justifyContent: "center",
-    width: 36,
   },
   chevron: {
     alignItems: "center",

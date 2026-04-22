@@ -1,8 +1,9 @@
 import { useRouter } from "expo-router";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { Icon } from "@/components/primitives/Icon";
+import { IconButton } from "@/components/primitives/IconButton";
 import { Pill } from "@/components/primitives/Pill";
 import type { Wallet } from "@/src/domain/entities/Wallet";
 import { appTheme as theme } from "@/src/design-system/theme";
@@ -60,15 +61,14 @@ export function HomeHero({ wallet, mode }: HomeHeroProps) {
         </View>
       </View>
 
-      <TouchableOpacity
+      <IconButton
         accessibilityLabel="Show receive QR code"
-        accessibilityRole="button"
-        hitSlop={8}
+        name="maximize"
         onPress={() => router.push("/receive")}
-        style={styles.qrButton}
-      >
-        <Icon name="maximize" size={18} color={theme.colors.cyan} />
-      </TouchableOpacity>
+        size="md"
+        tone="cyan"
+        variant="contained"
+      />
     </View>
   );
 }
@@ -121,15 +121,5 @@ const styles = StyleSheet.create({
     color: theme.colors.textSecondary,
     fontFamily: theme.fonts.monoJetBrains,
     fontSize: theme.type.caption,
-  },
-  qrButton: {
-    alignItems: "center",
-    backgroundColor: theme.colors.surfaceContainerLowest,
-    borderColor: theme.colors.line,
-    borderRadius: theme.radius.pill,
-    borderWidth: 1,
-    height: 40,
-    justifyContent: "center",
-    width: 40,
   },
 });

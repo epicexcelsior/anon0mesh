@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -9,6 +9,7 @@ import { HomeHero } from "@/components/home/HomeHero";
 import { RecentActivity } from "@/components/home/RecentActivity";
 import { Backdrop } from "@/components/primitives/Backdrop";
 import { Icon } from "@/components/primitives/Icon";
+import { PressSurface } from "@/components/primitives/PressSurface";
 import { SegmentedControl } from "@/components/primitives/SegmentedControl";
 import { appTheme as theme } from "@/src/design-system/theme";
 import { useTransaction, useWallet } from "@/src/hooks";
@@ -64,28 +65,29 @@ export default function HomeScreen() {
           {ACTIONS.map((action) => {
             const accent = action.tone === "accent";
             return (
-              <TouchableOpacity
-                key={action.id}
+              <PressSurface
                 accessibilityLabel={action.label}
-                accessibilityRole="button"
-                activeOpacity={0.8}
+                key={action.id}
                 onPress={() => router.push(action.route)}
                 style={[styles.actionCard, accent && styles.actionCardAccent]}
+                variant="card"
               >
-                <View style={[styles.actionIconWrap, accent && styles.actionIconWrapAccent]}>
-                  <Icon
-                    name={action.icon}
-                    size={18}
-                    color={accent ? theme.colors.textOnAccent : theme.colors.cyan}
-                  />
+                <View style={styles.actionInner}>
+                  <View style={[styles.actionIconWrap, accent && styles.actionIconWrapAccent]}>
+                    <Icon
+                      name={action.icon}
+                      size={18}
+                      color={accent ? theme.colors.textOnAccent : theme.colors.cyan}
+                    />
+                  </View>
+                  <Text style={[styles.actionLabel, accent && styles.actionLabelAccent]}>
+                    {action.label}
+                  </Text>
+                  <Text style={[styles.actionDetail, accent && styles.actionDetailAccent]}>
+                    {action.detail}
+                  </Text>
                 </View>
-                <Text style={[styles.actionLabel, accent && styles.actionLabelAccent]}>
-                  {action.label}
-                </Text>
-                <Text style={[styles.actionDetail, accent && styles.actionDetailAccent]}>
-                  {action.detail}
-                </Text>
-              </TouchableOpacity>
+              </PressSurface>
             );
           })}
         </View>
@@ -135,6 +137,8 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.lg,
     borderWidth: 1,
     flex: 1,
+  },
+  actionInner: {
     gap: theme.spacing.sm,
     minHeight: 112,
     paddingHorizontal: theme.spacing.md,

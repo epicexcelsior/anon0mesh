@@ -3,12 +3,12 @@ import React, { forwardRef, useState, useMemo } from "react";
 import {
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from "react-native";
 
 import { AppTextInput } from "@/components/primitives/AppTextInput";
 import { Icon } from "@/components/primitives/Icon";
+import { IconButton } from "@/components/primitives/IconButton";
 import { MessagePeerRow } from "@/components/messages/MessagePeerRow";
 import { Sheet } from "@/components/primitives/Sheet";
 import { appTheme as theme } from "@/src/design-system/theme";
@@ -74,16 +74,14 @@ export const NewConversationSheet = forwardRef<
         <Text style={styles.sheetBody}>
           Choose from the current peer graph. Threads still use fixture-backed message delivery until LXMF runtime lands.
         </Text>
-        <TouchableOpacity
+        <IconButton
           accessibilityLabel="Close"
-          accessibilityRole="button"
-          activeOpacity={0.7}
-          hitSlop={8}
+          name="x"
           onPress={handleClose}
-          style={styles.closeBtn}
-        >
-          <Icon name="x" size={18} color={theme.colors.textPrimary} />
-        </TouchableOpacity>
+          size="sm"
+          tone="neutral"
+          variant="contained"
+        />
       </View>
 
       <AppTextInput
@@ -131,16 +129,6 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.body,
     fontSize: theme.type.caption,
     lineHeight: theme.type.caption * 1.6,
-  },
-  closeBtn: {
-    alignItems: "center",
-    backgroundColor: theme.colors.surfaceContainerHigh,
-    borderColor: theme.colors.line,
-    borderRadius: theme.radius.pill,
-    borderWidth: StyleSheet.hairlineWidth,
-    height: 32,
-    justifyContent: "center",
-    width: 32,
   },
   peerList: {
     maxHeight: 320,

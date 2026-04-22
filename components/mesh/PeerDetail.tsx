@@ -15,6 +15,7 @@ import { GlassSurface } from "@/components/primitives/GlassSurface";
 import { Icon } from "@/components/primitives/Icon";
 import { Pill } from "@/components/primitives/Pill";
 import { SignalBars } from "@/components/primitives/SignalBars";
+import * as haptics from "@/src/design-system/haptics";
 import { appTheme as theme } from "@/src/design-system/theme";
 import type { Peer } from "@/src/domain/entities/Peer";
 
@@ -105,6 +106,7 @@ export function PeerDetail({ peer, onTrust, onBlock }: PeerDetailProps) {
   const router = useRouter();
 
   async function handleCopyKey() {
+    haptics.tap();
     await Clipboard.setStringAsync(peer.publicKey);
     Alert.alert("Copied", "Public key copied to clipboard.");
   }

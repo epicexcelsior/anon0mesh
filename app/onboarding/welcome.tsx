@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { DepthButton } from "@/components/primitives";
 import { Backdrop } from "@/components/primitives/Backdrop";
 import { FeatureHighlight } from "@/components/onboarding/FeatureHighlight";
+import * as haptics from "@/src/design-system/haptics";
 import { appTheme as theme } from "@/src/design-system/theme";
 
 const FEATURES = [
@@ -82,7 +83,10 @@ export default function WelcomeScreen() {
           <Pressable
             accessibilityLabel="Open technical overview"
             accessibilityRole="button"
-            onPress={() => router.push("/onboarding/tech-drawer")}
+            onPress={() => {
+              haptics.select();
+              router.push("/onboarding/tech-drawer");
+            }}
           >
             <Text style={styles.techLink}>Under the hood →</Text>
           </Pressable>

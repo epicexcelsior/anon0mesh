@@ -1,5 +1,5 @@
 import React from "react";
-import { Linking, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Linking, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 
@@ -8,6 +8,7 @@ import { DepthButton } from "@/components/primitives/DepthButton";
 import { Backdrop } from "@/components/primitives/Backdrop";
 import { GlassSurface } from "@/components/primitives/GlassSurface";
 import { Icon } from "@/components/primitives/Icon";
+import { IconButton } from "@/components/primitives/IconButton";
 import { Pill } from "@/components/primitives/Pill";
 import type { PillTone } from "@/components/primitives/Pill";
 import { SignalBars } from "@/components/primitives/SignalBars";
@@ -96,16 +97,14 @@ export default function PeersScreen() {
             label={bleError ? "BLE error" : connectionState}
             tone={stateTone(connectionState, bleError)}
           />
-          <TouchableOpacity
+          <IconButton
             accessibilityLabel="Close"
-            accessibilityRole="button"
-            activeOpacity={0.7}
-            hitSlop={8}
+            name="x"
             onPress={() => router.back()}
-            style={styles.closeBtn}
-          >
-            <Icon name="x" size={22} color={theme.colors.textPrimary} />
-          </TouchableOpacity>
+            size="md"
+            tone="neutral"
+            variant="contained"
+          />
         </View>
 
         <View style={styles.intro}>
@@ -237,16 +236,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: theme.spacing.lg,
     paddingTop: theme.spacing.xs,
-  },
-  closeBtn: {
-    alignItems: "center",
-    backgroundColor: theme.colors.surfaceContainerLowest,
-    borderColor: theme.colors.line,
-    borderRadius: theme.radius.pill,
-    borderWidth: 1,
-    height: 40,
-    justifyContent: "center",
-    width: 40,
   },
   intro: {
     gap: theme.spacing.xs,

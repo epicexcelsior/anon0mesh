@@ -1,10 +1,10 @@
 import React from "react";
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 
 import { Backdrop } from "@/components/primitives/Backdrop";
-import { Icon } from "@/components/primitives/Icon";
+import { IconButton } from "@/components/primitives/IconButton";
 import { ReceiveCard } from "@/components/shared/ReceiveCard";
 import { useWallet } from "@/src/hooks";
 import { appTheme as theme } from "@/src/design-system/theme";
@@ -20,21 +20,19 @@ export default function ReceiveScreen() {
       <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity
+          <IconButton
             accessibilityLabel="Back"
-            accessibilityRole="button"
-            activeOpacity={0.7}
-            hitSlop={8}
+            name="arrow-left"
             onPress={() => router.back()}
-            style={styles.backBtn}
-          >
-            <Icon name="arrow-left" size={20} color={theme.colors.textPrimary} />
-          </TouchableOpacity>
+            size="md"
+            tone="neutral"
+            variant="contained"
+          />
 
           <Text style={styles.headerTitle}>Receive</Text>
 
           {/* Spacer to center title */}
-          <View style={styles.backBtn} />
+          <View style={styles.spacer} />
         </View>
 
         <View style={styles.content}>
@@ -71,15 +69,9 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.heading,
     fontSize: theme.type.section,
   },
-  backBtn: {
-    alignItems: "center",
-    backgroundColor: theme.colors.surfaceContainerHigh,
-    borderColor: theme.colors.line,
-    borderRadius: theme.radius.pill,
-    borderWidth: StyleSheet.hairlineWidth,
-    height: 36,
-    justifyContent: "center",
-    width: 36,
+  spacer: {
+    height: 44,
+    width: 44,
   },
   content: {
     alignItems: "center",

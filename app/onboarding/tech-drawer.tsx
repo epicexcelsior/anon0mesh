@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 
 import { GlassSurface } from "@/components/primitives/GlassSurface";
 import { TechDrawerContent } from "@/components/onboarding/TechDrawerContent";
+import * as haptics from "@/src/design-system/haptics";
 import { appTheme as theme } from "@/src/design-system/theme";
 
 export default function TechDrawerScreen() {
@@ -17,7 +18,10 @@ export default function TechDrawerScreen() {
           <Pressable
             accessibilityLabel="Close technical overview"
             accessibilityRole="button"
-            onPress={() => router.back()}
+            onPress={() => {
+              haptics.tap();
+              router.back();
+            }}
             style={styles.closeBtn}
           >
             <Text style={styles.closeLabel}>Close</Text>

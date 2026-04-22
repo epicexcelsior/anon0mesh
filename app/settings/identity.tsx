@@ -170,7 +170,10 @@ export default function IdentityScreen() {
             accessibilityLabel="Open wallet export"
             accessibilityRole="button"
             activeOpacity={0.8}
-            onPress={() => router.push("/settings/wallet-export" as Parameters<typeof router.push>[0])}
+            onPress={() => {
+              haptics.select();
+              router.push("/settings/wallet-export" as Parameters<typeof router.push>[0]);
+            }}
             style={styles.heroAction}
           >
             <Icon color={theme.colors.textPrimary} name="download-cloud" size={16} />

@@ -152,6 +152,7 @@ export default function WalletExportScreen() {
                   accessibilityRole="button"
                   activeOpacity={0.8}
                   onPress={() => {
+                    haptics.select();
                     setPrivateKey("");
                     setErrorMessage("");
                   }}

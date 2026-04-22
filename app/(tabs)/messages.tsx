@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import type BottomSheet from "@gorhom/bottom-sheet";
@@ -7,6 +7,7 @@ import type BottomSheet from "@gorhom/bottom-sheet";
 import { Backdrop } from "@/components/primitives/Backdrop";
 import { GlassSurface } from "@/components/primitives/GlassSurface";
 import { Icon } from "@/components/primitives/Icon";
+import { IconButton } from "@/components/primitives/IconButton";
 import { Pill } from "@/components/primitives/Pill";
 import { appTheme as theme } from "@/src/design-system/theme";
 import { useMessages, usePeers } from "@/src/hooks";
@@ -44,16 +45,14 @@ export default function MessagesScreen() {
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + theme.spacing.md }]}>
         <Text style={styles.title}>Messages</Text>
-        <TouchableOpacity
+        <IconButton
           accessibilityLabel="New conversation"
-          accessibilityRole="button"
-          activeOpacity={0.7}
-          hitSlop={8}
+          name="plus"
           onPress={openNewConversation}
-          style={styles.addBtn}
-        >
-          <Icon name="plus" size={20} color={theme.colors.textPrimary} />
-        </TouchableOpacity>
+          size="md"
+          tone="neutral"
+          variant="contained"
+        />
       </View>
 
       <GlassSurface style={styles.hero} variant="strong">
@@ -123,16 +122,6 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.display,
     fontSize: theme.type.title,
     letterSpacing: -0.7,
-  },
-  addBtn: {
-    alignItems: "center",
-    backgroundColor: theme.colors.surfaceContainerLowest,
-    borderColor: theme.colors.line,
-    borderRadius: theme.radius.pill,
-    borderWidth: 1,
-    height: 40,
-    justifyContent: "center",
-    width: 40,
   },
   hero: {
     borderRadius: theme.radius.xl,
