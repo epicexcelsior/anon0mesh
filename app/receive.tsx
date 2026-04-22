@@ -23,7 +23,6 @@ import { Backdrop } from "@/components/primitives/Backdrop";
 import { Icon } from "@/components/primitives/Icon";
 import { IconButton } from "@/components/primitives/IconButton";
 import { SegmentedControl } from "@/components/primitives/SegmentedControl";
-import { SwipeDismissView } from "@/components/primitives/SwipeDismissView";
 import { TokenLogo } from "@/components/primitives/TokenLogo";
 import * as haptics from "@/src/design-system/haptics";
 import { appTheme as theme } from "@/src/design-system/theme";
@@ -76,7 +75,6 @@ export default function ReceiveScreen() {
   return (
     <View style={styles.root}>
       <Backdrop preset="settings" />
-      <SwipeDismissView onDismiss={() => router.back()} style={styles.swipeLayer}>
       <SafeAreaView edges={["top", "bottom"]} style={styles.safeArea}>
         <View style={styles.header}>
           <Text style={styles.title}>Receive</Text>
@@ -150,7 +148,6 @@ export default function ReceiveScreen() {
 
         <ActionBar address={activeAddress} />
       </SafeAreaView>
-      </SwipeDismissView>
     </View>
   );
 }
