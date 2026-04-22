@@ -12,8 +12,12 @@ interface FeatureHighlightProps {
   body: string;
 }
 
-// Horizontal row — icon tile on the left (top-aligned so icons line up
-// across rows regardless of text length), title + body on the right.
+// Horizontal row — icon tile on the left, title + body on the right.
+// Row has a fixed min-height so stacked rows align visually even when
+// their body text lengths differ. Icon tile is center-aligned within
+// the row so short-body rows don't drift the icon upward.
+const ROW_MIN_HEIGHT = 64;
+
 export function FeatureHighlight({ iconName, title, body }: FeatureHighlightProps) {
   return (
     <View style={styles.row}>
@@ -21,8 +25,12 @@ export function FeatureHighlight({ iconName, title, body }: FeatureHighlightProp
         <Icon name={iconName} size={24} color={theme.colors.cyan} />
       </View>
       <View style={styles.text}>
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.body}>{body}</Text>
+        <Text numberOfLines={1} style={styles.title}>
+          {title}
+        </Text>
+        <Text numberOfLines={2} style={styles.body}>
+          {body}
+        </Text>
       </View>
     </View>
   );
@@ -30,9 +38,10 @@ export function FeatureHighlight({ iconName, title, body }: FeatureHighlightProp
 
 const styles = StyleSheet.create({
   row: {
-    alignItems: "flex-start",
+    alignItems: "center",
     flexDirection: "row",
     gap: theme.spacing.lg,
+    minHeight: ROW_MIN_HEIGHT,
   },
   iconWrap: {
     alignItems: "center",
@@ -46,7 +55,6 @@ const styles = StyleSheet.create({
   text: {
     flex: 1,
     gap: 4,
-    paddingTop: 4,
   },
   title: {
     color: theme.colors.textPrimary,
