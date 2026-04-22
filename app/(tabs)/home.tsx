@@ -58,7 +58,7 @@ export default function HomeScreen() {
       <Backdrop preset="home" animated />
 
       <View style={[styles.content, { paddingTop: insets.top + theme.spacing.md }]}>
-        <HomeHero mode={mode} wallet={wallet} />
+        <HomeHero wallet={wallet} />
         <BalanceCard exportState={exportState} loading={loading} mode={mode} wallet={wallet} />
 
         <View style={styles.actionRow}>
