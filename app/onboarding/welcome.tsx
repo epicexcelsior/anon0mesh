@@ -66,17 +66,19 @@ export default function WelcomeScreen() {
           styles.content,
           {
             paddingTop: insets.top + theme.spacing.xxl,
-            paddingBottom: insets.bottom + theme.spacing.xxxl,
+            paddingBottom: insets.bottom + theme.spacing.xxl,
           },
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <Animated.Text entering={reveal(0)} style={styles.headline}>
-          Private by default.
-        </Animated.Text>
-        <Animated.Text entering={reveal(1)} style={styles.subheadline}>
-          Payments and messages that work without the internet.
-        </Animated.Text>
+        <View style={styles.heroBlock}>
+          <Animated.Text entering={reveal(0)} style={styles.headline}>
+            Private by default.
+          </Animated.Text>
+          <Animated.Text entering={reveal(1)} style={styles.subheadline}>
+            Payments and messages that work without the internet.
+          </Animated.Text>
+        </View>
 
         <View style={styles.features}>
           {FEATURES.map((f, index) => (
@@ -85,6 +87,8 @@ export default function WelcomeScreen() {
             </Animated.View>
           ))}
         </View>
+
+        <View style={styles.spacer} />
 
         <View style={styles.actions}>
           <Animated.View entering={reveal(2 + FEATURES.length)} style={styles.ctaPrimary}>
@@ -141,8 +145,17 @@ const styles = StyleSheet.create({
   },
   scroll: { flex: 1 },
   content: {
-    padding: theme.spacing.xxl,
-    gap: theme.spacing.xxxl,
+    flexGrow: 1,
+    paddingHorizontal: theme.spacing.xxl,
+    paddingVertical: theme.spacing.xxl,
+    gap: theme.spacing.xl,
+  },
+  heroBlock: {
+    gap: theme.spacing.md,
+  },
+  spacer: {
+    flexGrow: 1,
+    minHeight: theme.spacing.lg,
   },
   headline: {
     color: theme.colors.textPrimary,
@@ -155,7 +168,6 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.body,
     fontSize: theme.type.bodyLg,
     lineHeight: 24,
-    marginTop: -theme.spacing.lg,
   },
   features: {
     gap: theme.spacing.md,

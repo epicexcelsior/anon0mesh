@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AppTextInput } from "@/components/primitives";
 import { Backdrop } from "@/components/primitives/Backdrop";
+import { IconButton } from "@/components/primitives/IconButton";
 import { PermissionPrimer } from "@/components/onboarding/PermissionPrimer";
 import { WalletPathPicker } from "@/components/onboarding/WalletPathPicker";
 import { appTheme as theme } from "@/src/design-system/theme";
@@ -84,12 +85,24 @@ export default function SetupScreen() {
   return (
     <View style={styles.root}>
       <Backdrop preset="home" />
+
+      <View style={[styles.backRow, { top: insets.top + theme.spacing.sm }]}>
+        <IconButton
+          accessibilityLabel="Back"
+          name="arrow-left"
+          onPress={() => router.back()}
+          size="md"
+          tone="neutral"
+          variant="contained"
+        />
+      </View>
+
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={[
           styles.content,
           {
-            paddingTop: insets.top + theme.spacing.xxl,
+            paddingTop: insets.top + theme.spacing.huge,
             paddingBottom: insets.bottom + theme.spacing.xxxl,
           },
         ]}
@@ -161,6 +174,11 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: theme.colors.background,
+  },
+  backRow: {
+    left: theme.spacing.lg,
+    position: "absolute",
+    zIndex: 10,
   },
   scroll: { flex: 1 },
   content: {
