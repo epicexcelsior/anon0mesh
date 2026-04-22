@@ -1,118 +1,80 @@
-import React, { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import React from "react";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { ActionRow } from "@/components/home/ActionRow";
 import { BalanceCard } from "@/components/home/BalanceCard";
-import { HistoryList } from "@/components/home/HistoryList";
 import { HomeHero } from "@/components/home/HomeHero";
+import { NearbyPeersCard } from "@/components/home/NearbyPeersCard";
 import { RecentActivity } from "@/components/home/RecentActivity";
 import { Backdrop } from "@/components/primitives/Backdrop";
-import { Icon } from "@/components/primitives/Icon";
-import { PressSurface } from "@/components/primitives/PressSurface";
-import { SegmentedControl } from "@/components/primitives/SegmentedControl";
 import { appTheme as theme } from "@/src/design-system/theme";
+import * as haptics from "@/src/design-system/haptics";
+import { HideBalanceProvider } from "@/src/hooks/useHideBalance";
 import { useTransaction, useWallet } from "@/src/hooks";
 
-const SEGMENTS = [
-  { id: "balance", label: "Balance" },
-  { id: "history", label: "History" },
-];
-
-const ACTIONS = [
-  {
-    id: "send",
-    label: "Send",
-    detail: "Pay peer or address",
-    icon: "send" as const,
-    tone: "accent" as const,
-    route: "/send/recipient" as const,
-  },
-  {
-    id: "receive",
-    label: "Receive",
-    detail: "Show wallet QR",
-    icon: "download" as const,
-    tone: "neutral" as const,
-    route: "/receive" as const,
-  },
-  {
-    id: "history",
-    label: "History",
-    detail: "Open full ledger",
-    icon: "clock" as const,
-    tone: "neutral" as const,
-    route: "/history" as const,
-  },
-];
+const RECENT_LIMIT = 5;
 
 export default function HomeScreen() {
+  return (
+    <HideBalanceProvider>
+      <HomeSurface />
+    </HideBalanceProvider>
+  );
+}
+
+function HomeSurface() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const [segment, setSegment] = useState("balance");
-  const { transactions } = useTransaction();
-  const { wallet, loading, mode, exportState } = useWallet();
+  const { wallet, loading } = useWallet();
+  const { recent } = useTransaction();
+
+  const hasMoreActivity = recent.length > RECENT_LIMIT;
+
+  function openHistory() {
+    haptics.select();
+    router.push("/history" as Parameters<typeof router.push>[0]);
+  }
 
   return (
     <View style={styles.root}>
       <Backdrop preset="home" animated />
 
-      <View style={[styles.content, { paddingTop: insets.top + theme.spacing.md }]}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.content,
+          {
+            paddingTop: insets.top + theme.spacing.sm,
+            paddingBottom: theme.component.nav.barHeight + theme.spacing.xxxl,
+          },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
         <HomeHero wallet={wallet} />
         <BalanceCard loading={loading} wallet={wallet} />
-
-        <View style={styles.actionRow}>
-          {ACTIONS.map((action) => {
-            const accent = action.tone === "accent";
-            return (
-              <PressSurface
-                accessibilityLabel={action.label}
-                key={action.id}
-                onPress={() => router.push(action.route)}
-                style={[styles.actionCard, accent && styles.actionCardAccent]}
-                variant="card"
-              >
-                <View style={styles.actionInner}>
-                  <View style={[styles.actionIconWrap, accent && styles.actionIconWrapAccent]}>
-                    <Icon
-                      name={action.icon}
-                      size={18}
-                      color={accent ? theme.colors.textOnAccent : theme.colors.cyan}
-                    />
-                  </View>
-                  <Text style={[styles.actionLabel, accent && styles.actionLabelAccent]}>
-                    {action.label}
-                  </Text>
-                  <Text style={[styles.actionDetail, accent && styles.actionDetailAccent]}>
-                    {action.detail}
-                  </Text>
-                </View>
-              </PressSurface>
-            );
-          })}
-        </View>
-
-        <View style={styles.segmentRow}>
-          <SegmentedControl segments={SEGMENTS} selected={segment} onSelect={setSegment} />
-        </View>
+        <ActionRow />
+        <NearbyPeersCard />
 
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>
-            {segment === "balance" ? "Recent activity" : "Transfer history"}
-          </Text>
-          <Text style={styles.sectionMeta}>
-            {segment === "balance"
-              ? "Queued and settled states update live."
-              : "Tap any transfer for its live receipt state."}
-          </Text>
+          <Text style={styles.sectionTitle}>Recent</Text>
         </View>
 
-        {segment === "balance" ? (
-          <RecentActivity />
-        ) : (
-          <HistoryList transactions={transactions} />
-        )}
-      </View>
+        <View style={styles.activityWrap}>
+          <RecentActivity limit={RECENT_LIMIT} />
+        </View>
+
+        {hasMoreActivity ? (
+          <Pressable
+            accessibilityLabel="See all transactions"
+            accessibilityRole="button"
+            onPress={openHistory}
+            style={styles.seeAll}
+          >
+            <Text style={styles.seeAllText}>See all →</Text>
+          </Pressable>
+        ) : null}
+      </ScrollView>
     </View>
   );
 }
@@ -123,78 +85,31 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    flex: 1,
-  },
-  actionRow: {
-    flexDirection: "row",
     gap: theme.spacing.sm,
-    marginHorizontal: theme.spacing.lg,
-    marginTop: theme.spacing.md,
-  },
-  actionCard: {
-    backgroundColor: theme.colors.surfaceContainerLowest,
-    borderColor: theme.colors.line,
-    borderRadius: theme.radius.lg,
-    borderWidth: 1,
-    flex: 1,
-  },
-  actionInner: {
-    gap: theme.spacing.sm,
-    minHeight: 112,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.md,
-  },
-  actionCardAccent: {
-    backgroundColor: theme.colors.cyan,
-    borderColor: theme.colors.cyan,
-  },
-  actionIconWrap: {
-    alignItems: "center",
-    backgroundColor: theme.colors.cyanSoft,
-    borderRadius: theme.radius.pill,
-    height: 36,
-    justifyContent: "center",
-    width: 36,
-  },
-  actionIconWrapAccent: {
-    backgroundColor: theme.colors.surfaceOnAccent,
-  },
-  actionLabel: {
-    color: theme.colors.textPrimary,
-    fontFamily: theme.fonts.heading,
-    fontSize: theme.type.body,
-  },
-  actionLabelAccent: {
-    color: theme.colors.textOnAccent,
-  },
-  actionDetail: {
-    color: theme.colors.textSecondary,
-    fontFamily: theme.fonts.body,
-    fontSize: theme.type.caption,
-    lineHeight: theme.type.caption * 1.45,
-  },
-  actionDetailAccent: {
-    color: theme.colors.textOnAccentMuted,
-  },
-  segmentRow: {
-    marginHorizontal: theme.spacing.lg,
-    marginTop: theme.spacing.lg,
   },
   sectionHeader: {
-    gap: theme.spacing.xs,
     paddingHorizontal: theme.spacing.lg,
     paddingTop: theme.spacing.lg,
-    paddingBottom: theme.spacing.sm,
+    paddingBottom: theme.spacing.xs,
   },
   sectionTitle: {
-    color: theme.colors.textPrimary,
-    fontFamily: theme.fonts.heading,
-    fontSize: theme.type.section,
+    color: theme.colors.textMuted,
+    fontFamily: theme.fonts.bodyMedium,
+    fontSize: theme.type.micro,
+    letterSpacing: 1.1,
+    textTransform: "uppercase",
   },
-  sectionMeta: {
-    color: theme.colors.textSecondary,
-    fontFamily: theme.fonts.body,
-    fontSize: theme.type.caption,
-    lineHeight: theme.type.caption * 1.5,
+  activityWrap: {
+    paddingHorizontal: theme.spacing.lg,
+  },
+  seeAll: {
+    alignItems: "center",
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.md,
+  },
+  seeAllText: {
+    color: theme.colors.cyan,
+    fontFamily: theme.fonts.bodyMedium,
+    fontSize: theme.type.body,
   },
 });

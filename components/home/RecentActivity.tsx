@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import React from "react";
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
 import { Icon } from "@/components/primitives/Icon";
 import { Pill } from "@/components/primitives/Pill";
@@ -8,10 +8,12 @@ import type { PillTone } from "@/components/primitives/Pill";
 import { PressSurface } from "@/components/primitives/PressSurface";
 import type { Transaction } from "@/src/domain/entities/Transaction";
 import { appTheme as theme } from "@/src/design-system/theme";
+import { useHideBalance } from "@/src/hooks/useHideBalance";
 import { useTransaction } from "@/src/hooks/useTransaction";
 import type { TransferStatus } from "@/src/domain/status/TransferStatus";
 
-const LIST_BOTTOM_PADDING = theme.component.nav.barHeight + theme.spacing.xxxl;
+const DEFAULT_LIMIT = 5;
+const HIDDEN_AMOUNT = "•••";
 
 function statusTone(status: TransferStatus): PillTone {
   switch (status) {
@@ -34,13 +36,23 @@ function relativeTime(ms: number): string {
   return `${Math.floor(diff / 86400000)}d ago`;
 }
 
-function ActivityRow({ onPress, tx }: { onPress: () => void; tx: Transaction }) {
+function ActivityRow({
+  hidden,
+  onPress,
+  tx,
+}: {
+  hidden: boolean;
+  onPress: () => void;
+  tx: Transaction;
+}) {
   const isSend = tx.direction === "send";
   const counterparty = isSend ? tx.recipientId : tx.senderId;
   const shortCounterparty =
     counterparty.length > 14
-      ? `${counterparty.slice(0, 8)}...${counterparty.slice(-4)}`
+      ? `${counterparty.slice(0, 8)}…${counterparty.slice(-4)}`
       : counterparty;
+
+  const amountText = hidden ? HIDDEN_AMOUNT : `${isSend ? "-" : "+"}${tx.amount}`;
 
   return (
     <PressSurface
@@ -59,16 +71,18 @@ function ActivityRow({ onPress, tx }: { onPress: () => void; tx: Transaction }) 
         </View>
 
         <View style={styles.rowMeta}>
-          <Text style={styles.counterparty} numberOfLines={1}>
+          <Text numberOfLines={1} style={styles.counterparty}>
             {shortCounterparty}
           </Text>
           <Text style={styles.timestamp}>{relativeTime(tx.createdAt)}</Text>
         </View>
 
         <View style={styles.amountBlock}>
-          <Text style={[styles.amount, isSend ? styles.amountSend : styles.amountReceive]}>
-            {isSend ? "-" : "+"}
-            {tx.amount}
+          <Text
+            numberOfLines={1}
+            style={[styles.amount, isSend ? styles.amountSend : styles.amountReceive]}
+          >
+            {amountText}
           </Text>
           <View style={styles.statusRow}>
             <Text style={styles.symbol}>{tx.symbol}</Text>
@@ -80,12 +94,20 @@ function ActivityRow({ onPress, tx }: { onPress: () => void; tx: Transaction }) 
   );
 }
 
-export function RecentActivity() {
-  const router = useRouter();
-  const { recent, loading } = useTransaction();
-  const sorted = [...recent].sort((left, right) => right.createdAt - left.createdAt);
+interface RecentActivityProps {
+  limit?: number;
+}
 
-  if (loading) {
+// Trimmed list — up to `limit` recent transactions (default 5) rendered
+// inline, no ScrollView. The parent Home ScrollView handles overflow.
+// If more transactions exist, the caller decides whether to show a
+// "See all" link; this component just renders its slice of rows.
+export function RecentActivity({ limit = DEFAULT_LIMIT }: RecentActivityProps) {
+  const router = useRouter();
+  const { hidden } = useHideBalance();
+  const { recent, loading } = useTransaction();
+
+  if (loading && recent.length === 0) {
     return (
       <View style={styles.emptyState}>
         <ActivityIndicator size="small" color={theme.colors.cyan} />
@@ -94,40 +116,35 @@ export function RecentActivity() {
     );
   }
 
-  if (sorted.length === 0) {
+  const sorted = [...recent].sort((left, right) => right.createdAt - left.createdAt);
+  const visible = sorted.slice(0, limit);
+
+  if (visible.length === 0) {
     return (
       <View style={styles.emptyState}>
         <Icon name="inbox" size={24} color={theme.colors.textMuted} />
-        <Text style={styles.emptyText}>No recent activity</Text>
+        <Text style={styles.emptyText}>No recent activity yet</Text>
       </View>
     );
   }
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.list}
-      showsVerticalScrollIndicator={false}
-      style={styles.scroll}
-    >
-      {sorted.map((tx) => (
+    <View style={styles.list}>
+      {visible.map((tx) => (
         <ActivityRow
+          hidden={hidden}
           key={tx.id}
           onPress={() => router.push({ pathname: "/history/[txId]", params: { txId: tx.id } })}
           tx={tx}
         />
       ))}
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: {
-    flex: 1,
-  },
   list: {
     gap: theme.spacing.xs,
-    paddingHorizontal: theme.spacing.lg,
-    paddingBottom: LIST_BOTTOM_PADDING,
   },
   row: {
     backgroundColor: theme.colors.surfaceContainerLowest,
@@ -200,7 +217,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: theme.spacing.sm,
     justifyContent: "center",
-    paddingVertical: theme.spacing.huge,
+    paddingVertical: theme.spacing.xxxl,
   },
   emptyText: {
     color: theme.colors.textMuted,
