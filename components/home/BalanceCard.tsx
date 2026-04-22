@@ -1,199 +1,118 @@
 import React from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 
-import { GlassSurface } from "@/components/primitives/GlassSurface";
-import { Pill } from "@/components/primitives/Pill";
 import type { Wallet } from "@/src/domain/entities/Wallet";
-import type { WalletExportState, WalletMode } from "@/src/domain/services/WalletService";
 import { appTheme as theme } from "@/src/design-system/theme";
+import { useHideBalance } from "@/src/hooks/useHideBalance";
 
 interface BalanceCardProps {
-  exportState: WalletExportState | null;
   loading: boolean;
-  mode: WalletMode;
   wallet: Wallet | null;
 }
 
-function modeCopy(mode: WalletMode) {
-  switch (mode) {
-    case "local":
-      return "Local vault";
-    case "mwa":
-      return "External wallet";
-    case "fixture":
-      return "Fixture lane";
-  }
+const HIDDEN_AMOUNT = "••••";
+const HIDDEN_USD = "•••";
+
+function formatAmount(amount: string | undefined): string {
+  if (!amount) return "—";
+  // Trim trailing zeros after the decimal for a cleaner hero read:
+  //   "1.245000" → "1.245", "1.000000" → "1", "0.500000" → "0.5"
+  if (!amount.includes(".")) return amount;
+  const trimmed = amount.replace(/0+$/, "").replace(/\.$/, "");
+  return trimmed || "0";
 }
 
-function exportCopy(exportState: WalletExportState | null) {
-  if (!exportState) return "Loading";
-  if (exportState.available) return "Biometric unlock";
-  switch (exportState.mode) {
-    case "mwa":
-      return "Held in wallet app";
-    case "fixture":
-      return "Unavailable in fixtures";
-    case "local":
-      return exportState.reason ?? "Unavailable";
-  }
-}
+// Minimal balance hero — caption + large SOL amount + small USD below.
+// Hide-balance state comes from HideBalanceProvider; header eye and a
+// long-press anywhere on the hero both toggle the same value.
+export function BalanceCard({ loading, wallet }: BalanceCardProps) {
+  const { hidden, toggle } = useHideBalance();
+  const solBalance = wallet?.balances.find((b) => b.symbol === "SOL");
 
-export function BalanceCard({ exportState, loading, mode, wallet }: BalanceCardProps) {
+  const amountText = hidden ? HIDDEN_AMOUNT : formatAmount(solBalance?.amount);
+  const usdText = hidden ? HIDDEN_USD : (solBalance?.usdValue ?? "$0.00");
 
-  const solBalance = wallet?.balances.find((balance) => balance.symbol === "SOL");
-  const usdcBalance = wallet?.balances.find((balance) => balance.symbol === "USDC");
-
-  return (
-    <GlassSurface variant="strong" style={styles.card}>
-      {loading && !wallet ? (
-        <View style={styles.loadingState}>
+  if (loading && !wallet) {
+    return (
+      <View style={styles.hero}>
+        <Text style={styles.caption}>Total balance</Text>
+        <View style={styles.loadingRow}>
           <ActivityIndicator size="small" color={theme.colors.cyan} />
           <Text style={styles.loadingText}>Loading wallet…</Text>
         </View>
-      ) : (
-        <View style={styles.content}>
-          <View style={styles.headerRow}>
-            <View style={styles.headerCopy}>
-              <Text style={styles.kicker}>Total balance</Text>
-              <View style={styles.heroRow}>
-                <Text style={styles.heroAmount}>{solBalance ? solBalance.amount : "—"}</Text>
-                <Text style={styles.heroSymbol}>SOL</Text>
-              </View>
-            </View>
-            <Pill label={wallet ? "Wallet live" : "Loading"} tone={wallet ? "cyan" : "neutral"} />
-          </View>
+      </View>
+    );
+  }
 
-          <Text style={styles.usdValue}>{solBalance ? solBalance.usdValue : "$0.00"}</Text>
-
-          <View style={styles.supportRow}>
-            <View style={styles.supportBlock}>
-              <Text style={styles.metricLabel}>Wallet path</Text>
-              <Text style={styles.metricValue}>{modeCopy(mode)}</Text>
-            </View>
-            <View style={styles.supportBlock}>
-              <Text style={styles.metricLabel}>Export</Text>
-              <Text numberOfLines={2} style={styles.metricValue}>
-                {exportCopy(exportState)}
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.assetRow}>
-            <Text style={styles.assetLabel}>Secondary asset</Text>
-            <Text style={styles.assetValue}>{usdcBalance?.amount ?? "0.00"} USDC</Text>
-          </View>
-        </View>
-      )}
-    </GlassSurface>
+  return (
+    <Pressable
+      accessibilityLabel={hidden ? "Reveal balance" : "Hide balance"}
+      accessibilityRole="button"
+      onLongPress={toggle}
+      delayLongPress={280}
+      style={styles.hero}
+    >
+      <Text style={styles.caption}>Total balance</Text>
+      <View style={styles.amountRow}>
+        <Text style={styles.amount} numberOfLines={1}>
+          {amountText}
+        </Text>
+        <Text style={styles.symbol}>SOL</Text>
+      </View>
+      <Text style={styles.usd} numberOfLines={1}>
+        {usdText}
+      </Text>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderRadius: theme.component.recipes.heroCardRadius,
-    marginHorizontal: theme.spacing.lg,
-    marginVertical: theme.spacing.sm,
-    overflow: "hidden",
-    paddingHorizontal: theme.spacing.lg,
+  hero: {
+    alignItems: "center",
+    gap: theme.spacing.xs,
+    paddingHorizontal: theme.spacing.xxl,
     paddingVertical: theme.spacing.lg,
   },
-  loadingState: {
+  caption: {
+    color: theme.colors.textMuted,
+    fontFamily: theme.fonts.bodyMedium,
+    fontSize: theme.type.micro,
+    letterSpacing: 1.1,
+    textTransform: "uppercase",
+  },
+  amountRow: {
+    alignItems: "baseline",
+    flexDirection: "row",
+    gap: theme.spacing.sm,
+  },
+  amount: {
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.monoJetBrains,
+    fontSize: 48,
+    letterSpacing: -1.4,
+  },
+  symbol: {
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.heading,
+    fontSize: theme.type.bodyLg,
+    letterSpacing: -0.4,
+  },
+  usd: {
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.body,
+    fontSize: 17,
+    marginTop: theme.spacing.xxs,
+  },
+  loadingRow: {
     alignItems: "center",
     flexDirection: "row",
     gap: theme.spacing.sm,
     justifyContent: "center",
-    paddingVertical: theme.spacing.xl,
+    paddingVertical: theme.spacing.md,
   },
   loadingText: {
     color: theme.colors.textMuted,
     fontFamily: theme.fonts.body,
-    fontSize: theme.type.caption,
-  },
-  content: {
-    gap: theme.spacing.sm,
-  },
-  headerRow: {
-    alignItems: "flex-start",
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  headerCopy: {
-    gap: theme.spacing.xs,
-  },
-  kicker: {
-    color: theme.colors.textMuted,
-    fontFamily: theme.fonts.bodyMedium,
-    fontSize: theme.type.micro,
-    letterSpacing: 0.7,
-    textTransform: "uppercase",
-  },
-  heroRow: {
-    alignItems: "baseline",
-    flexDirection: "row",
-    gap: theme.spacing.xs,
-  },
-  heroAmount: {
-    color: theme.colors.textPrimary,
-    fontFamily: theme.fonts.monoJetBrains,
-    fontSize: theme.type.hero,
-    letterSpacing: -1.1,
-  },
-  heroSymbol: {
-    color: theme.colors.textSecondary,
-    fontFamily: theme.fonts.heading,
-    fontSize: theme.type.bodyLg,
-    letterSpacing: -0.5,
-  },
-  usdValue: {
-    color: theme.colors.textSecondary,
-    fontFamily: theme.fonts.body,
-    fontSize: theme.type.body,
-  },
-  supportRow: {
-    borderTopColor: theme.colors.line,
-    borderTopWidth: 1,
-    flexDirection: "row",
-    gap: theme.spacing.lg,
-    marginTop: theme.spacing.md,
-    paddingTop: theme.spacing.md,
-  },
-  supportBlock: {
-    flex: 1,
-    gap: theme.spacing.xs,
-  },
-  metricLabel: {
-    color: theme.colors.textMuted,
-    fontFamily: theme.fonts.bodyMedium,
-    fontSize: theme.type.micro,
-    letterSpacing: 0.6,
-    textTransform: "uppercase",
-  },
-  metricValue: {
-    color: theme.colors.textPrimary,
-    fontFamily: theme.fonts.bodyMedium,
-    fontSize: theme.type.caption,
-    lineHeight: theme.type.caption * 1.45,
-  },
-  assetRow: {
-    alignItems: "center",
-    backgroundColor: theme.colors.surfaceContainerLowest,
-    borderColor: theme.colors.line,
-    borderRadius: theme.radius.lg,
-    borderWidth: 1,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.md,
-  },
-  assetLabel: {
-    color: theme.colors.textSecondary,
-    fontFamily: theme.fonts.body,
-    fontSize: theme.type.caption,
-  },
-  assetValue: {
-    color: theme.colors.textPrimary,
-    fontFamily: theme.fonts.monoJetBrains,
     fontSize: theme.type.caption,
   },
 });

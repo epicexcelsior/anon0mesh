@@ -59,7 +59,7 @@ export default function HomeScreen() {
 
       <View style={[styles.content, { paddingTop: insets.top + theme.spacing.md }]}>
         <HomeHero wallet={wallet} />
-        <BalanceCard exportState={exportState} loading={loading} mode={mode} wallet={wallet} />
+        <BalanceCard loading={loading} wallet={wallet} />
 
         <View style={styles.actionRow}>
           {ACTIONS.map((action) => {
