@@ -1,7 +1,6 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-import { GlassSurface } from "@/components/primitives/GlassSurface";
 import { Icon } from "@/components/primitives/Icon";
 import { appTheme as theme } from "@/src/design-system/theme";
 
@@ -11,40 +10,47 @@ interface PermissionPrimerProps {
   reason: string;
 }
 
+// Slim inline row — secondary info, not a primary card.
 export function PermissionPrimer({ iconName, title, reason }: PermissionPrimerProps) {
   return (
-    <GlassSurface variant="soft" style={styles.card}>
-      <View style={styles.row}>
-        <Icon name={iconName as any} size={18} color={theme.colors.textSecondary} />
-        <View style={styles.text}>
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.reason}>{reason}</Text>
-        </View>
+    <View style={styles.row}>
+      <View style={styles.iconWrap}>
+        <Icon name={iconName as any} size={14} color={theme.colors.textSecondary} />
       </View>
-    </GlassSurface>
+      <View style={styles.text}>
+        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.reason}>{reason}</Text>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderRadius: theme.radius.md,
-    padding: theme.spacing.md,
-  },
   row: {
-    flexDirection: "row",
-    gap: theme.spacing.md,
     alignItems: "flex-start",
+    flexDirection: "row",
+    gap: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
   },
-  text: { flex: 1, gap: theme.spacing.xxs },
+  iconWrap: {
+    alignItems: "center",
+    backgroundColor: theme.colors.whiteWashFaint,
+    borderRadius: theme.radius.sm,
+    height: 26,
+    justifyContent: "center",
+    marginTop: 1,
+    width: 26,
+  },
+  text: { flex: 1, gap: 1 },
   title: {
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.bodyMedium,
-    fontSize: theme.type.body,
+    fontSize: theme.type.caption,
   },
   reason: {
     color: theme.colors.textMuted,
     fontFamily: theme.fonts.body,
-    fontSize: theme.type.caption,
-    lineHeight: 17,
+    fontSize: theme.type.micro,
+    lineHeight: 15,
   },
 });
