@@ -86,7 +86,7 @@ export function NearbyPeersCard() {
                     styles.avatar,
                     {
                       backgroundColor: avatarColor(index),
-                      marginLeft: index === 0 ? 0 : -8,
+                      marginLeft: index === 0 ? 0 : -10,
                     },
                   ]}
                 >
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
     gap: theme.spacing.md,
     justifyContent: "space-between",
     paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
+    paddingVertical: theme.spacing.md,
   },
   titleBlock: {
     alignItems: "center",
@@ -136,12 +136,12 @@ const styles = StyleSheet.create({
     color: theme.colors.textPrimary,
     flexShrink: 1,
     fontFamily: theme.fonts.bodyMedium,
-    fontSize: theme.type.caption,
+    fontSize: 15,
   },
   rightBlock: {
     alignItems: "center",
     flexDirection: "row",
-    gap: theme.spacing.xs,
+    gap: theme.spacing.sm,
   },
   avatarStack: {
     flexDirection: "row",
@@ -151,21 +151,21 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.background,
     borderRadius: theme.radius.pill,
     borderWidth: 2,
-    height: 26,
+    height: 32,
     justifyContent: "center",
-    width: 26,
+    width: 32,
   },
   avatarText: {
     fontFamily: theme.fonts.headingBold,
-    fontSize: theme.type.micro,
+    fontSize: 13,
   },
   avatarExtra: {
     backgroundColor: theme.colors.surfaceMuted,
-    marginLeft: -8,
+    marginLeft: -10,
   },
   avatarExtraText: {
     color: theme.colors.textSecondary,
     fontFamily: theme.fonts.bodyMedium,
-    fontSize: theme.type.micro,
+    fontSize: 12,
   },
 });
