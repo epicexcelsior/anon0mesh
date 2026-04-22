@@ -53,9 +53,12 @@ export default function BottomNav({ active, onSelect }: BottomNavProps) {
     }
   }, [active, tabWidth, indicatorX]);
 
+  const indicatorInsetX = theme.component.nav.indicatorInsetX;
+  const indicatorWidth = Math.max(0, tabWidth - indicatorInsetX * 2);
+
   const indicatorStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: indicatorX.value }],
-    width: tabWidth,
+    transform: [{ translateX: indicatorX.value + indicatorInsetX }],
+    width: indicatorWidth,
   }));
 
   function handleLayout(e: LayoutChangeEvent) {
@@ -198,7 +201,7 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.lg,
     borderWidth: 1,
     bottom: theme.component.nav.indicatorInsetY,
-    left: theme.component.nav.indicatorInsetX,
+    left: 0,
     overflow: "hidden",
     position: "absolute",
     top: theme.component.nav.indicatorInsetY,

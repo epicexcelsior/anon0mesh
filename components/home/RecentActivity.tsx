@@ -163,9 +163,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: theme.radius.pill,
     borderWidth: 1,
-    height: 34,
+    height: 38,
     justifyContent: "center",
-    width: 34,
+    width: 38,
   },
   sendBadge: {
     backgroundColor: theme.colors.cyanSoft,
@@ -182,12 +182,12 @@ const styles = StyleSheet.create({
   counterparty: {
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.monoJetBrains,
-    fontSize: theme.type.caption,
+    fontSize: 14,
   },
   timestamp: {
     color: theme.colors.textSecondary,
     fontFamily: theme.fonts.body,
-    fontSize: theme.type.micro,
+    fontSize: 12,
   },
   amountBlock: {
     alignItems: "flex-end",
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
   },
   amount: {
     fontFamily: theme.fonts.monoJetBrains,
-    fontSize: theme.type.bodyLg,
+    fontSize: 17,
   },
   amountSend: {
     color: theme.colors.textPrimary,

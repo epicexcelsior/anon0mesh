@@ -82,7 +82,7 @@ export function ActionRow() {
                   },
                 ]}
               >
-                <Icon color={iconColor(action.tone)} name={action.icon} size={22} />
+                <Icon color={iconColor(action.tone)} name={action.icon} size={26} />
               </View>
               <Text style={[styles.label, action.disabled && styles.labelDisabled]}>
                 {action.label}
@@ -109,21 +109,21 @@ const styles = StyleSheet.create({
   },
   inner: {
     alignItems: "center",
-    gap: theme.spacing.xs,
+    gap: theme.spacing.sm,
     paddingVertical: theme.spacing.md,
   },
   iconTile: {
     alignItems: "center",
     borderRadius: theme.radius.pill,
     borderWidth: 1,
-    height: 56,
+    height: 64,
     justifyContent: "center",
-    width: 56,
+    width: 64,
   },
   label: {
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.bodyMedium,
-    fontSize: theme.type.caption,
+    fontSize: 15,
   },
   labelDisabled: {
     color: theme.colors.textMuted,
@@ -131,8 +131,8 @@ const styles = StyleSheet.create({
   badge: {
     color: theme.colors.amber,
     fontFamily: theme.fonts.bodyMedium,
-    fontSize: theme.type.micro,
-    letterSpacing: 0.6,
+    fontSize: 11,
+    letterSpacing: 0.8,
     textTransform: "uppercase",
   },
 });

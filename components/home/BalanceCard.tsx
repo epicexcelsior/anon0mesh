@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
   caption: {
     color: theme.colors.textMuted,
     fontFamily: theme.fonts.bodyMedium,
-    fontSize: theme.type.micro,
+    fontSize: 12,
     letterSpacing: 1.1,
     textTransform: "uppercase",
   },
@@ -94,13 +94,13 @@ const styles = StyleSheet.create({
   symbol: {
     color: theme.colors.textSecondary,
     fontFamily: theme.fonts.heading,
-    fontSize: theme.type.bodyLg,
+    fontSize: 20,
     letterSpacing: -0.4,
   },
   usd: {
     color: theme.colors.textSecondary,
     fontFamily: theme.fonts.body,
-    fontSize: 17,
+    fontSize: 19,
     marginTop: theme.spacing.xxs,
   },
   loadingRow: {
