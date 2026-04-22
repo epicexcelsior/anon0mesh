@@ -8,6 +8,7 @@ import {
   DEFAULT_NETWORK_PREFERENCES,
   normalizeStoredPreferences,
 } from "@/src/infrastructure/preferences";
+import { checkBLEPermissions } from "@/src/utils/blePermissions";
 
 interface MeshBLEContextValue {
   adapter: BLEMeshAdapter;
@@ -67,6 +68,17 @@ export function MeshBLEProvider({ children }: { children: React.ReactNode }) {
         if (mounted) {
           setScanning(false);
           setBleError(null);
+        }
+        return;
+      }
+
+      // Gate on permission check before attempting scan — scanning without
+      // permission throws "not authorized" repeatedly and risks ANR.
+      const permissionStatus = await checkBLEPermissions();
+      if (permissionStatus === "denied" || permissionStatus === "never_ask_again") {
+        if (mounted) {
+          setScanning(false);
+          setBleError("Bluetooth permission required to discover peers.");
         }
         return;
       }
