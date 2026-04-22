@@ -2,38 +2,34 @@ import { useRouter } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-import { Icon } from "@/components/primitives/Icon";
 import { IconButton } from "@/components/primitives/IconButton";
-import { Pill } from "@/components/primitives/Pill";
 import type { Wallet } from "@/src/domain/entities/Wallet";
 import { appTheme as theme } from "@/src/design-system/theme";
+import { useHideBalance } from "@/src/hooks/useHideBalance";
 import { useLocalDisplayName } from "@/src/hooks/useLocalDisplayName";
 
-function shortAddress(address?: string) {
-  if (!address) return "Waiting for wallet address";
-  return `${address.slice(0, 6)}...${address.slice(-4)}`;
-}
-
 interface HomeHeroProps {
-  mode: "fixture" | "local" | "mwa";
   wallet: Wallet | null;
 }
 
-function modeLabel(mode: HomeHeroProps["mode"]) {
-  switch (mode) {
-    case "local":
-      return "Local vault";
-    case "mwa":
-      return "MWA live";
-    case "fixture":
-      return "Fixture";
-  }
+function initialFor(name: string | null | undefined): string {
+  if (!name) return "?";
+  const trimmed = name.trim();
+  if (!trimmed) return "?";
+  return trimmed.charAt(0).toUpperCase();
 }
 
-export function HomeHero({ wallet, mode }: HomeHeroProps) {
+// Compact header — identity chip on the left, hide-balance eye + QR
+// icon on the right. Keeps the Home screen visual load low so the
+// balance hero underneath can dominate.
+export function HomeHero({ wallet }: HomeHeroProps) {
   const router = useRouter();
+  const { hidden, toggle } = useHideBalance();
+
   const walletAlias = wallet?.identity
-    ? wallet.identity.length <= 14 ? wallet.identity : `${wallet.identity.slice(0, 10)}…`
+    ? wallet.identity.length <= 14
+      ? wallet.identity
+      : `${wallet.identity.slice(0, 10)}…`
     : wallet?.address
       ? `${wallet.address.slice(0, 4)}…${wallet.address.slice(-4)}`
       : "—";
@@ -44,31 +40,34 @@ export function HomeHero({ wallet, mode }: HomeHeroProps) {
   return (
     <View style={styles.row}>
       <View style={styles.identityRail}>
-        <View style={styles.avatarCircle}>
-          <Icon name="identity-chip" size={18} color={theme.colors.cyan} />
+        <View style={styles.avatar}>
+          <Text style={styles.avatarLetter}>{initialFor(alias)}</Text>
         </View>
         <View style={styles.identityCopy}>
-          <View style={styles.metaRow}>
-            <Text style={styles.kicker}>Wallet</Text>
-            <Pill label={modeLabel(mode)} tone="neutral" />
-          </View>
-          <Text style={styles.alias} numberOfLines={1}>
+          <Text numberOfLines={1} style={styles.alias}>
             {alias}
-          </Text>
-          <Text style={styles.address} numberOfLines={1}>
-            {shortAddress(wallet?.address)}
           </Text>
         </View>
       </View>
 
-      <IconButton
-        accessibilityLabel="Show receive QR code"
-        name="maximize"
-        onPress={() => router.push("/receive")}
-        size="md"
-        tone="cyan"
-        variant="contained"
-      />
+      <View style={styles.actions}>
+        <IconButton
+          accessibilityLabel={hidden ? "Show balance" : "Hide balance"}
+          name={hidden ? "eye-off" : "eye"}
+          onPress={toggle}
+          size="md"
+          tone="neutral"
+          variant="contained"
+        />
+        <IconButton
+          accessibilityLabel="Show receive QR code"
+          name="maximize"
+          onPress={() => router.push("/receive")}
+          size="md"
+          tone="cyan"
+          variant="contained"
+        />
+      </View>
     </View>
   );
 }
@@ -77,49 +76,43 @@ const styles = StyleSheet.create({
   row: {
     alignItems: "center",
     flexDirection: "row",
+    gap: theme.spacing.md,
     justifyContent: "space-between",
     paddingHorizontal: theme.spacing.lg,
-    paddingBottom: theme.spacing.sm,
+    paddingVertical: theme.spacing.sm,
   },
   identityRail: {
+    alignItems: "center",
+    flex: 1,
     flexDirection: "row",
     gap: theme.spacing.sm,
     minWidth: 0,
   },
-  avatarCircle: {
+  avatar: {
     alignItems: "center",
     backgroundColor: theme.colors.cyanSoft,
-    borderColor: theme.colors.line,
     borderRadius: theme.radius.pill,
-    borderWidth: 1,
-    height: 40,
+    height: 36,
     justifyContent: "center",
-    width: 40,
+    width: 36,
+  },
+  avatarLetter: {
+    color: theme.colors.cyan,
+    fontFamily: theme.fonts.headingBold,
+    fontSize: theme.type.bodyLg,
   },
   identityCopy: {
-    gap: 2,
+    flex: 1,
     minWidth: 0,
-  },
-  metaRow: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: theme.spacing.xs,
-  },
-  kicker: {
-    color: theme.colors.textMuted,
-    fontFamily: theme.fonts.bodyMedium,
-    fontSize: theme.type.micro,
-    letterSpacing: 0.7,
-    textTransform: "uppercase",
   },
   alias: {
     color: theme.colors.textPrimary,
-    fontFamily: theme.fonts.heading,
-    fontSize: theme.type.section,
+    fontFamily: theme.fonts.bodyMedium,
+    fontSize: theme.type.bodyLg,
   },
-  address: {
-    color: theme.colors.textSecondary,
-    fontFamily: theme.fonts.monoJetBrains,
-    fontSize: theme.type.caption,
+  actions: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: theme.spacing.xs,
   },
 });
