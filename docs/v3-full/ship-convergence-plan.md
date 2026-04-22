@@ -498,7 +498,11 @@ Onboarding → Home transition polish explicitly deferred to Phase 3.
 
 **Phase 3 — Home rebuild:** next. Wallet hero + mesh strip + send/receive/history shell, absorbing the v3-latest wallet portfolio/allocation pattern. References available at `docs/v3-full/references/home/` (Cash App, Fuse screenshots already dropped).
 
-**Phases 4–8:** Messages, Settings, Peers sheet, Runtime truth, Ship gate — unchanged from §8.
+**Phase 3.5 — Send + Receive polish:** running next. Family-wallet-aligned layouts for the send recipient, send amount/review, and receive screens. Receive stays a full-screen route (not a sheet) to preserve the `/receive` deep link and avoid accidental gesture-dismissal when the user is holding the phone up for someone to scan. Stealth/Standard address segmented control at the top of the receive screen; stealth crypto implementation lives in `worktrees/anon0mesh-fork-ui/lib/stealth/` and wires up in Phase 7. Copy animation: icon morph (copy → check) with cyan pulse, no toast, address text non-selectable. Dev-only mock-address helper in Send recipient.
+
+**Phase 6 open spec — peer network visualizer (team ask):** eventual view for users to peek at the mesh under the hood. Current direction: full-screen sheet (gorhom BottomSheet at 100% height) opened from the NearbyPeersCard on Home and from the mesh status strip tap. Renders peers as an interactive graph (nodes + links, possibly with signal strength as link weight). Swipe-down-to-dismiss. Not starting until BLE transport is stable enough to feed real data; until then, a static placeholder / mock visualization is acceptable. Consult v3-latest teammate branch for any mock they've already built.
+
+**Phases 4–8:** Messages, Settings, Peers sheet (includes visualizer above), Runtime truth, Ship gate — unchanged from §8.
 
 This plan intentionally rejects more ideation.
 
