@@ -1,5 +1,5 @@
 import BottomSheet from "@gorhom/bottom-sheet";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -13,6 +13,7 @@ import { FeatureHighlight } from "@/components/onboarding/FeatureHighlight";
 import { TechDrawerContent } from "@/components/onboarding/TechDrawerContent";
 import * as haptics from "@/src/design-system/haptics";
 import { appTheme as theme } from "@/src/design-system/theme";
+import { useAdapters } from "@/src/providers/AdapterProvider";
 
 const REVEAL_DURATION = 480;
 const REVEAL_STAGGER = 110;
@@ -42,11 +43,10 @@ const FEATURES = [
 export default function WelcomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const adapters = useAdapters();
   const techSheetRef = useRef<BottomSheet>(null);
-  const existingIdentityTarget: Parameters<typeof router.push>[0] = {
-    pathname: "/onboarding/setup",
-    params: { intent: "existing" },
-  };
+  const [connecting, setConnecting] = useState(false);
+  const [connectError, setConnectError] = useState<string | null>(null);
 
   function openTechSheet() {
     haptics.select();
@@ -55,6 +55,24 @@ export default function WelcomeScreen() {
 
   function closeTechSheet() {
     techSheetRef.current?.close();
+  }
+
+  async function handleConnectExisting() {
+    if (connecting) return;
+    setConnectError(null);
+    setConnecting(true);
+    try {
+      await adapters.wallet.connectExternalWallet();
+      router.replace("/(tabs)/home" as Parameters<typeof router.replace>[0]);
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Couldn't connect wallet. Try again.";
+      setConnectError(message);
+    } finally {
+      setConnecting(false);
+    }
   }
 
   return (
@@ -102,13 +120,17 @@ export default function WelcomeScreen() {
           </Animated.View>
           <Animated.View entering={reveal(3 + FEATURES.length)} style={styles.ctaSecondary}>
             <DepthButton
-              label="I have an identity"
+              label={connecting ? "Connecting…" : "I have a wallet"}
               variant="secondary"
               tone="cyan"
               size="md"
-              onPress={() => router.push(existingIdentityTarget)}
+              disabled={connecting}
+              onPress={handleConnectExisting}
             />
           </Animated.View>
+          {connectError ? (
+            <Text style={styles.connectError}>{connectError}</Text>
+          ) : null}
           <Animated.View entering={reveal(4 + FEATURES.length)}>
             <Pressable
               accessibilityLabel="Open technical overview"
@@ -183,6 +205,13 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.body,
     fontSize: theme.type.caption,
     letterSpacing: 0.3,
+    textAlign: "center",
+  },
+  connectError: {
+    color: theme.colors.red,
+    fontFamily: theme.fonts.body,
+    fontSize: theme.type.caption,
+    lineHeight: 18,
     textAlign: "center",
   },
   sheetHeader: {

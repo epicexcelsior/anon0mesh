@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AppTextInput } from "@/components/primitives";
 import { Backdrop } from "@/components/primitives/Backdrop";
+import { DepthButton } from "@/components/primitives/DepthButton";
 import { IconButton } from "@/components/primitives/IconButton";
 import { PermissionPrimer } from "@/components/onboarding/PermissionPrimer";
-import { WalletPathPicker } from "@/components/onboarding/WalletPathPicker";
 import { appTheme as theme } from "@/src/design-system/theme";
 import { saveLocalDisplayNameForAddress } from "@/src/hooks/useLocalDisplayName";
 import { useAdapters } from "@/src/providers/AdapterProvider";
@@ -34,27 +34,24 @@ function generateAlias() {
 export default function SetupScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { intent } = useLocalSearchParams<{ intent?: string }>();
   const adapters = useAdapters();
   const [displayName, setDisplayName] = useState("");
   const [alias] = useState(generateAlias);
   const [error, setError] = useState<string | null>(null);
-  const [submittingPath, setSubmittingPath] = useState<"create" | "connect" | null>(null);
-  const returning = intent === "existing";
+  const [submitting, setSubmitting] = useState(false);
 
   const canCreate = adapters.wallet.canCreateLocalWallet();
-  const canConnect = adapters.wallet.canConnectExternalWallet();
 
   async function finalizeSetup(address: string) {
     await saveLocalDisplayNameForAddress(address, displayName);
-    router.replace("/(tabs)/home");
+    router.replace("/(tabs)/home" as Parameters<typeof router.replace>[0]);
   }
 
   async function handleCreate() {
-    if (!canCreate || submittingPath) return;
+    if (!canCreate || submitting) return;
 
     setError(null);
-    setSubmittingPath("create");
+    setSubmitting(true);
 
     try {
       const wallet = await adapters.wallet.createLocalWallet();
@@ -62,23 +59,7 @@ export default function SetupScreen() {
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Wallet setup failed");
     } finally {
-      setSubmittingPath(null);
-    }
-  }
-
-  async function handleConnect() {
-    if (!canConnect || submittingPath) return;
-
-    setError(null);
-    setSubmittingPath("connect");
-
-    try {
-      const wallet = await adapters.wallet.connectExternalWallet();
-      await finalizeSetup(wallet.address);
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Wallet connect failed");
-    } finally {
-      setSubmittingPath(null);
+      setSubmitting(false);
     }
   }
 
@@ -108,13 +89,9 @@ export default function SetupScreen() {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.headline}>
-          {returning ? "Welcome back" : "Set up your identity"}
-        </Text>
+        <Text style={styles.headline}>Set up your identity</Text>
         <Text style={styles.subheadline}>
-          {returning
-            ? "Reconnect your wallet on this device."
-            : "Your keys stay on this device. Pick how to get started."}
+          Your keys stay on this device. One tap to generate a fresh wallet.
         </Text>
 
         <View style={styles.section}>
@@ -138,30 +115,26 @@ export default function SetupScreen() {
           ))}
         </View>
 
-        <WalletPathPicker
-          canConnect={canConnect}
-          canCreate={canCreate}
-          connectHint={
-            canConnect ? null : "This device is currently using the local wallet lane."
-          }
-          createHint={
-            canCreate ? null : "This device is currently using the external wallet lane."
-          }
-          intent={returning ? "existing" : "new"}
-          loading={submittingPath !== null}
-          onCreateNew={handleCreate}
-          onConnect={handleConnect}
+        <DepthButton
+          label={submitting ? "Creating wallet…" : "Create my wallet"}
+          variant="primary"
+          tone="cyan"
+          size="lg"
+          disabled={!canCreate || submitting}
+          onPress={handleCreate}
         />
 
-        {submittingPath ? (
+        {submitting ? (
           <View style={styles.statusRow}>
             <ActivityIndicator color={theme.colors.cyan} size="small" />
-            <Text style={styles.statusText}>
-              {submittingPath === "create"
-                ? "Preparing local wallet…"
-                : "Connecting external wallet…"}
-            </Text>
+            <Text style={styles.statusText}>Generating keys on this device…</Text>
           </View>
+        ) : null}
+
+        {!canCreate ? (
+          <Text style={styles.statusText}>
+            Local wallet creation is unavailable in the current wallet lane.
+          </Text>
         ) : null}
 
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
