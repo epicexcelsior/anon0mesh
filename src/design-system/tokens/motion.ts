@@ -16,6 +16,12 @@ export const motionTokens = {
   },
   press: {
     compression: { scale: 0.94, translateY: 1 },
+    surface: {
+      row: { scale: 0.99 },
+      strip: { scale: 0.995 },
+      card: { scale: 0.99, shadowMultiplier: 0.6 },
+    },
+    icon: { scale: 0.92 },
   },
   spring: {
     direct: {
@@ -35,6 +41,18 @@ export const motionTokens = {
       stiffness: 320,
       mass: 1,
       overshootClamping: true,
+    },
+    pressRelease: {
+      damping: 18,
+      stiffness: 260,
+      mass: 0.9,
+      overshootClamping: false,
+    },
+    iconRelease: {
+      damping: 14,
+      stiffness: 240,
+      mass: 0.85,
+      overshootClamping: false,
     },
   },
   travel: {

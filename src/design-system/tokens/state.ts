@@ -13,6 +13,10 @@ export const stateTokens = {
     disabledOpacity: 0.42,
     buttonPressedOpacity: 0.94,
     listPressedWash: "rgba(255, 255, 255, 0.02)",
+    surfaceRowPressWash: "rgba(255, 255, 255, 0.04)",
+    surfaceStripPressWash: "rgba(255, 255, 255, 0.03)",
+    surfaceCardPressWash: "rgba(255, 255, 255, 0.05)",
+    iconPressTint: "rgba(255, 255, 255, 0.14)",
   },
 } as const;
 
