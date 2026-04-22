@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -11,17 +11,24 @@ import { PermissionPrimer } from "@/components/onboarding/PermissionPrimer";
 import { appTheme as theme } from "@/src/design-system/theme";
 import { saveLocalDisplayNameForAddress } from "@/src/hooks/useLocalDisplayName";
 import { useAdapters } from "@/src/providers/AdapterProvider";
+import type { BLEPermissionStatus } from "@/src/utils/blePermissions";
+import { checkBLEPermissions, requestBLEPermissions } from "@/src/utils/blePermissions";
 
 const PERMISSIONS = [
   {
     iconName: "bluetooth",
     title: "Bluetooth",
-    reason: "Needed to discover nearby peers and future mesh delivery flows.",
+    reason: "Discover nearby peers over BLE mesh.",
+  },
+  {
+    iconName: "map-pin",
+    title: "Location (nearby devices)",
+    reason: "Required by Android to receive Bluetooth scan results.",
   },
   {
     iconName: "bell",
     title: "Notifications",
-    reason: "Get notified when a queued transfer settles on-chain.",
+    reason: "Ping you when a queued transfer or message settles.",
   },
 ] as const;
 
@@ -39,8 +46,25 @@ export default function SetupScreen() {
   const [alias] = useState(generateAlias);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [permissionStatus, setPermissionStatus] = useState<BLEPermissionStatus | "pending" | "unknown">("unknown");
 
   const canCreate = adapters.wallet.canCreateLocalWallet();
+
+  useEffect(() => {
+    let active = true;
+    void checkBLEPermissions().then((status) => {
+      if (active) setPermissionStatus(status);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  async function handleRequestPermissions() {
+    setPermissionStatus("pending");
+    const status = await requestBLEPermissions();
+    setPermissionStatus(status);
+  }
 
   async function finalizeSetup(address: string) {
     await saveLocalDisplayNameForAddress(address, displayName);
@@ -109,10 +133,31 @@ export default function SetupScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>PERMISSIONS</Text>
+          <View style={styles.sectionLabelRow}>
+            <Text style={styles.sectionLabel}>PERMISSIONS</Text>
+            {permissionStatus === "granted" || permissionStatus === "not_required" ? (
+              <Text style={styles.permissionStatus}>✓ Granted</Text>
+            ) : null}
+          </View>
           {PERMISSIONS.map((p) => (
             <PermissionPrimer key={p.iconName} {...p} />
           ))}
+          {permissionStatus !== "granted" && permissionStatus !== "not_required" ? (
+            <DepthButton
+              label={
+                permissionStatus === "pending"
+                  ? "Requesting…"
+                  : permissionStatus === "never_ask_again"
+                    ? "Open settings"
+                    : "Grant permissions"
+              }
+              variant="secondary"
+              tone="cyan"
+              size="md"
+              disabled={permissionStatus === "pending"}
+              onPress={handleRequestPermissions}
+            />
+          ) : null}
         </View>
 
         <DepthButton
@@ -173,11 +218,21 @@ const styles = StyleSheet.create({
   section: {
     gap: theme.spacing.md,
   },
+  sectionLabelRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
   sectionLabel: {
     color: theme.colors.textMuted,
     fontFamily: theme.fonts.bodyMedium,
     fontSize: theme.type.caption,
     letterSpacing: 0.8,
+  },
+  permissionStatus: {
+    color: theme.colors.green,
+    fontFamily: theme.fonts.bodyMedium,
+    fontSize: theme.type.caption,
   },
   aliasPreview: {
     color: theme.colors.textSecondary,
