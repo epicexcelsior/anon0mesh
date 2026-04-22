@@ -148,8 +148,9 @@ export default function WelcomeScreen() {
         </View>
       </ScrollView>
 
-      <Sheet ref={techSheetRef} snapPoints={["85%"]} title="Under the hood">
+      <Sheet ref={techSheetRef} snapPoints={["85%"]}>
         <View style={styles.sheetHeader}>
+          <Text style={styles.sheetTitle}>Under the hood</Text>
           <IconButton
             accessibilityLabel="Close technical overview"
             name="x"
@@ -225,8 +226,16 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   sheetHeader: {
-    alignItems: "flex-end",
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingBottom: theme.spacing.md,
     paddingHorizontal: theme.spacing.xxl,
-    paddingVertical: theme.spacing.sm,
+    paddingTop: theme.spacing.sm,
+  },
+  sheetTitle: {
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.headingBold,
+    fontSize: theme.type.section,
   },
 });

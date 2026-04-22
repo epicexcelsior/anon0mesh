@@ -55,7 +55,6 @@ export function TechDrawerContent() {
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
     >
-      <Text style={styles.heading}>Under the hood</Text>
       <Text style={styles.intro}>
         A quick look at what moves your messages and payments across the mesh.
       </Text>
@@ -78,13 +77,10 @@ export function TechDrawerContent() {
 const styles = StyleSheet.create({
   scroll: { flex: 1 },
   content: {
-    padding: theme.spacing.xxl,
+    paddingHorizontal: theme.spacing.xxl,
+    paddingBottom: theme.spacing.xxl,
+    paddingTop: theme.spacing.sm,
     gap: theme.spacing.lg,
-  },
-  heading: {
-    color: theme.colors.textPrimary,
-    fontFamily: theme.fonts.headingBold,
-    fontSize: theme.type.title,
   },
   intro: {
     color: theme.colors.textSecondary,
