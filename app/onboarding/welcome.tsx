@@ -13,22 +13,17 @@ const FEATURES = [
   {
     iconName: "mesh-nodes",
     title: "Mesh-aware payments",
-    body: "Transfers queue on-device first. This recovery branch ships on-chain sends today while mesh relay work continues.",
+    body: "Send when there's signal. Queue when there isn't.",
   },
   {
     iconName: "lock-mesh",
-    title: "Private by default",
-    body: "Identity stays local to the device, with deeper stealth and relay privacy still being wired end to end.",
-  },
-  {
-    iconName: "identity-chip",
-    title: "Self-sovereign identity",
-    body: "Your identity lives on-device. No accounts, no servers, no trackers.",
+    title: "Identity on-device",
+    body: "No accounts. No servers. No trackers.",
   },
   {
     iconName: "signal",
-    title: "Offline-first",
-    body: "Queued transfers can settle once a path back to the Solana cluster appears.",
+    title: "Works offline",
+    body: "Transfers settle when a path reappears.",
   },
 ] as const;
 
@@ -56,7 +51,7 @@ export default function WelcomeScreen() {
       >
         <Text style={styles.headline}>Private by default.</Text>
         <Text style={styles.subheadline}>
-          AnonMesh is a censorship-resistant payment network built on BLE mesh + Solana.
+          Payments and messages that work without the internet.
         </Text>
 
         <View style={styles.features}>

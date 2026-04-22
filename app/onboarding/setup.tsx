@@ -96,12 +96,12 @@ export default function SetupScreen() {
         showsVerticalScrollIndicator={false}
       >
         <Text style={styles.headline}>
-          {returning ? "Resume your identity" : "Set up your identity"}
+          {returning ? "Welcome back" : "Set up your identity"}
         </Text>
         <Text style={styles.subheadline}>
           {returning
-            ? "Use the live wallet lane below to reconnect this device. Unsupported paths stay disabled instead of faked."
-            : "Choose the live wallet lane for this device. Unsupported paths stay disabled instead of faked."}
+            ? "Reconnect your wallet on this device."
+            : "Your keys stay on this device. Pick how to get started."}
         </Text>
 
         <View style={styles.section}>
@@ -114,7 +114,7 @@ export default function SetupScreen() {
             autoCorrect={false}
           />
           <Text style={styles.aliasPreview}>
-            Suggested mesh alias: <Text style={styles.aliasValue}>{alias}</Text>
+            Leave blank to use: <Text style={styles.aliasValue}>{alias}</Text>
           </Text>
         </View>
 
@@ -152,12 +152,6 @@ export default function SetupScreen() {
         ) : null}
 
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
-        <Text style={styles.flowNote}>
-          {returning
-            ? "Existing-identity entry lands in the same truthful wallet lane. Local devices reconnect here or create fresh only when nothing is stored yet."
-            : "Wallet path buttons above are the live entry into this build."}
-        </Text>
       </ScrollView>
     </View>
   );
@@ -215,12 +209,6 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: theme.colors.red,
-    fontFamily: theme.fonts.body,
-    fontSize: theme.type.caption,
-    lineHeight: theme.type.caption * 1.45,
-  },
-  flowNote: {
-    color: theme.colors.textMuted,
     fontFamily: theme.fonts.body,
     fontSize: theme.type.caption,
     lineHeight: theme.type.caption * 1.45,

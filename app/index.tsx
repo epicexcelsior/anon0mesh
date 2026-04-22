@@ -52,7 +52,7 @@ export default function LandingScreen() {
           </Text>
         )}
 
-        <Text style={styles.version}>v{version} • recovery lane</Text>
+        <Text style={styles.version}>v{version}</Text>
       </View>
     </View>
   );

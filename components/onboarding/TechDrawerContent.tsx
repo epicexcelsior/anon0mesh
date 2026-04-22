@@ -1,26 +1,52 @@
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 
+import { Icon } from "@/components/primitives/Icon";
 import { appTheme as theme } from "@/src/design-system/theme";
 
-const SECTIONS = [
+type IconName = React.ComponentProps<typeof Icon>["name"];
+
+const SECTIONS: { icon: IconName; tone: string; title: string; body: string }[] = [
   {
-    title: "LXMF",
-    body: "Lightweight Extensible Message Format rides on top of Reticulum and is built for store-and-forward delivery across intermittent links. AnonMesh keeps the LXMF interface ready here while the native runtime finishes landing.",
-  },
-  {
-    title: "Reticulum",
-    body: "Reticulum is a cryptography-based networking stack designed for reliable communication over high-latency, low-bandwidth links. It provides end-to-end encryption, path finding, and routing without relying on fixed infrastructure.",
-  },
-  {
+    icon: "bluetooth",
+    tone: "cyan",
     title: "BLE Mesh",
-    body: "Bluetooth Low Energy advertisement beacons allow nodes to discover each other without pairing. In this recovery build, BLE drives local peer discovery today while broader relay behavior keeps maturing.",
+    body: "Your phone discovers nearby peers directly over Bluetooth. No router, no server, no pairing.",
   },
   {
-    title: "Solana Stealth",
-    body: "The intended privacy path derives one-time settlement addresses from recipient keys before final settlement. The seam and UI are present in this build, but the full stealth transfer route is not live end to end yet.",
+    icon: "share-2",
+    tone: "cyan",
+    title: "Reticulum",
+    body: "A cryptographic routing layer that moves encrypted packets across weak and intermittent links.",
   },
-] as const;
+  {
+    icon: "send",
+    tone: "cyan",
+    title: "LXMF",
+    body: "Store-and-forward messaging built on Reticulum. Messages survive outages and settle when a path opens.",
+  },
+  {
+    icon: "stealth",
+    tone: "purple",
+    title: "Solana stealth",
+    body: "Transfers derive one-time addresses from recipient keys. The sender, receiver, and amount stay private.",
+  },
+  {
+    icon: "lock-mesh",
+    tone: "purple",
+    title: "Arcium MPC",
+    body: "Multi-party computation backs the privacy layer — computations happen without any single party seeing the data.",
+  },
+];
+
+const TONE_MAP: Record<string, string> = {
+  cyan: theme.colors.cyan,
+  purple: theme.colors.purple,
+};
+const TONE_BG_MAP: Record<string, string> = {
+  cyan: theme.colors.cyanSoft,
+  purple: theme.colors.purpleSoft,
+};
 
 export function TechDrawerContent() {
   return (
@@ -30,10 +56,18 @@ export function TechDrawerContent() {
       showsVerticalScrollIndicator={false}
     >
       <Text style={styles.heading}>Under the hood</Text>
+      <Text style={styles.intro}>
+        A quick look at what moves your messages and payments across the mesh.
+      </Text>
       {SECTIONS.map((s) => (
         <View key={s.title} style={styles.section}>
-          <Text style={styles.sectionTitle}>{s.title}</Text>
-          <Text style={styles.sectionBody}>{s.body}</Text>
+          <View style={[styles.iconWrap, { backgroundColor: TONE_BG_MAP[s.tone] }]}>
+            <Icon color={TONE_MAP[s.tone]} name={s.icon} size={18} />
+          </View>
+          <View style={styles.sectionText}>
+            <Text style={styles.sectionTitle}>{s.title}</Text>
+            <Text style={styles.sectionBody}>{s.body}</Text>
+          </View>
         </View>
       ))}
       <View style={styles.footer} />
@@ -45,28 +79,48 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
   content: {
     padding: theme.spacing.xxl,
-    gap: theme.spacing.xxl,
+    gap: theme.spacing.lg,
   },
   heading: {
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.headingBold,
     fontSize: theme.type.title,
   },
-  section: {
-    gap: theme.spacing.sm,
-  },
-  sectionTitle: {
-    color: theme.colors.cyan,
-    fontFamily: theme.fonts.bodyMedium,
-    fontSize: theme.type.caption,
-    letterSpacing: 1.2,
-    textTransform: "uppercase",
-  },
-  sectionBody: {
+  intro: {
     color: theme.colors.textSecondary,
     fontFamily: theme.fonts.body,
     fontSize: theme.type.body,
     lineHeight: 22,
+    marginBottom: theme.spacing.sm,
+  },
+  section: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    gap: theme.spacing.md,
+  },
+  iconWrap: {
+    alignItems: "center",
+    borderRadius: theme.radius.sm,
+    flexShrink: 0,
+    height: 36,
+    justifyContent: "center",
+    marginTop: 2,
+    width: 36,
+  },
+  sectionText: {
+    flex: 1,
+    gap: 4,
+  },
+  sectionTitle: {
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.headingBold,
+    fontSize: theme.type.body,
+  },
+  sectionBody: {
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.body,
+    fontSize: theme.type.caption,
+    lineHeight: 19,
   },
   footer: { height: 32 },
 });
