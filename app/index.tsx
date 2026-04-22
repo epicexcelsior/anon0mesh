@@ -29,44 +29,45 @@ export default function LandingScreen() {
     <View style={styles.root}>
       <LandingCanvas />
       {showContent ? (
-      <View
-        style={[
-          styles.content,
-          {
-            paddingTop: insets.top + theme.spacing.xxxl,
-            paddingBottom: insets.bottom + theme.spacing.xxxl,
-          },
-        ]}
-      >
-        <View style={styles.logoBlock}>
-          <Image
-            source={require("@/assets/brand/anonmesh-logo.png")}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-          <Text style={styles.wordmark}>ANONMESH</Text>
-          <Text style={styles.tagline}>Private by default.</Text>
+        <View
+          style={[
+            styles.content,
+            {
+              paddingTop: insets.top + theme.spacing.xxxl,
+              paddingBottom: insets.bottom + theme.spacing.xxl,
+            },
+          ]}
+        >
+          <View style={styles.logoBlock}>
+            <Image
+              source={require("@/assets/brand/anonmesh-logo.png")}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+            <Text style={styles.tagline}>Private by default.</Text>
+          </View>
+
+          <View style={styles.ctaBlock}>
+            <DepthButton
+              label="ENTER THE MESH"
+              variant="primary"
+              tone="cyan"
+              size="lg"
+              onPress={() => router.push("/onboarding/welcome")}
+            />
+
+            {__DEV__ && process.env.EXPO_PUBLIC_ADAPTERS === "fixtures" && (
+              <Text
+                style={styles.devSkip}
+                onPress={() => router.replace("/(tabs)/home" as Parameters<typeof router.replace>[0])}
+              >
+                dev: skip to app →
+              </Text>
+            )}
+
+            <Text style={styles.version}>v{version}</Text>
+          </View>
         </View>
-
-        <DepthButton
-          label="ENTER THE MESH"
-          variant="primary"
-          tone="cyan"
-          size="lg"
-          onPress={() => router.push("/onboarding/welcome")}
-        />
-
-        {__DEV__ && process.env.EXPO_PUBLIC_ADAPTERS === "fixtures" && (
-          <Text
-            style={styles.devSkip}
-            onPress={() => router.replace("/(tabs)/home" as Parameters<typeof router.replace>[0])}
-          >
-            dev: skip to app →
-          </Text>
-        )}
-
-        <Text style={styles.version}>v{version}</Text>
-      </View>
       ) : null}
     </View>
   );
@@ -79,36 +80,36 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    alignItems: "center",
+    alignItems: "stretch",
     justifyContent: "space-between",
     paddingHorizontal: theme.spacing.xxl,
   },
   logoBlock: {
     alignItems: "center",
-    gap: theme.spacing.md,
-    marginTop: theme.spacing.huge,
+    gap: theme.spacing.lg,
+    flex: 1,
+    justifyContent: "center",
   },
   logo: {
-    width: 80,
-    height: 80,
-  },
-  wordmark: {
-    color: theme.colors.textPrimary,
-    fontFamily: theme.fonts.headingBold,
-    fontSize: theme.type.title,
-    letterSpacing: 6,
+    width: 180,
+    height: 180,
   },
   tagline: {
     color: theme.colors.textSecondary,
     fontFamily: theme.fonts.body,
-    fontSize: theme.type.body,
+    fontSize: theme.type.bodyLg,
     letterSpacing: 0.3,
+  },
+  ctaBlock: {
+    alignItems: "center",
+    gap: theme.spacing.sm,
   },
   version: {
     color: theme.colors.textMuted,
     fontFamily: theme.fonts.mono,
     fontSize: theme.type.caption,
     letterSpacing: 0.5,
+    marginTop: theme.spacing.sm,
   },
   devSkip: {
     color: theme.colors.textMuted,
