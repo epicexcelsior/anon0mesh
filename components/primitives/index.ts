@@ -2,6 +2,7 @@ export { DepthButton } from "@/components/primitives/DepthButton";
 export type { DepthButtonProps, DepthButtonVariant, DepthButtonSize, DepthButtonTone } from "@/components/primitives/DepthButton";
 export { PressSurface } from "@/components/primitives/PressSurface";
 export type { PressSurfaceProps, PressSurfaceVariant } from "@/components/primitives/PressSurface";
+export { SwipeDismissView } from "@/components/primitives/SwipeDismissView";
 export { IconButton } from "@/components/primitives/IconButton";
 export type { IconButtonProps, IconButtonTone, IconButtonSize } from "@/components/primitives/IconButton";
 export { Sheet, SheetRow, SheetButton } from "@/components/primitives/Sheet";
