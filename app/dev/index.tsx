@@ -2,6 +2,7 @@
 import React from 'react';
 import { Alert, ScrollView, Text, TouchableOpacity, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import * as Updates from 'expo-updates';
 import { appTheme as theme } from '@/src/design-system/theme';
 import { resetOnboarding } from '@/src/utils/devReset';
 
@@ -30,15 +31,25 @@ export default function DevCatalog() {
   function handleReset() {
     Alert.alert(
       "Reset wallet?",
-      "Clears local wallet keys, MWA token cache, and all display-name entries on this device. You'll land back at onboarding.",
+      "Clears local wallet keys, MWA token cache, and all display-name entries on this device. The app will reload and land you back at onboarding.",
       [
         { text: "Cancel", style: "cancel" },
         {
-          text: "Reset",
+          text: "Reset & reload",
           style: "destructive",
           onPress: async () => {
             await resetOnboarding();
-            router.replace("/" as Parameters<typeof router.replace>[0]);
+            // Force a full JS reload so every provider re-reads storage —
+            // otherwise in-memory wallet adapters still think they're
+            // connected even though SecureStore is empty.
+            try {
+              await Updates.reloadAsync();
+            } catch {
+              // Updates API can fail in some dev-client configurations.
+              // Fall back to router replace; user may need to kill the app
+              // to see a fully fresh state.
+              router.replace("/" as Parameters<typeof router.replace>[0]);
+            }
           },
         },
       ],
