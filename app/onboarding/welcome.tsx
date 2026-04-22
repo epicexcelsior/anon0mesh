@@ -1,4 +1,5 @@
-import React from "react";
+import BottomSheet from "@gorhom/bottom-sheet";
+import React, { useRef } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -6,7 +7,10 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 
 import { DepthButton } from "@/components/primitives";
 import { Backdrop } from "@/components/primitives/Backdrop";
+import { IconButton } from "@/components/primitives/IconButton";
+import { Sheet } from "@/components/primitives/Sheet";
 import { FeatureHighlight } from "@/components/onboarding/FeatureHighlight";
+import { TechDrawerContent } from "@/components/onboarding/TechDrawerContent";
 import * as haptics from "@/src/design-system/haptics";
 import { appTheme as theme } from "@/src/design-system/theme";
 
@@ -38,10 +42,20 @@ const FEATURES = [
 export default function WelcomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const techSheetRef = useRef<BottomSheet>(null);
   const existingIdentityTarget: Parameters<typeof router.push>[0] = {
     pathname: "/onboarding/setup",
     params: { intent: "existing" },
   };
+
+  function openTechSheet() {
+    haptics.select();
+    techSheetRef.current?.expand();
+  }
+
+  function closeTechSheet() {
+    techSheetRef.current?.close();
+  }
 
   return (
     <View style={styles.root}>
@@ -95,16 +109,27 @@ export default function WelcomeScreen() {
             <Pressable
               accessibilityLabel="Open technical overview"
               accessibilityRole="button"
-              onPress={() => {
-                haptics.select();
-                router.push("/onboarding/tech-drawer");
-              }}
+              onPress={openTechSheet}
             >
               <Text style={styles.techLink}>Under the hood →</Text>
             </Pressable>
           </Animated.View>
         </View>
       </ScrollView>
+
+      <Sheet ref={techSheetRef} snapPoints={["85%"]}>
+        <View style={styles.sheetHeader}>
+          <IconButton
+            accessibilityLabel="Close technical overview"
+            name="x"
+            onPress={closeTechSheet}
+            size="sm"
+            tone="neutral"
+            variant="contained"
+          />
+        </View>
+        <TechDrawerContent />
+      </Sheet>
     </View>
   );
 }
@@ -146,5 +171,11 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.body,
     fontSize: theme.type.caption,
     letterSpacing: 0.3,
+    textAlign: "center",
+  },
+  sheetHeader: {
+    alignItems: "flex-end",
+    paddingHorizontal: theme.spacing.xxl,
+    paddingTop: theme.spacing.xs,
   },
 });

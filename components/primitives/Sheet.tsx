@@ -14,7 +14,7 @@ import { appTheme as theme } from "@/src/design-system/theme";
 interface SheetProps {
   children: React.ReactNode;
   contentBottomInset?: number;
-  snapPoints?: number[];
+  snapPoints?: (number | string)[];
   title?: string;
 }
 
