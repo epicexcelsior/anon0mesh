@@ -176,8 +176,8 @@ const styles = StyleSheet.create({
   subheadline: {
     color: theme.colors.textSecondary,
     fontFamily: theme.fonts.body,
-    fontSize: theme.type.body,
-    lineHeight: theme.type.body * 1.5,
+    fontSize: theme.type.bodyLg,
+    lineHeight: 24,
   },
   section: {
     gap: theme.spacing.md,

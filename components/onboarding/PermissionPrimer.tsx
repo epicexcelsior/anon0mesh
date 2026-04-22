@@ -15,7 +15,7 @@ export function PermissionPrimer({ iconName, title, reason }: PermissionPrimerPr
   return (
     <View style={styles.row}>
       <View style={styles.iconWrap}>
-        <Icon name={iconName as any} size={14} color={theme.colors.textSecondary} />
+        <Icon name={iconName as any} size={16} color={theme.colors.textSecondary} />
       </View>
       <View style={styles.text}>
         <Text style={styles.title}>{title}</Text>
@@ -36,21 +36,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: theme.colors.whiteWashFaint,
     borderRadius: theme.radius.sm,
-    height: 26,
+    height: 32,
     justifyContent: "center",
     marginTop: 1,
-    width: 26,
+    width: 32,
   },
-  text: { flex: 1, gap: 1 },
+  text: { flex: 1, gap: 2 },
   title: {
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.bodyMedium,
-    fontSize: theme.type.caption,
+    fontSize: theme.type.body,
   },
   reason: {
     color: theme.colors.textMuted,
     fontFamily: theme.fonts.body,
-    fontSize: theme.type.micro,
-    lineHeight: 15,
+    fontSize: theme.type.caption,
+    lineHeight: 18,
   },
 });

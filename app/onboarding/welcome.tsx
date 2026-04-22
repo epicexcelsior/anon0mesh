@@ -23,17 +23,17 @@ function reveal(index: number) {
 
 const FEATURES = [
   {
-    iconName: "mesh-nodes",
+    iconName: "radio" as const,
     title: "Mesh-aware payments",
     body: "Send when there's signal. Queue when there isn't.",
   },
   {
-    iconName: "lock-mesh",
+    iconName: "lock" as const,
     title: "Identity on-device",
     body: "No accounts. No servers. No trackers.",
   },
   {
-    iconName: "signal",
+    iconName: "wifi-off" as const,
     title: "Works offline",
     body: "Transfers settle when a path reappears.",
   },
@@ -153,8 +153,8 @@ const styles = StyleSheet.create({
   subheadline: {
     color: theme.colors.textSecondary,
     fontFamily: theme.fonts.body,
-    fontSize: theme.type.body,
-    lineHeight: 22,
+    fontSize: theme.type.bodyLg,
+    lineHeight: 24,
     marginTop: -theme.spacing.lg,
   },
   features: {
