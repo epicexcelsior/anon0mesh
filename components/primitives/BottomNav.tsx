@@ -65,19 +65,20 @@ export default function BottomNav({ active, onSelect }: BottomNavProps) {
     setBarWidth(e.nativeEvent.layout.width);
   }
 
-  // Lift the wrapper above the system gesture area so the bar doesn't
-  // get cut off by Android's gesture bar or iOS home indicator.
-  const bottomOffset = Math.max(insets.bottom, theme.spacing.sm);
+  // Background gradient extends all the way to the bottom of the
+  // screen; tabs themselves respect the safe-area inset via
+  // paddingBottom so they stay clear of the Android gesture bar.
+  const tabPaddingBottom = Math.max(insets.bottom, theme.spacing.sm);
 
   return (
-    <View style={[styles.wrapper, { bottom: bottomOffset }]}>
+    <View style={[styles.wrapper, { bottom: 0 }]}>
       <View style={styles.barShell}>
         <GlassSurface variant="soft" style={StyleSheet.absoluteFillObject} />
         <LinearGradient
           colors={[theme.colors.navTop, theme.colors.navBottom]}
           end={{ x: 0.9, y: 1 }}
           start={{ x: 0.1, y: 0 }}
-          style={[styles.bar, { paddingBottom: theme.spacing.sm }]}
+          style={[styles.bar, { paddingBottom: tabPaddingBottom }]}
         >
           <View style={styles.innerHighlight} />
           <View onLayout={handleLayout} style={styles.tabRow}>

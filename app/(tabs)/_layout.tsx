@@ -7,6 +7,7 @@ import BottomNav from "@/components/primitives/BottomNav";
 import type { AppTab } from "@/components/primitives/BottomNav";
 import { DevEntryFAB } from "@/components/dev/DevEntryFAB";
 import { MeshStatusStrip } from "@/components/mesh/MeshStatusStrip";
+import { appTheme as theme } from "@/src/design-system/theme";
 
 function CustomTabBar({ state, navigation }: BottomTabBarProps) {
   const routeName = state.routes[state.index]?.name as AppTab | undefined;
@@ -40,5 +41,8 @@ export default function TabsLayout() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1 },
+  root: {
+    backgroundColor: theme.colors.background,
+    flex: 1,
+  },
 });
