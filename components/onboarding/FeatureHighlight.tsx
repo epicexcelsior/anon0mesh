@@ -12,52 +12,51 @@ interface FeatureHighlightProps {
   body: string;
 }
 
-// Vertical-stacked tile — icon on top, title centered, body centered.
-// Lives inside a horizontal row of equal-width tiles on Welcome, so
-// all icons line up at the same Y position regardless of text length.
+// Horizontal row — icon tile on the left (top-aligned so icons line up
+// across rows regardless of text length), title + body on the right.
 export function FeatureHighlight({ iconName, title, body }: FeatureHighlightProps) {
   return (
-    <View style={styles.tile}>
+    <View style={styles.row}>
       <View style={styles.iconWrap}>
         <Icon name={iconName} size={24} color={theme.colors.cyan} />
       </View>
-      <Text numberOfLines={2} style={styles.title}>
-        {title}
-      </Text>
-      <Text numberOfLines={3} style={styles.body}>
-        {body}
-      </Text>
+      <View style={styles.text}>
+        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.body}>{body}</Text>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  tile: {
-    alignItems: "center",
-    flex: 1,
-    gap: theme.spacing.xs,
-    paddingVertical: theme.spacing.xs,
+  row: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    gap: theme.spacing.lg,
   },
   iconWrap: {
     alignItems: "center",
     backgroundColor: theme.colors.cyanSoft,
     borderRadius: theme.radius.md,
-    height: 56,
+    flexShrink: 0,
+    height: 52,
     justifyContent: "center",
-    marginBottom: theme.spacing.xs,
-    width: 56,
+    width: 52,
+  },
+  text: {
+    flex: 1,
+    gap: 4,
+    paddingTop: 4,
   },
   title: {
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.headingBold,
-    fontSize: theme.type.body,
-    textAlign: "center",
+    fontSize: 18,
   },
   body: {
     color: theme.colors.textSecondary,
     fontFamily: theme.fonts.body,
-    fontSize: theme.type.caption,
-    lineHeight: 18,
-    textAlign: "center",
+    fontSize: 15,
+    lineHeight: 21,
   },
 });

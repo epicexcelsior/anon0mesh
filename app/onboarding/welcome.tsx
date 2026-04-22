@@ -98,19 +98,20 @@ export default function WelcomeScreen() {
           </Animated.Text>
         </View>
 
+        <View style={styles.spacerTop} />
+
         <View style={styles.features}>
           {FEATURES.map((f, index) => (
             <Animated.View
               key={f.iconName}
               entering={reveal(2 + index)}
-              style={styles.featureCell}
             >
               <FeatureHighlight {...f} />
             </Animated.View>
           ))}
         </View>
 
-        <View style={styles.spacer} />
+        <View style={styles.spacerBottom} />
 
         <View style={styles.actions}>
           <Animated.View entering={reveal(2 + FEATURES.length)} style={styles.ctaPrimary}>
@@ -180,16 +181,15 @@ const styles = StyleSheet.create({
     gap: theme.spacing.md,
   },
   features: {
-    flexDirection: "row",
-    gap: theme.spacing.sm,
-    paddingVertical: theme.spacing.md,
+    gap: theme.spacing.xl,
   },
-  featureCell: {
-    flex: 1,
-  },
-  spacer: {
+  spacerTop: {
     flexGrow: 1,
-    minHeight: theme.spacing.lg,
+    minHeight: theme.spacing.xl,
+  },
+  spacerBottom: {
+    flexGrow: 1,
+    minHeight: theme.spacing.xl,
   },
   headline: {
     color: theme.colors.textPrimary,
