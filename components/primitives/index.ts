@@ -19,6 +19,8 @@ export { AppTextInput } from "@/components/primitives/AppTextInput";
 export { SectionLabel } from "@/components/primitives/SectionLabel";
 export { SignalBars } from "@/components/primitives/SignalBars";
 export { Icon } from "@/components/primitives/Icon";
+export { TokenLogo } from "@/components/primitives/TokenLogo";
+export type { TokenSymbol } from "@/components/primitives/TokenLogo";
 export {
   AnimatedSection, SurfaceCard, SectionHeader, MetricPill, InfoRow,
   PrimaryActionButton, SecondaryActionButton, ListGroup, ListRow,
