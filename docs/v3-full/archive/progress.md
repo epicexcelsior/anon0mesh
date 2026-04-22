@@ -933,3 +933,44 @@ Phase 4 has started and the biggest wallet/onboarding truth gaps are now tighter
 ### Handoff
 
 Docs are now aligned with actual branch state: Phase 4 is in progress, not merely queued. Next session should continue the remaining runtime-truth seams instead of redoing wallet/history/onboarding truth work already landed in `d240fdb`.
+
+## 2026-04-21 — session 22 (frontend contract cleanup + truthful affordances)
+
+- **Model:** GPT-5.4
+- **Agent / human:** Codex
+- **Goal:** Audit the rebuilt recovery lane against the redesign contract, remove live-lane token drift, and close dead or misleading frontend affordances before the next runtime-truth pass.
+
+### Shipped
+
+- Standardized the live expo-router lane back onto one token grammar:
+  - extended `src/design-system/tokens/semantic.ts` with the missing surface/border/nav/on-accent semantics needed by the active rebuild
+  - replaced raw live-lane rgba/hex usage in `components/primitives/{Backdrop,BottomNav,DepthButton,Icon,NumericKeypad,Pill,SlideToConfirm}.tsx`
+  - replaced the remaining raw live-lane accent styling in `app/(tabs)/home.tsx`, `components/messages/MessageBubble.tsx`, `components/send/RecipientPeerCard.tsx`, and `app/onboarding/tech-drawer.tsx`
+- Closed dead or misleading frontend affordances:
+  - `app/onboarding/welcome.tsx` no longer has a dead `I have an identity` button; it now routes into Setup with explicit returning-identity intent
+  - `app/onboarding/setup.tsx` + `components/onboarding/WalletPathPicker.tsx` now frame that returning path truthfully, with safer mobile spacing and clearer wallet-lane labels
+  - `components/shared/ReceiveCard.tsx` now uses the native share sheet instead of a placeholder alert
+  - `app/settings/network.tsx` now exposes all four saved LXMF mode presets (BLE / TCP client / TCP server / Reticulum) instead of silently collapsing the contract to two choices
+  - `app/index.tsx` now uses the real app version in the footer instead of a stale hardcoded string
+- Cleared avoidable live-lane lint debt:
+  - `src/providers/AdapterProvider.tsx` no longer relies on `require()` lane switching
+  - `components/mesh/MeshStatusStrip.tsx` no longer carries the stale `any` eslint-disable
+- Re-verified baseline after the cleanup:
+  - `npm run lint` → 0 errors / 8 inherited warnings
+  - `npx tsc --noEmit` → same 5 inherited baseline errors (`components/screens/SolanaTransactionScreen.tsx`, `components/ui/Header.tsx`, `src/gossip/{GCSFilter,PacketIdUtil}.ts`, `src/solana/SolanaTransactionManager.ts`)
+
+### Deviations from decisions.md
+
+- None. This pass tightened implementation discipline and frontend truth without opening a second design lane or changing product direction.
+
+### Open issues
+
+- Messaging remains fixture-backed; thread delivery truth still needs the next Phase 4 pass.
+- Beacon staking, deeper relay metrics, and full stealth settlement remain staged/preview-only and still need explicit fencing wherever users can overread them.
+- Setup permission cards remain explanatory only; Bluetooth / notification prompts still happen contextually later.
+- MWA and local wallet history now use the centralized Solana seam, but the RPC target is still devnet; mainnet-beta flip remains a pre-launch task in `src/infrastructure/solana/SolanaAdapter.ts`.
+- Lint now sits at 8 inherited warnings, all outside the rebuilt recovery lane (`components/screens/*`, `src/networking/bluetooth/*`).
+
+### Handoff
+
+Frontend lane is materially cleaner now: one active token grammar, no dead Welcome CTA, no fake Receive share action, and the network settings surface matches the LXMF mode contract again. Next session should continue **Phase 4 backend truth pass** on messaging delivery truth, peer/beacon staged-runtime fencing, and the remaining MWA/transaction edge cases while preserving the improved lint baseline of **0 errors / 8 warnings**.

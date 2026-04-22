@@ -58,7 +58,7 @@ Current truth to preserve:
 - beacon staking is still placeholder
 
 Current baseline to preserve:
-- npm run lint => 0 errors / 11 inherited warnings
+- npm run lint => 0 errors / 8 inherited warnings
 - npx tsc --noEmit => 5 inherited baseline errors:
   - components/screens/SolanaTransactionScreen.tsx(151,22)
   - components/ui/Header.tsx(61,45)
@@ -132,7 +132,7 @@ grep -rnE '\b(Pending|Broadcasting|Confirmed|Incognito)\b' app/ components/ src/
 
 - [ ] `progress.md` updated with Shipped / Deviations / Open issues / Handoff
 - [ ] any changed behavior reflected in canonical docs
-- [ ] `npm run lint` still at 0 errors / 11 inherited warnings
+- [ ] `npm run lint` still at 0 errors / 8 inherited warnings
 - [ ] `npx tsc --noEmit` still only shows the 5 inherited baseline errors, or any change is documented
 - [ ] commits are small and scoped
 
