@@ -7,13 +7,15 @@ import React, { useEffect, useState } from "react";
 import { LayoutChangeEvent, StyleSheet, Text, View } from "react-native";
 import { Pressable } from "react-native-gesture-handler";
 import Animated, {
+  interpolate,
   useAnimatedStyle,
   useSharedValue,
+  withSpring,
   withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { appMotion } from "@/src/design-system/motion";
+import { appMotion, scaled } from "@/src/design-system/motion";
 import { appTheme as theme } from "@/src/design-system/theme";
 
 export type AppTab = "home" | "messages" | "settings";
@@ -44,10 +46,10 @@ export default function BottomNav({ active, onSelect }: BottomNavProps) {
 
   useEffect(() => {
     if (tabWidth > 0) {
-      indicatorX.value = withTiming(TAB_INDEX[active] * tabWidth, {
-        duration: appMotion.duration.standard,
-        easing: appMotion.easing.standard,
-      });
+      indicatorX.value = withSpring(
+        TAB_INDEX[active] * tabWidth,
+        appMotion.spring.direct,
+      );
     }
   }, [active, tabWidth, indicatorX]);
 
@@ -92,32 +94,72 @@ export default function BottomNav({ active, onSelect }: BottomNavProps) {
             {TABS.map(({ id, label, Icon }) => {
               const isActive = id === active;
               return (
-                <Pressable
+                <TabButton
                   key={id}
-                  accessibilityRole="tab"
-                  accessibilityState={{ selected: isActive }}
-                  onPress={() => {
-                    haptics.tap();
-                    sound.tabTap();
-                    onSelect?.(id);
-                  }}
-                  style={[styles.tab, isActive && styles.tabActive]}
-                >
-                  <Icon
-                    size={18}
-                    weight={isActive ? "fill" : "regular"}
-                    color={isActive ? theme.colors.cyan : theme.colors.textMuted}
-                  />
-                  <Text style={[styles.label, isActive && styles.labelActive]}>
-                    {label}
-                  </Text>
-                </Pressable>
+                  Icon={Icon}
+                  isActive={isActive}
+                  label={label}
+                  onPress={() => onSelect?.(id)}
+                />
               );
             })}
           </View>
         </LinearGradient>
       </View>
     </View>
+  );
+}
+
+interface TabButtonProps {
+  Icon: React.ComponentType<{ size?: number; weight?: "fill" | "regular"; color?: string }>;
+  isActive: boolean;
+  label: string;
+  onPress: () => void;
+}
+
+function TabButton({ Icon, isActive, label, onPress }: TabButtonProps) {
+  const pressed = useSharedValue(0);
+
+  const handlePressIn = () => {
+    haptics.tap();
+    sound.tabTap();
+    pressed.value = withTiming(1, {
+      duration: scaled(appMotion.duration.press),
+      easing: appMotion.easing.standard,
+    });
+  };
+
+  const handlePressOut = () => {
+    pressed.value = withSpring(0, appMotion.spring.pressRelease);
+  };
+
+  const shellStyle = useAnimatedStyle(() => ({
+    transform: [
+      { scale: interpolate(pressed.value, [0, 1], [1, 0.94]) },
+    ],
+  }));
+
+  return (
+    <Pressable
+      accessibilityRole="tab"
+      accessibilityState={{ selected: isActive }}
+      hitSlop={4}
+      onPress={onPress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      style={[styles.tab, isActive && styles.tabActive]}
+    >
+      <Animated.View style={[styles.tabInner, shellStyle]}>
+        <Icon
+          size={18}
+          weight={isActive ? "fill" : "regular"}
+          color={isActive ? theme.colors.cyan : theme.colors.textMuted}
+        />
+        <Text style={[styles.label, isActive && styles.labelActive]}>
+          {label}
+        </Text>
+      </Animated.View>
+    </Pressable>
   );
 }
 
@@ -172,6 +214,9 @@ const styles = StyleSheet.create({
   },
   tabRow: { flexDirection: "row" },
   tab: {
+    flex: 1,
+  },
+  tabInner: {
     alignItems: "center",
     borderRadius: theme.radius.lg,
     flex: 1,
