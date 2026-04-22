@@ -11,31 +11,31 @@ const SECTIONS: { icon: IconName; tone: string; title: string; body: string }[] 
     icon: "bluetooth",
     tone: "cyan",
     title: "BLE Mesh",
-    body: "Your phone discovers nearby peers directly over Bluetooth. No router, no server, no pairing.",
+    body: "Phones discover each other directly. No router. No pairing.",
   },
   {
     icon: "share-2",
     tone: "cyan",
     title: "Reticulum",
-    body: "A cryptographic routing layer that moves encrypted packets across weak and intermittent links.",
+    body: "Encrypted routing across weak or intermittent links.",
   },
   {
     icon: "send",
     tone: "cyan",
     title: "LXMF",
-    body: "Store-and-forward messaging built on Reticulum. Messages survive outages and settle when a path opens.",
+    body: "Store-and-forward messaging. Survives outages, settles later.",
   },
   {
-    icon: "stealth",
+    icon: "eye-off",
     tone: "purple",
     title: "Solana stealth",
-    body: "Transfers derive one-time addresses from recipient keys. The sender, receiver, and amount stay private.",
+    body: "One-time addresses per transfer. Sender, receiver, and amount stay private.",
   },
   {
-    icon: "lock-mesh",
+    icon: "shield",
     tone: "purple",
     title: "Arcium MPC",
-    body: "Multi-party computation backs the privacy layer — computations happen without any single party seeing the data.",
+    body: "Privacy computation where no single party sees the data.",
   },
 ];
 
