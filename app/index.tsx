@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Animated, { FadeIn, FadeInUp } from "react-native-reanimated";
 
 import { DepthButton } from "@/components/primitives";
 import { LandingCanvas } from "@/components/onboarding/LandingCanvas";
@@ -39,15 +40,21 @@ export default function LandingScreen() {
           ]}
         >
           <View style={styles.logoBlock}>
-            <Image
+            <Animated.Image
+              entering={FadeIn.duration(900)}
               source={require("@/assets/brand/anonmesh-logo.png")}
               style={styles.logo}
               resizeMode="contain"
             />
-            <Text style={styles.tagline}>Private by default.</Text>
+            <Animated.Text
+              entering={FadeIn.duration(700).delay(500)}
+              style={styles.tagline}
+            >
+              Private by default.
+            </Animated.Text>
           </View>
 
-          <View style={styles.ctaBlock}>
+          <Animated.View entering={FadeInUp.duration(600).delay(850)} style={styles.ctaBlock}>
             <DepthButton
               label="ENTER THE MESH"
               variant="primary"
@@ -66,7 +73,7 @@ export default function LandingScreen() {
             )}
 
             <Text style={styles.version}>v{version}</Text>
-          </View>
+          </Animated.View>
         </View>
       ) : null}
     </View>
