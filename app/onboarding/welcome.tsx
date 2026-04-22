@@ -100,7 +100,11 @@ export default function WelcomeScreen() {
 
         <View style={styles.features}>
           {FEATURES.map((f, index) => (
-            <Animated.View key={f.iconName} entering={reveal(2 + index)}>
+            <Animated.View
+              key={f.iconName}
+              entering={reveal(2 + index)}
+              style={styles.featureCell}
+            >
               <FeatureHighlight {...f} />
             </Animated.View>
           ))}
@@ -175,6 +179,14 @@ const styles = StyleSheet.create({
   heroBlock: {
     gap: theme.spacing.md,
   },
+  features: {
+    flexDirection: "row",
+    gap: theme.spacing.sm,
+    paddingVertical: theme.spacing.md,
+  },
+  featureCell: {
+    flex: 1,
+  },
   spacer: {
     flexGrow: 1,
     minHeight: theme.spacing.lg,
@@ -190,9 +202,6 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.body,
     fontSize: theme.type.bodyLg,
     lineHeight: 24,
-  },
-  features: {
-    gap: theme.spacing.md,
   },
   actions: {
     gap: theme.spacing.md,
