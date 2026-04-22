@@ -1,11 +1,11 @@
 import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { GlassSurface } from "@/components/primitives/GlassSurface";
 import { Icon } from "@/components/primitives/Icon";
 import { Pill } from "@/components/primitives/Pill";
+import { PressSurface } from "@/components/primitives/PressSurface";
 import type { WalletMode } from "@/src/domain/services/WalletService";
-import * as haptics from "@/src/design-system/haptics";
 import * as sound from "@/src/design-system/sound";
 import { appTheme as theme } from "@/src/design-system/theme";
 import type { ConnectionState } from "@/src/hooks/useMesh";
@@ -88,13 +88,12 @@ export function IdentityCard({
 
   function handlePress() {
     if (!onPress) return;
-    haptics.tap();
     sound.buttonTap();
     onPress();
   }
 
   return (
-    <Pressable onPress={handlePress} style={({ pressed }) => [pressed && onPress ? styles.pressed : null]}>
+    <PressSurface onPress={onPress ? handlePress : undefined} style={styles.wrapper} variant="card">
       <GlassSurface variant="strong" style={styles.card}>
         <View style={styles.traceRow}>
           <View style={styles.traceDot} />
@@ -137,19 +136,19 @@ export function IdentityCard({
           <Icon color={theme.colors.textMuted} name="arrow-up-right" size={16} />
         </View>
       </GlassSurface>
-    </Pressable>
+    </PressSurface>
   );
 }
 
 const styles = StyleSheet.create({
+  wrapper: {
+    borderRadius: theme.radius.xl,
+  },
   card: {
     borderRadius: theme.radius.xl,
     gap: theme.spacing.md,
     paddingHorizontal: theme.spacing.lg,
     paddingVertical: theme.spacing.lg,
-  },
-  pressed: {
-    opacity: 0.92,
   },
   traceRow: {
     alignItems: "center",

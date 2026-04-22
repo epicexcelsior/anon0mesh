@@ -1,11 +1,12 @@
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity } from "react-native";
+import { StyleSheet, Text } from "react-native";
 import { useRouter } from "expo-router";
 
 import { GlassSurface } from "@/components/primitives/GlassSurface";
 import { SignalBars } from "@/components/primitives/SignalBars";
 import { Pill } from "@/components/primitives/Pill";
 import type { PillTone } from "@/components/primitives/Pill";
+import { PressSurface } from "@/components/primitives/PressSurface";
 import { useMesh } from "@/src/hooks/useMesh";
 import type { ConnectionState } from "@/src/hooks/useMesh";
 import { appTheme as theme } from "@/src/design-system/theme";
@@ -59,12 +60,11 @@ export function MeshStatusStrip() {
   const pillLabel = bleError ? "BLE Error" : connectionState;
 
   return (
-    <TouchableOpacity
+    <PressSurface
       accessibilityLabel={bleError ? "BLE error, 0 nodes" : `${nodeCount} ${nodeCount === 1 ? "node" : "nodes"}, ${connectionState}`}
-      accessibilityRole="button"
-      activeOpacity={0.75}
       onPress={() => router.push("/peers" as Parameters<typeof router.push>[0])}
       style={styles.touchable}
+      variant="strip"
     >
       <GlassSurface variant="soft" style={styles.strip}>
         <SignalBars
@@ -77,7 +77,7 @@ export function MeshStatusStrip() {
         </Text>
         <Pill label={pillLabel} tone={tone} style={styles.pill} />
       </GlassSurface>
-    </TouchableOpacity>
+    </PressSurface>
   );
 }
 

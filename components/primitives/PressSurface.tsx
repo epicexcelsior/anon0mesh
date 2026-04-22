@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleProp, StyleSheet, View, ViewStyle } from "react-native";
+import { StyleProp, StyleSheet, ViewStyle } from "react-native";
 import { Pressable } from "react-native-gesture-handler";
 import Animated, {
   interpolate,
@@ -82,6 +82,11 @@ export function PressSurface({
     opacity: pressed.value,
   }));
 
+  // Inherit caller's borderRadius so the wash clips to the same shape.
+  const flatStyle = StyleSheet.flatten(style) as ViewStyle | undefined;
+  const outerRadius =
+    (flatStyle?.borderRadius as number | undefined) ?? theme.radius.lg;
+
   return (
     <Pressable
       accessibilityLabel={accessibilityLabel}
@@ -94,11 +99,17 @@ export function PressSurface({
       onPressOut={handlePressOut}
       style={style}
     >
-      <Animated.View style={[styles.shell, shellStyle]}>
+      <Animated.View
+        style={[styles.shell, { borderRadius: outerRadius }, shellStyle]}
+      >
         {children}
         <Animated.View
           pointerEvents="none"
-          style={[styles.wash, { backgroundColor: washColor }, washStyle]}
+          style={[
+            styles.wash,
+            { backgroundColor: washColor, borderRadius: outerRadius },
+            washStyle,
+          ]}
         />
       </Animated.View>
     </Pressable>
@@ -109,7 +120,6 @@ const styles = StyleSheet.create({
   shell: {
     position: "relative",
     overflow: "hidden",
-    borderRadius: theme.radius.lg,
   },
   wash: {
     ...StyleSheet.absoluteFillObject,

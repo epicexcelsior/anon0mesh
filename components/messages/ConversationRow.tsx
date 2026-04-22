@@ -1,8 +1,9 @@
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { Icon } from "@/components/primitives/Icon";
 import { Pill } from "@/components/primitives/Pill";
+import { PressSurface } from "@/components/primitives/PressSurface";
 import { SignalBars } from "@/components/primitives/SignalBars";
 import { appTheme as theme } from "@/src/design-system/theme";
 import type { Peer } from "@/src/domain/entities/Peer";
@@ -80,13 +81,13 @@ export function ConversationRow({
   const status = statusLabel(thread);
 
   return (
-    <TouchableOpacity
+    <PressSurface
       accessibilityLabel={`Open conversation with ${displayName}`}
-      accessibilityRole="button"
-      activeOpacity={0.82}
       onPress={onPress}
       style={styles.row}
+      variant="row"
     >
+      <View style={styles.inner}>
       <View style={styles.avatar}>
         <Icon
           color={peer?.isTrusted ? theme.colors.green : theme.colors.cyan}
@@ -135,17 +136,20 @@ export function ConversationRow({
           )}
         </View>
       </View>
-    </TouchableOpacity>
+      </View>
+    </PressSurface>
   );
 }
 
 const styles = StyleSheet.create({
   row: {
-    alignItems: "center",
     backgroundColor: theme.colors.surfaceContainerLowest,
     borderColor: theme.colors.line,
     borderRadius: theme.radius.lg,
     borderWidth: 1,
+  },
+  inner: {
+    alignItems: "center",
     flexDirection: "row",
     gap: theme.spacing.md,
     minHeight: 84,

@@ -1,8 +1,9 @@
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { Icon } from "@/components/primitives/Icon";
 import { Pill } from "@/components/primitives/Pill";
+import { PressSurface } from "@/components/primitives/PressSurface";
 import { SignalBars } from "@/components/primitives/SignalBars";
 import { appTheme as theme } from "@/src/design-system/theme";
 import type { Peer } from "@/src/domain/entities/Peer";
@@ -32,46 +33,49 @@ interface MessagePeerRowProps {
 
 export function MessagePeerRow({ onPress, peer }: MessagePeerRowProps) {
   return (
-    <TouchableOpacity
+    <PressSurface
       accessibilityLabel={`Start conversation with ${peer.alias}`}
-      accessibilityRole="button"
-      activeOpacity={0.82}
       onPress={onPress}
       style={styles.row}
+      variant="row"
     >
-      <View style={styles.identityBlock}>
-        <View style={styles.avatar}>
-          <Icon color={theme.colors.cyan} name="user" size={16} />
-        </View>
-
-        <View style={styles.copy}>
-          <View style={styles.titleRow}>
-            <Text numberOfLines={1} style={styles.alias}>
-              {peer.alias}
-            </Text>
-            {peer.isTrusted ? <Pill label="Trusted" tone="green" /> : null}
+      <View style={styles.inner}>
+        <View style={styles.identityBlock}>
+          <View style={styles.avatar}>
+            <Icon color={theme.colors.cyan} name="user" size={16} />
           </View>
-          <Text numberOfLines={1} style={styles.address}>
-            {shortAddress(peer.publicKey)}
-          </Text>
+
+          <View style={styles.copy}>
+            <View style={styles.titleRow}>
+              <Text numberOfLines={1} style={styles.alias}>
+                {peer.alias}
+              </Text>
+              {peer.isTrusted ? <Pill label="Trusted" tone="green" /> : null}
+            </View>
+            <Text numberOfLines={1} style={styles.address}>
+              {shortAddress(peer.publicKey)}
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.meta}>
+          <SignalBars strength={peer.signalStrength} />
+          <Text style={styles.transport}>{transportLabel(peer.transport)}</Text>
         </View>
       </View>
-
-      <View style={styles.meta}>
-        <SignalBars strength={peer.signalStrength} />
-        <Text style={styles.transport}>{transportLabel(peer.transport)}</Text>
-      </View>
-    </TouchableOpacity>
+    </PressSurface>
   );
 }
 
 const styles = StyleSheet.create({
   row: {
-    alignItems: "center",
     backgroundColor: theme.colors.surfaceContainerLowest,
     borderColor: theme.colors.line,
     borderRadius: theme.radius.lg,
     borderWidth: 1,
+  },
+  inner: {
+    alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between",
     minHeight: 76,

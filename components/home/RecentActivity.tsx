@@ -1,10 +1,11 @@
 import { useRouter } from "expo-router";
 import React from "react";
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { Icon } from "@/components/primitives/Icon";
 import { Pill } from "@/components/primitives/Pill";
 import type { PillTone } from "@/components/primitives/Pill";
+import { PressSurface } from "@/components/primitives/PressSurface";
 import type { Transaction } from "@/src/domain/entities/Transaction";
 import { appTheme as theme } from "@/src/design-system/theme";
 import { useTransaction } from "@/src/hooks/useTransaction";
@@ -42,33 +43,40 @@ function ActivityRow({ onPress, tx }: { onPress: () => void; tx: Transaction }) 
       : counterparty;
 
   return (
-    <TouchableOpacity activeOpacity={0.8} onPress={onPress} style={styles.row}>
-      <View style={[styles.directionBadge, isSend ? styles.sendBadge : styles.receiveBadge]}>
-        <Icon
-          name={isSend ? "arrow-up-right" : "arrow-down-left"}
-          size={14}
-          color={isSend ? theme.colors.cyan : theme.colors.green}
-        />
-      </View>
+    <PressSurface
+      accessibilityLabel={`Open ${isSend ? "sent" : "received"} transaction detail`}
+      onPress={onPress}
+      style={styles.row}
+      variant="row"
+    >
+      <View style={styles.inner}>
+        <View style={[styles.directionBadge, isSend ? styles.sendBadge : styles.receiveBadge]}>
+          <Icon
+            name={isSend ? "arrow-up-right" : "arrow-down-left"}
+            size={14}
+            color={isSend ? theme.colors.cyan : theme.colors.green}
+          />
+        </View>
 
-      <View style={styles.rowMeta}>
-        <Text style={styles.counterparty} numberOfLines={1}>
-          {shortCounterparty}
-        </Text>
-        <Text style={styles.timestamp}>{relativeTime(tx.createdAt)}</Text>
-      </View>
+        <View style={styles.rowMeta}>
+          <Text style={styles.counterparty} numberOfLines={1}>
+            {shortCounterparty}
+          </Text>
+          <Text style={styles.timestamp}>{relativeTime(tx.createdAt)}</Text>
+        </View>
 
-      <View style={styles.amountBlock}>
-        <Text style={[styles.amount, isSend ? styles.amountSend : styles.amountReceive]}>
-          {isSend ? "-" : "+"}
-          {tx.amount}
-        </Text>
-        <View style={styles.statusRow}>
-          <Text style={styles.symbol}>{tx.symbol}</Text>
-          <Pill label={tx.status} tone={statusTone(tx.status)} />
+        <View style={styles.amountBlock}>
+          <Text style={[styles.amount, isSend ? styles.amountSend : styles.amountReceive]}>
+            {isSend ? "-" : "+"}
+            {tx.amount}
+          </Text>
+          <View style={styles.statusRow}>
+            <Text style={styles.symbol}>{tx.symbol}</Text>
+            <Pill label={tx.status} tone={statusTone(tx.status)} />
+          </View>
         </View>
       </View>
-    </TouchableOpacity>
+    </PressSurface>
   );
 }
 
@@ -122,11 +130,13 @@ const styles = StyleSheet.create({
     paddingBottom: LIST_BOTTOM_PADDING,
   },
   row: {
-    alignItems: "center",
     backgroundColor: theme.colors.surfaceContainerLowest,
     borderColor: theme.colors.line,
     borderRadius: theme.radius.lg,
     borderWidth: 1,
+  },
+  inner: {
+    alignItems: "center",
     flexDirection: "row",
     gap: theme.spacing.md,
     paddingHorizontal: theme.spacing.md,

@@ -5,6 +5,7 @@ import { useRouter } from "expo-router";
 import { GlassSurface } from "@/components/primitives/GlassSurface";
 import { Icon } from "@/components/primitives/Icon";
 import { Pill } from "@/components/primitives/Pill";
+import { PressSurface } from "@/components/primitives/PressSurface";
 import { SignalBars } from "@/components/primitives/SignalBars";
 import { appTheme as theme } from "@/src/design-system/theme";
 import type { Peer } from "@/src/domain/entities/Peer";
@@ -62,12 +63,11 @@ export function PeerCard({ peer, onPress }: PeerCardProps) {
   const router = useRouter();
 
   return (
-    <TouchableOpacity
+    <PressSurface
       accessibilityLabel={`View ${peer.alias} peer details`}
-      accessibilityRole="button"
-      activeOpacity={0.78}
       onPress={onPress}
       style={styles.touchable}
+      variant="card"
     >
       <GlassSurface style={styles.card} variant="strong">
         <View style={styles.topRow}>
@@ -142,13 +142,14 @@ export function PeerCard({ peer, onPress }: PeerCardProps) {
           </View>
         </View>
       </GlassSurface>
-    </TouchableOpacity>
+    </PressSurface>
   );
 }
 
 const styles = StyleSheet.create({
   touchable: {
     width: "100%",
+    borderRadius: theme.radius.xl,
   },
   card: {
     borderRadius: theme.radius.xl,
