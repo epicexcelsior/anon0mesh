@@ -48,7 +48,20 @@ export default function SetupScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [permissionStatus, setPermissionStatus] = useState<BLEPermissionStatus | "pending" | "unknown">("unknown");
 
+  const mode = adapters.wallet.getMode();
   const canCreate = adapters.wallet.canCreateLocalWallet();
+  const canConnect = adapters.wallet.canConnectExternalWallet();
+  const canSetup = canCreate || canConnect;
+
+  const buttonLabel = submitting
+    ? (canCreate ? "Creating wallet…" : "Opening Seed Vault…")
+    : (canCreate ? "Create my wallet" : "Connect with Seed Vault");
+  const statusLabel = canCreate
+    ? "Generating keys on this device…"
+    : "Handing off to Seed Vault…";
+  const subheadCopy = canCreate
+    ? "Your keys stay on this device. One tap to generate a fresh wallet."
+    : "Your Seeker's Seed Vault holds your keys. Tap to create or connect an existing wallet.";
 
   useEffect(() => {
     let active = true;
@@ -72,13 +85,15 @@ export default function SetupScreen() {
   }
 
   async function handleCreate() {
-    if (!canCreate || submitting) return;
+    if (!canSetup || submitting) return;
 
     setError(null);
     setSubmitting(true);
 
     try {
-      const wallet = await adapters.wallet.createLocalWallet();
+      const wallet = canCreate
+        ? await adapters.wallet.createLocalWallet()
+        : await adapters.wallet.connectExternalWallet();
       await finalizeSetup(wallet.address);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Wallet setup failed");
@@ -114,9 +129,7 @@ export default function SetupScreen() {
         showsVerticalScrollIndicator={false}
       >
         <Text style={styles.headline}>Set up your identity</Text>
-        <Text style={styles.subheadline}>
-          Your keys stay on this device. One tap to generate a fresh wallet.
-        </Text>
+        <Text style={styles.subheadline}>{subheadCopy}</Text>
 
         <View style={styles.section}>
           <AppTextInput
@@ -161,24 +174,24 @@ export default function SetupScreen() {
         </View>
 
         <DepthButton
-          label={submitting ? "Creating wallet…" : "Create my wallet"}
+          label={buttonLabel}
           variant="primary"
           tone="cyan"
           size="lg"
-          disabled={!canCreate || submitting}
+          disabled={!canSetup || submitting}
           onPress={handleCreate}
         />
 
         {submitting ? (
           <View style={styles.statusRow}>
             <ActivityIndicator color={theme.colors.cyan} size="small" />
-            <Text style={styles.statusText}>Generating keys on this device…</Text>
+            <Text style={styles.statusText}>{statusLabel}</Text>
           </View>
         ) : null}
 
-        {!canCreate ? (
+        {!canSetup ? (
           <Text style={styles.statusText}>
-            Local wallet creation is unavailable in the current wallet lane.
+            No wallet path is available on this device yet.
           </Text>
         ) : null}
 
