@@ -221,14 +221,15 @@ const styles = StyleSheet.create({
   headline: {
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.headingBold,
-    fontSize: theme.type.display,
-    lineHeight: theme.type.display + theme.spacing.sm,
+    fontSize: 32,
+    letterSpacing: -0.5,
+    lineHeight: 38,
   },
   subheadline: {
     color: theme.colors.textSecondary,
     fontFamily: theme.fonts.body,
-    fontSize: theme.type.bodyLg,
-    lineHeight: 24,
+    fontSize: 17,
+    lineHeight: 25,
   },
   section: {
     gap: theme.spacing.md,

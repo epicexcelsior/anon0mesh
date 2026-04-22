@@ -127,7 +127,7 @@ export default function WelcomeScreen() {
               label={connecting ? "Connecting…" : "I have a wallet"}
               variant="secondary"
               tone="cyan"
-              size="md"
+              size="lg"
               disabled={connecting}
               onPress={handleConnectExisting}
             />
@@ -194,14 +194,15 @@ const styles = StyleSheet.create({
   headline: {
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.headingBold,
-    fontSize: theme.type.display,
-    lineHeight: theme.type.display + theme.spacing.sm,
+    fontSize: 36,
+    letterSpacing: -0.5,
+    lineHeight: 42,
   },
   subheadline: {
     color: theme.colors.textSecondary,
     fontFamily: theme.fonts.body,
-    fontSize: theme.type.bodyLg,
-    lineHeight: 24,
+    fontSize: 17,
+    lineHeight: 25,
   },
   actions: {
     gap: theme.spacing.md,

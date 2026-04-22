@@ -64,15 +64,19 @@ export default function LandingScreen() {
             />
 
             {__DEV__ && process.env.EXPO_PUBLIC_ADAPTERS === "fixtures" && (
-              <Text
-                style={styles.devSkip}
-                onPress={() => router.replace("/(tabs)/home" as Parameters<typeof router.replace>[0])}
-              >
-                dev: skip to app →
-              </Text>
+              <View style={styles.devSkipBlock}>
+                <Text
+                  style={styles.devSkip}
+                  onPress={() => router.replace("/(tabs)/home" as Parameters<typeof router.replace>[0])}
+                >
+                  dev: skip to app →
+                </Text>
+              </View>
             )}
 
-            <Text style={styles.version}>v{version}</Text>
+            <View style={styles.versionBlock}>
+              <Text style={styles.version}>v{version}</Text>
+            </View>
           </Animated.View>
         </View>
       ) : null}
@@ -104,11 +108,17 @@ const styles = StyleSheet.create({
   tagline: {
     color: theme.colors.textSecondary,
     fontFamily: theme.fonts.body,
-    fontSize: theme.type.bodyLg,
+    fontSize: 17,
     letterSpacing: 0.3,
   },
-  ctaBlock: {
+  devSkipBlock: {
     alignItems: "center",
+  },
+  versionBlock: {
+    alignItems: "center",
+  },
+  ctaBlock: {
+    alignItems: "stretch",
     gap: theme.spacing.sm,
   },
   version: {
